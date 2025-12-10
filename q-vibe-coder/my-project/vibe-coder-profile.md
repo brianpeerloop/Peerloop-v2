@@ -16,7 +16,7 @@ Options (delete all but one):
 - Technical background - Have programming experience, just prefer vibe coding
 -->
 
-**Level:**
+**Level:** Some coding - Has built projects before, comfortable with AI coding tools
 
 ---
 
@@ -24,14 +24,14 @@ Options (delete all but one):
 
 *What do you already use? Check all that apply.*
 
-- [ ] Command line / terminal
-- [ ] Git / GitHub
-- [ ] VS Code or other code editor
-- [ ] Claude Code
-- [ ] Other AI coding tools (Cursor, Copilot, etc.)
+- [x] Command line / terminal
+- [x] Git / GitHub
+- [x] VS Code or other code editor
+- [x] Claude Code
+- [x] Other AI coding tools (Cursor, Copilot, etc.)
 - [ ] No-code tools (Webflow, Bubble, etc.)
 
-**Other tools:**
+**Other tools:** Cursor (primary), Gemini, Grok
 
 ---
 
@@ -46,7 +46,7 @@ Options (delete all but one):
 - "A few apps with Cursor, but they got messy"
 -->
 
-**Previous projects:**
+**Previous projects:** Built a React app/site (to be imported into this project)
 
 ---
 
@@ -143,3 +143,4 @@ Options (delete all but one):
 | Preference | Example |
 |------------|---------|
 | | |
+

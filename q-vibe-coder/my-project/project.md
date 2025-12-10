@@ -10,25 +10,25 @@
 
 *Describe it in plain language. What does it do?*
 
-**Description:**
+**Description:** Peer Loop - an online education marketplace interface. A React-based learning platform with course browsing, instructor profiles, community features, user dashboards, and a powerful drag-and-drop course builder.
 
 ### What Problem Does It Solve?
 
 *Why does this need to exist?*
 
-**Problem:**
+**Problem:** Enabling peer-to-peer learning and course creation in an accessible, modern interface.
 
 ### Who Is It For?
 
 *Just you? Friends? The public? A specific audience?*
 
-**Audience:**
+**Audience:** Course creators, instructors, students, and teachers who want to create, share, and consume educational content.
 
 ### What Does Success Look Like?
 
 *How will you know when it's done?*
 
-**Success criteria:**
+**Success criteria:** A polished, functional education marketplace where users can create courses (drag-and-drop), browse content, manage profiles, and engage with the community.
 
 ---
 
@@ -38,7 +38,9 @@
 
 | Reference | What You Like About It |
 |-----------|----------------------|
-| | |
+| X.com (Twitter) | Interface patterns, sidebar navigation |
+| Notion | Clean course builder UX, drag-and-drop |
+| WordPress Gutenberg | Block-based content editing |
 
 ---
 
@@ -56,7 +58,7 @@
 - Claude skill (lives in Claude Code)
 -->
 
-**Platform:**
+**Platform:** Web app (React, accessible via browser)
 
 ### Complexity
 
@@ -68,7 +70,7 @@
 - Complex (many sessions, real users)
 -->
 
-**Complexity:**
+**Complexity:** Medium-Complex (multiple features, ongoing development)
 
 ### Integrations
 
@@ -120,11 +122,11 @@
 
 | Layer | Choice | Why |
 |-------|--------|-----|
-| Framework | | |
-| Database | | |
-| Auth | | |
-| Hosting | | |
-| Other | | |
+| Framework | React 18.2.0 | Modern, component-based, great ecosystem |
+| Drag & Drop | react-dnd | Smooth course builder experience |
+| Icons | react-icons | FontAwesome icons, easy to use |
+| Styling | CSS | Custom styling, no framework lock-in |
+| Hosting | TBD | To be determined |
 
 ### Build Sequence
 
@@ -148,8 +150,9 @@
 
 ## Current Phase
 
-**Phase:** <!-- Vision / Constraints / Architecture / Building / Testing / Deployment -->
+**Phase:** Building
 
-**Status:**
+**Status:** App imported, setting up workspace, preparing for feature expansion and cleanup
 
-**Blockers:**
+**Blockers:** None currently - awaiting business model documents for context
+
