@@ -716,6 +716,17 @@ body.dark-mode .creator-badge {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Browse page - center sidebar and content together */
+.app.browse-centered {
+  max-width: 890px; /* 240px sidebar + 650px content */
+  margin: 0 auto;
+}
+
+.app.browse-centered .main-content {
+  width: 650px;
+  margin-left: 240px;
+}
+
 /* Responsive design - sidebar shrinks at 1400px */
 @media (max-width: 1400px) {
   .app {
