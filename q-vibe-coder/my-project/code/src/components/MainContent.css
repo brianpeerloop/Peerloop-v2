@@ -32,12 +32,14 @@
   overflow-y: auto;
   height: 100vh;
 }
-/* Browse layout - no right pane, full width center column */
+/* Browse layout - no right pane, centered content column */
 
 .browse-layout .center-column {
-  flex: 1;
-  max-width: 100%;
-  border-right: none;
+  flex: 0 1 650px;
+  max-width: 650px;
+  margin: 0 auto;
+  border-right: 1px solid var(--border-color, #e2e8f0);
+  border-left: 1px solid var(--border-color, #e2e8f0);
 }
 
 .right-pane {
