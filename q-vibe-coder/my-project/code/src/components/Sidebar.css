@@ -218,18 +218,14 @@
   margin-left: 8px;
 }
 
-@media (max-width: 1400px) {
+/* Collapse sidebar to icons only when viewport is too narrow for centered layout */
+@media (max-width: 950px) {
   .sidebar {
     width: 88px !important;
     align-items: center;
-    flex-shrink: 0; /* Prevent shrinking */
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 1001;
+    flex-shrink: 0;
     min-width: 88px;
     max-width: 88px;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
   }
   
   .nav-label,
@@ -281,16 +277,11 @@
     width: 88px !important;
     align-items: center;
     flex-shrink: 0;
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 1001;
     min-width: 88px;
     max-width: 88px;
     height: 100vh;
     border-right: 1px solid #e1e8ed;
     padding: 0 10px;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
   }
   
   .nav-label,

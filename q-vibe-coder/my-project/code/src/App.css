@@ -729,6 +729,13 @@ body.dark-mode .creator-badge {
   margin-left: 0;
 }
 
+/* Adjust layout when sidebar collapses to icons */
+@media (max-width: 950px) {
+  .app {
+    max-width: 738px; /* 88px collapsed sidebar + 650px content */
+  }
+}
+
 /* Responsive design - sidebar shrinks at 1400px */
 @media (max-width: 1400px) {
   .app {
