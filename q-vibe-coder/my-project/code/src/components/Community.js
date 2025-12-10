@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import './Community.css';
 import { FaUsers, FaStar, FaClock, FaPlay, FaBook, FaGraduationCap, FaHome, FaChevronLeft, FaChevronRight, FaHeart, FaComment, FaRetweet, FaBookmark, FaShare, FaChevronDown, FaInfoCircle } from 'react-icons/fa';
 import { getAllCourses, getInstructorById, getCourseById } from '../data/database';
@@ -13,7 +14,8 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
   const [openCreatorDropdown, setOpenCreatorDropdown] = useState(null); // Track which creator dropdown is open
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, useRight: false }); // Track dropdown position
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 }); // Track dropdown position
+  const buttonRefs = useRef({}); // Track button refs for dropdown positioning
   const [selectedCourseFilters, setSelectedCourseFilters] = useState([]); // Filter to specific courses within creator (multi-select)
   const [newPostText, setNewPostText] = useState(''); // Text for new post
   const [isComposerFocused, setIsComposerFocused] = useState(false); // Track if composer is focused
@@ -96,9 +98,6 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
   // This ensures consistency between Browse follows and Community display
   const actualFollowedCommunities = followedCommunities;
   const actualSetFollowedCommunities = setFollowedCommunities || (() => {});
-  
-  // Debug: log if setFollowedCommunities is available
-  console.log('Community: setFollowedCommunities is:', typeof setFollowedCommunities);
 
   // Group followed communities by creator - always show creator tabs, not individual courses
   const groupedByCreator = React.useMemo(() => {
@@ -956,6 +955,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                 {groupedByCreator.map(creator => (
                   <div key={creator.id} className="community-tab-wrapper">
                     <button
+                      ref={el => buttonRefs.current[creator.id] = el}
                       className={`community-tab-btn ${activeTab === creator.id ? 'active' : ''}`}
                       onClick={() => {
                         // Just select the tab, don't open dropdown
@@ -976,26 +976,13 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                           if (openCreatorDropdown === creator.id) {
                             setOpenCreatorDropdown(null);
                           } else {
-                            // Get button position for dropdown placement
-                            const btn = e.target.closest('.community-tab-btn');
+                            // Calculate position from button
+                            const btn = buttonRefs.current[creator.id];
                             if (btn) {
                               const rect = btn.getBoundingClientRect();
-                              const dropdownWidth = 280;
-                              const viewportWidth = window.innerWidth;
-                              
-                              // Calculate left position, ensuring dropdown doesn't go off right edge
-                              let leftPos = rect.left;
-                              if (rect.left + dropdownWidth > viewportWidth - 10) {
-                                // Align to right edge of button instead
-                                leftPos = rect.right - dropdownWidth;
-                              }
-                              // Ensure it doesn't go off left edge either
-                              leftPos = Math.max(10, leftPos);
-                              
-                              console.log('Button rect:', rect, 'Dropdown at:', { top: rect.bottom + 4, left: leftPos });
                               setDropdownPosition({
                                 top: rect.bottom + 4,
-                                left: leftPos
+                                left: rect.left
                               });
                             }
                             setOpenCreatorDropdown(creator.id);
@@ -1004,19 +991,19 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                       >▼</span>
                     </button>
                     
-                    {/* Minimalist dropdown - fixed position to escape overflow containers */}
-                    {openCreatorDropdown === creator.id && (
+                    {/* Dropdown - rendered via portal to escape overflow:hidden containers */}
+                    {openCreatorDropdown === creator.id && ReactDOM.createPortal(
                       <div 
                         className="community-tab-dropdown"
+                        onClick={(e) => e.stopPropagation()}
                         style={{
                           position: 'fixed',
                           top: dropdownPosition.top,
-                          left: Math.min(dropdownPosition.left, window.innerWidth - 290),
-                          right: 'auto',
+                          left: Math.min(dropdownPosition.left, window.innerWidth - 260),
                           background: isDarkMode ? '#16181c' : '#fff',
                           border: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0',
                           borderRadius: 8,
-                          boxShadow: isDarkMode ? '0 2px 12px rgba(0,0,0,0.4)' : '0 2px 12px rgba(0,0,0,0.1)',
+                          boxShadow: isDarkMode ? '0 4px 20px rgba(0,0,0,0.5)' : '0 4px 20px rgba(0,0,0,0.15)',
                           zIndex: 99999,
                           width: 250,
                           padding: '4px 0'
@@ -1118,16 +1105,11 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                                 e.preventDefault();
                                 // Toggle follow/unfollow for this course
                                 const courseCommunityId = `course-${course.id}`;
-                                console.log('Dropdown click:', { courseId: course.id, courseCommunityId, isFollowed });
                                 if (isFollowed) {
                                   // Unfollow this course
-                                  console.log('Unfollowing:', courseCommunityId);
-                                  actualSetFollowedCommunities(prev => {
-                                    console.log('Previous communities:', prev);
-                                    const filtered = prev.filter(c => c.id !== courseCommunityId);
-                                    console.log('Filtered communities:', filtered);
-                                    return filtered;
-                                  });
+                                  actualSetFollowedCommunities(prev => 
+                                    prev.filter(c => c.id !== courseCommunityId)
+                                  );
                                 } else {
                                   // Follow this course
                                   const courseCommunity = {
@@ -1159,7 +1141,8 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                             </div>
                           );
                         })}
-                      </div>
+                      </div>,
+                      document.body
                     )}
                   </div>
                 ))}
