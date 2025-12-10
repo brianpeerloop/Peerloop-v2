@@ -1579,7 +1579,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
   if (activeMenu === 'Browse' || activeMenu === 'Browse_Reset') {
     return (
       <div className="main-content">
-        <div className="three-column-layout">
+        <div className="three-column-layout browse-layout">
           <div className="center-column">
             <div className="top-menu-section">
               <div className="tabs-section">
@@ -1763,46 +1763,6 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                   )}
                 </div>
               )}
-            </div>
-          </div>
-          {/* Right Pane */}
-          <div className="right-pane">
-            <div className="right-pane-section">
-              <h3>Trending Topics</h3>
-              <div className="trending-item">
-                <span className="trending-category">AI & Machine Learning</span>
-                <span className="trending-title">#DeepLearning</span>
-                <span className="trending-posts">2.4K posts</span>
-              </div>
-              <div className="trending-item">
-                <span className="trending-category">Web Development</span>
-                <span className="trending-title">#ReactJS</span>
-                <span className="trending-posts">1.8K posts</span>
-              </div>
-              <div className="trending-item">
-                <span className="trending-category">Cloud Computing</span>
-                <span className="trending-title">#AWS</span>
-                <span className="trending-posts">1.2K posts</span>
-              </div>
-            </div>
-            <div className="right-pane-section">
-              <h3>Who to Follow</h3>
-              <div className="follow-suggestion">
-                <img src="https://via.placeholder.com/40x40/4ECDC4/ffffff?text=JD" alt="Jane Doe" />
-                <div className="follow-info">
-                  <span className="follow-name">Jane Doe</span>
-                  <span className="follow-title">AI Strategist</span>
-                </div>
-                <button className="follow-btn-small">Follow</button>
-              </div>
-              <div className="follow-suggestion">
-                <img src="https://via.placeholder.com/40x40/FF6B6B/ffffff?text=JW" alt="James Wilson" />
-                <div className="follow-info">
-                  <span className="follow-name">James Wilson</span>
-                  <span className="follow-title">Full-Stack Dev</span>
-                </div>
-                <button className="follow-btn-small">Follow</button>
-              </div>
             </div>
           </div>
         </div>

@@ -32,11 +32,11 @@
   overflow-y: auto;
   height: 100vh;
 }
-/* Browse layout - no right pane, wider center column */
+/* Browse layout - no right pane, full width center column */
 
 .browse-layout .center-column {
-  flex: 0 1 885px;
-  max-width: 885px;
+  flex: 1;
+  max-width: 100%;
   border-right: none;
 }
 
