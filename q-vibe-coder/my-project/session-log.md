@@ -110,6 +110,42 @@
 
 ---
 
+### Session 4
+**Date:** December 10, 2025
+**Duration:** ~1.5 hours
+**Phase:** Building & Layout Overhaul
+
+**What we did:**
+- **Fresh GitHub Start:** Cleaned Peerloop-v2 repo, imported project from C:\Alpha\q-vibe-coder with no git history
+- **Layout Overhaul - Centered 2-Column Design:**
+  - Removed all right panes (Browse, Community, Teaching)
+  - Centered entire app (sidebar + content) as a unit
+  - Sidebar: 240px with labels, Content: 650px
+  - Total centered width: 890px
+- **Responsive Sidebar:**
+  - Shows text labels on wide screens (> 950px)
+  - Collapses to icon-only (88px) on narrow screens
+- **Connected Enroll Button to Calendar Flow:**
+  - Found existing EnrollmentFlow.js component (was disconnected)
+  - Connected "Enroll Now" button to open calendar modal
+  - Modal shows student-teacher availability and time slots
+- Updated .gitignore to only exclude .env and node_modules
+
+**Decisions made:**
+- 650px content width (Twitter-like readable width)
+- Centered layout for focused UI
+- 950px breakpoint for sidebar collapse
+- All pages use same consistent width
+
+**Technical notes:**
+- Dev server: http://localhost:3001/Peerloopapp
+- GitHub: https://github.com/brianpeerloop/Peerloop-v2
+- EnrollmentFlow has 4 mock student-teachers with availability data
+
+**Next session:** Test enrollment flow, verify responsive behavior, continue feature development
+
+---
+
 <!-- Add more sessions as needed -->
 
 ---
