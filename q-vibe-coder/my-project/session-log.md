@@ -148,49 +148,55 @@
 
 ### Session 5
 **Date:** December 11, 2025
-**Duration:** ~2 hours (ongoing)
-**Phase:** Building & Community Features
+**Duration:** ~3 hours
+**Phase:** Building & Creator Profile Redesign
 
 **What we did:**
 - **Fixed Dropdown Positioning:**
-  - Community creator dropdowns were appearing off-screen to the right
+  - Community creator dropdowns were appearing off-screen
   - Implemented React Portal to render dropdown at document.body level
-  - This escapes overflow:hidden containers that were clipping the dropdown
-  
+
 - **Fixed Unfollow Functionality:**
   - Individual course unfollow wasn't working for creator-based follows
-  - Issue: Default follows are stored as `creator-X` with `courseIds` array, not individual `course-X` entries
-  - Fix: Unfollow now handles both direct course follows AND updates creator follow entries
-  - When unfollowing a course from a creator, it modifies the creator's `courseIds` array
+  - Fix: Unfollow now handles both direct course follows AND creator follow entries
 
 - **Posts Now Filter by Audience:**
-  - Posts to "Everyone" show on all tabs
-  - Posts to specific creator show on Home + that creator's tab only
-  - Other creators' tabs don't see posts meant for different creators
+  - Posts filter correctly by creator tabs
 
-- **Wireframe Design Discussion:**
-  - Created 3 wireframe options for Creator Community page
-  - User wants course-based tab filtering (All, Course1, Course2, etc.)
-  - Each course tab filters threads to just that course
-  - Post composer at top, compact creator profile header
+- **Creator Links Redesign:**
+  - Changed creator selection from squares to horizontal scrollable text links (X.com style)
+  - Added scroll arrows for navigation
+
+- **Major Creator Profile Redesign:**
+  - Simplified from confusing multi-level menus to clean single-level layout
+  - **Removed middle menu bar** (was: Courses | Community | Following tabs)
+  - **New top buttons:** "Go to Community" and "Follow ▼" at top right
+  - **Courses listed directly** below creator bio/credentials
+  - **"Go to Community" toggles inline** - shows community feed on same page
+  - Button changes to "View Courses" when viewing community
+  - Click any course → opens full course detail with back button
+
+- **UI Polish:**
+  - Compact creator header with inline stats
+  - Credentials listed below bio
+  - Centered "BROWSE COURSES OR COURSE CREATORS" text
+  - Tried multiple button styles (pills, segmented control) before settling on current design
 
 **Decisions made:**
-- Use React Portal for dropdowns to escape overflow containers
-- Creator follows store courseIds array, individual unfollows modify this array
-- Posts filtered by audience for better community organization
-- Creator page will have horizontal course tabs for filtering
+- Simplified creator profile to remove navigation confusion
+- Community embedded inline on creator profile (toggle, not separate page)
+- Clean course listings match Browse style
+- Follow dropdown at top right for quick access
 
 **Technical notes:**
 - Dev server: http://localhost:3001/Peerloop-v2
 - GitHub: https://github.com/brianpeerloop/Peerloop-v2
-- Dropdown uses `position: fixed` with calculated coordinates from button.getBoundingClientRect()
+- `creatorProfileTab` state controls courses vs community view
 
-**Next steps:** 
-- Implement Creator Community page design with:
-  - Compact creator profile header
-  - Post composer at top
-  - Horizontal course tabs (All, Course1, Course2...)
-  - Course-filtered thread feed
+**Next session:** 
+- Test creator profile flow end-to-end
+- Connect real community posts to creator profiles
+- Consider course-specific thread filtering
 
 ---
 
