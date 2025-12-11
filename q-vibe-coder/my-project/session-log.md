@@ -146,6 +146,54 @@
 
 ---
 
+### Session 5
+**Date:** December 11, 2025
+**Duration:** ~2 hours (ongoing)
+**Phase:** Building & Community Features
+
+**What we did:**
+- **Fixed Dropdown Positioning:**
+  - Community creator dropdowns were appearing off-screen to the right
+  - Implemented React Portal to render dropdown at document.body level
+  - This escapes overflow:hidden containers that were clipping the dropdown
+  
+- **Fixed Unfollow Functionality:**
+  - Individual course unfollow wasn't working for creator-based follows
+  - Issue: Default follows are stored as `creator-X` with `courseIds` array, not individual `course-X` entries
+  - Fix: Unfollow now handles both direct course follows AND updates creator follow entries
+  - When unfollowing a course from a creator, it modifies the creator's `courseIds` array
+
+- **Posts Now Filter by Audience:**
+  - Posts to "Everyone" show on all tabs
+  - Posts to specific creator show on Home + that creator's tab only
+  - Other creators' tabs don't see posts meant for different creators
+
+- **Wireframe Design Discussion:**
+  - Created 3 wireframe options for Creator Community page
+  - User wants course-based tab filtering (All, Course1, Course2, etc.)
+  - Each course tab filters threads to just that course
+  - Post composer at top, compact creator profile header
+
+**Decisions made:**
+- Use React Portal for dropdowns to escape overflow containers
+- Creator follows store courseIds array, individual unfollows modify this array
+- Posts filtered by audience for better community organization
+- Creator page will have horizontal course tabs for filtering
+
+**Technical notes:**
+- Dev server: http://localhost:3001/Peerloop-v2
+- GitHub: https://github.com/brianpeerloop/Peerloop-v2
+- Dropdown uses `position: fixed` with calculated coordinates from button.getBoundingClientRect()
+
+**Next steps:** 
+- Implement Creator Community page design with:
+  - Compact creator profile header
+  - Post composer at top
+  - Horizontal course tabs (All, Course1, Course2...)
+  - Course-filtered thread feed
+
+---
+
 <!-- Add more sessions as needed -->
 
 ---
