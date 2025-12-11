@@ -432,167 +432,39 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
             </div>
           </div>
           
-          {/* Action Buttons Row - Compact */}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button 
-              onClick={() => setCreatorProfileTab('community')}
-              style={{ 
-                background: creatorProfileTab === 'community' ? '#1d9bf0' : (isDarkMode ? '#16181c' : '#fff'),
-                color: creatorProfileTab === 'community' ? '#fff' : '#1d9bf0', 
-                border: '1px solid #1d9bf0', 
-                padding: '8px 16px', 
-                borderRadius: 20, 
-                fontWeight: 600, 
-                fontSize: 13, 
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6
-              }}
-            >
-              💬 Community
-            </button>
-            <button 
-              style={{ 
-                background: isDarkMode ? '#16181c' : '#fff',
-                color: isDarkMode ? '#e7e9ea' : '#0f1419', 
-                border: isDarkMode ? '1px solid #2f3336' : '1px solid #cfd9de', 
-                padding: '8px 16px', 
-                borderRadius: 20, 
-                fontWeight: 600, 
-                fontSize: 13, 
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6
-              }}
-            >
-              📅 Schedule
-            </button>
-            {/* Follow Button */}
-            <div style={{ position: 'relative' }}>
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpenCreatorFollowDropdown(openCreatorFollowDropdown === `detail-${creator.id}` ? null : `detail-${creator.id}`);
-                }}
-                style={{ 
-                  background: hasAnyCreatorCourseFollowed(creator.id) ? (isDarkMode ? '#2f3336' : '#eff3f4') : '#1d9bf0',
-                  color: hasAnyCreatorCourseFollowed(creator.id) ? (isDarkMode ? '#e7e9ea' : '#0f1419') : '#fff',
-                  border: 'none', 
-                  padding: '8px 16px', 
-                  borderRadius: 20, 
-                  fontWeight: 700, 
-                  fontSize: 13, 
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4
-                }}
-              >
-                {hasAnyCreatorCourseFollowed(creator.id) ? 'Following' : 'Follow'}
-                <span style={{ fontSize: 10 }}>▼</span>
-              </button>
-              
-              {/* Follow Dropdown */}
-              {openCreatorFollowDropdown === `detail-${creator.id}` && (
-                <div style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: 0,
-                  marginTop: 4,
-                  background: isDarkMode ? '#16181c' : '#fff',
-                  border: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0',
-                  borderRadius: 12,
-                  boxShadow: isDarkMode ? '0 4px 12px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,0,0,0.1)',
-                  zIndex: 1000,
-                  minWidth: 200,
-                  padding: '4px 0'
-                }}>
-                  <button 
-                    type="button"
-                    style={{ 
-                      padding: '10px 16px',
-                      cursor: 'pointer',
-                      fontSize: 14,
-                      color: hasAnyCreatorCourseFollowed(creator.id) ? '#f4212e' : '#1d9bf0',
-                      fontWeight: 500,
-                      background: 'transparent',
-                      border: 'none',
-                      width: '100%',
-                      textAlign: 'left'
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleFollowInstructor(creator.id);
-                      setOpenCreatorFollowDropdown(null);
-                    }}
-                  >
-                    {hasAnyCreatorCourseFollowed(creator.id) ? 'Unfollow All' : 'Follow All Courses'}
-                  </button>
-                  <div style={{ borderTop: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4', margin: '4px 0' }} />
-                  {creatorCourses.map(course => {
-                    const isFollowed = isCourseFollowed(course.id);
-                    return (
-                      <div 
-                        key={course.id}
-                        style={{ 
-                          padding: '10px 16px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          fontSize: 14,
-                          color: isDarkMode ? '#e7e9ea' : '#0f1419'
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleFollowCourse(course.id);
-                        }}
-                      >
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{course.title}</span>
-                        {isFollowed && <span style={{ color: '#1d9bf0' }}>✓</span>}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
         </div>
 
-        {/* Tab Navigation */}
+        {/* Single Row: Courses | Community | About | Following */}
         <div style={{ 
           display: 'flex', 
+          alignItems: 'center',
           borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0',
           background: isDarkMode ? '#000' : '#fff'
         }}>
           <button
             onClick={() => setCreatorProfileTab('courses')}
             style={{
-              flex: 1,
-              padding: '16px',
+              padding: '14px 20px',
               background: 'transparent',
               border: 'none',
               borderBottom: creatorProfileTab === 'courses' ? '2px solid #1d9bf0' : '2px solid transparent',
               cursor: 'pointer',
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: creatorProfileTab === 'courses' ? 700 : 500,
               color: creatorProfileTab === 'courses' ? (isDarkMode ? '#e7e9ea' : '#0f1419') : (isDarkMode ? '#71767b' : '#536471')
             }}
           >
-            Courses ({creatorCourses.length})
+            Courses
           </button>
           <button
             onClick={() => setCreatorProfileTab('community')}
             style={{
-              flex: 1,
-              padding: '16px',
+              padding: '14px 20px',
               background: 'transparent',
               border: 'none',
               borderBottom: creatorProfileTab === 'community' ? '2px solid #1d9bf0' : '2px solid transparent',
               cursor: 'pointer',
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: creatorProfileTab === 'community' ? 700 : 500,
               color: creatorProfileTab === 'community' ? (isDarkMode ? '#e7e9ea' : '#0f1419') : (isDarkMode ? '#71767b' : '#536471')
             }}
@@ -602,19 +474,108 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
           <button
             onClick={() => setCreatorProfileTab('about')}
             style={{
-              flex: 1,
-              padding: '16px',
+              padding: '14px 20px',
               background: 'transparent',
               border: 'none',
               borderBottom: creatorProfileTab === 'about' ? '2px solid #1d9bf0' : '2px solid transparent',
               cursor: 'pointer',
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: creatorProfileTab === 'about' ? 700 : 500,
               color: creatorProfileTab === 'about' ? (isDarkMode ? '#e7e9ea' : '#0f1419') : (isDarkMode ? '#71767b' : '#536471')
             }}
           >
             About
           </button>
+          
+          {/* Follow Button with Dropdown - on the right */}
+          <div style={{ marginLeft: 'auto', position: 'relative', padding: '8px 16px' }}>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenCreatorFollowDropdown(openCreatorFollowDropdown === `detail-${creator.id}` ? null : `detail-${creator.id}`);
+              }}
+              style={{ 
+                background: hasAnyCreatorCourseFollowed(creator.id) ? (isDarkMode ? '#2f3336' : '#eff3f4') : '#1d9bf0',
+                color: hasAnyCreatorCourseFollowed(creator.id) ? (isDarkMode ? '#e7e9ea' : '#0f1419') : '#fff',
+                border: 'none', 
+                padding: '8px 16px', 
+                borderRadius: 20, 
+                fontWeight: 700, 
+                fontSize: 13, 
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4
+              }}
+            >
+              {hasAnyCreatorCourseFollowed(creator.id) ? 'Following' : 'Follow'}
+              <span style={{ fontSize: 10 }}>▼</span>
+            </button>
+            
+            {/* Follow Dropdown */}
+            {openCreatorFollowDropdown === `detail-${creator.id}` && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                right: 0,
+                marginTop: 4,
+                background: isDarkMode ? '#16181c' : '#fff',
+                border: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0',
+                borderRadius: 12,
+                boxShadow: isDarkMode ? '0 4px 12px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,0,0,0.1)',
+                zIndex: 1000,
+                minWidth: 200,
+                padding: '4px 0'
+              }}>
+                <button 
+                  type="button"
+                  style={{ 
+                    padding: '10px 16px',
+                    cursor: 'pointer',
+                    fontSize: 14,
+                    color: hasAnyCreatorCourseFollowed(creator.id) ? '#f4212e' : '#1d9bf0',
+                    fontWeight: 500,
+                    background: 'transparent',
+                    border: 'none',
+                    width: '100%',
+                    textAlign: 'left'
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleFollowInstructor(creator.id);
+                    setOpenCreatorFollowDropdown(null);
+                  }}
+                >
+                  {hasAnyCreatorCourseFollowed(creator.id) ? 'Unfollow All' : 'Follow All Courses'}
+                </button>
+                <div style={{ borderTop: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4', margin: '4px 0' }} />
+                {creatorCourses.map(course => {
+                  const isFollowed = isCourseFollowed(course.id);
+                  return (
+                    <div 
+                      key={course.id}
+                      style={{ 
+                        padding: '10px 16px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        fontSize: 14,
+                        color: isDarkMode ? '#e7e9ea' : '#0f1419'
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFollowCourse(course.id);
+                      }}
+                    >
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{course.title}</span>
+                      {isFollowed && <span style={{ color: '#1d9bf0' }}>✓</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Tab Content */}
