@@ -433,18 +433,14 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
             
             {/* Action Buttons - Top Right */}
             <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-              {/* Go to Community Button */}
+              {/* Go to Community / View Courses Toggle Button */}
               <button 
                 onClick={() => {
-                  localStorage.setItem('pendingCommunityCreator', JSON.stringify({
-                    id: `creator-${creator.id}`,
-                    name: creator.name
-                  }));
-                  onMenuChange('Community');
+                  setCreatorProfileTab(creatorProfileTab === 'community' ? 'courses' : 'community');
                 }}
                 style={{ 
-                  background: isDarkMode ? '#16181c' : '#fff',
-                  color: '#1d9bf0', 
+                  background: creatorProfileTab === 'community' ? '#1d9bf0' : (isDarkMode ? '#16181c' : '#fff'),
+                  color: creatorProfileTab === 'community' ? '#fff' : '#1d9bf0', 
                   border: '1px solid #1d9bf0', 
                   padding: '8px 16px', 
                   borderRadius: 20, 
@@ -457,7 +453,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                   whiteSpace: 'nowrap'
                 }}
               >
-                💬 Go to Community
+                {creatorProfileTab === 'community' ? '📚 View Courses' : '💬 Go to Community'}
               </button>
               
               {/* Follow Button with Dropdown */}
@@ -584,7 +580,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
           )}
         </div>
 
-        {/* Courses Section Header */}
+        {/* Section Header - toggles based on view */}
         <div style={{ 
           padding: '12px 16px',
           background: isDarkMode ? '#000' : '#f8fafc',
@@ -593,72 +589,190 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
           alignItems: 'center',
           gap: 8
         }}>
-          <FaBook style={{ fontSize: 14, color: '#1d9bf0' }} />
-          <span style={{ fontSize: 14, fontWeight: 700, color: isDarkMode ? '#e7e9ea' : '#0f1419' }}>
-            COURSES BY {creator.name.toUpperCase()} ({creatorCourses.length})
-          </span>
+          {creatorProfileTab === 'community' ? (
+            <>
+              <FaUsers style={{ fontSize: 14, color: '#1d9bf0' }} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: isDarkMode ? '#e7e9ea' : '#0f1419' }}>
+                {creator.name.toUpperCase()}'S COMMUNITY
+              </span>
+            </>
+          ) : (
+            <>
+              <FaBook style={{ fontSize: 14, color: '#1d9bf0' }} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: isDarkMode ? '#e7e9ea' : '#0f1419' }}>
+                COURSES BY {creator.name.toUpperCase()} ({creatorCourses.length})
+              </span>
+            </>
+          )}
         </div>
 
-        {/* Course Listings */}
+        {/* Content - Courses or Community */}
         <div style={{ padding: '0' }}>
-          {creatorCourses.length > 0 ? (
-            creatorCourses.map(course => {
-              const isFollowed = isCourseFollowed(course.id);
-              return (
-                <div 
-                  key={course.id} 
-                  onClick={() => {
-                    setSelectedCourse(course);
-                    setCurrentInstructorForCourse(creator);
-                  }}
-                  style={{ 
-                    background: isDarkMode ? '#000' : '#fff', 
-                    padding: '16px',
-                    cursor: 'pointer',
-                    borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
-                    display: 'flex',
-                    gap: 12,
-                    alignItems: 'flex-start'
-                  }}
-                >
-                  <img 
-                    src={course.thumbnail} 
-                    alt={course.title}
-                    style={{ width: 120, height: 68, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }}
-                  />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <h3 style={{ margin: '0 0 4px 0', fontSize: 15, fontWeight: 700, color: isDarkMode ? '#e7e9ea' : '#0f1419' }}>{course.title}</h3>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, fontSize: 13, color: isDarkMode ? '#71767b' : '#536471' }}>
-                      <span>⭐ {course.rating}</span>
-                      <span>👥 {course.students?.toLocaleString()}</span>
-                      <span>{course.level}</span>
-                      <span style={{ color: '#1d9bf0', fontWeight: 700 }}>{course.price}</span>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={e => { e.stopPropagation(); handleFollowCourse(course.id); }}
-                    disabled={isFollowingLoading}
+          
+          {/* COURSES VIEW */}
+          {creatorProfileTab === 'courses' && (
+            creatorCourses.length > 0 ? (
+              creatorCourses.map(course => {
+                const isFollowed = isCourseFollowed(course.id);
+                return (
+                  <div 
+                    key={course.id} 
+                    onClick={() => {
+                      setSelectedCourse(course);
+                      setCurrentInstructorForCourse(creator);
+                    }}
                     style={{ 
-                      background: isFollowed ? 'transparent' : '#1d9bf0',
-                      color: isFollowed ? (isDarkMode ? '#e7e9ea' : '#0f1419') : '#fff',
-                      border: isFollowed ? (isDarkMode ? '1px solid #536471' : '1px solid #cfd9de') : 'none', 
-                      padding: '6px 16px', 
-                      borderRadius: 20, 
-                      fontWeight: 700, 
-                      fontSize: 13, 
+                      background: isDarkMode ? '#000' : '#fff', 
+                      padding: '16px',
                       cursor: 'pointer',
-                      flexShrink: 0
+                      borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
+                      display: 'flex',
+                      gap: 12,
+                      alignItems: 'flex-start'
                     }}
                   >
-                    {isFollowed ? 'Following' : 'Follow'}
-                  </button>
+                    <img 
+                      src={course.thumbnail} 
+                      alt={course.title}
+                      style={{ width: 120, height: 68, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }}
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h3 style={{ margin: '0 0 4px 0', fontSize: 15, fontWeight: 700, color: isDarkMode ? '#e7e9ea' : '#0f1419' }}>{course.title}</h3>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, fontSize: 13, color: isDarkMode ? '#71767b' : '#536471' }}>
+                        <span>⭐ {course.rating}</span>
+                        <span>👥 {course.students?.toLocaleString()}</span>
+                        <span>{course.level}</span>
+                        <span style={{ color: '#1d9bf0', fontWeight: 700 }}>{course.price}</span>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={e => { e.stopPropagation(); handleFollowCourse(course.id); }}
+                      disabled={isFollowingLoading}
+                      style={{ 
+                        background: isFollowed ? 'transparent' : '#1d9bf0',
+                        color: isFollowed ? (isDarkMode ? '#e7e9ea' : '#0f1419') : '#fff',
+                        border: isFollowed ? (isDarkMode ? '1px solid #536471' : '1px solid #cfd9de') : 'none', 
+                        padding: '6px 16px', 
+                        borderRadius: 20, 
+                        fontWeight: 700, 
+                        fontSize: 13, 
+                        cursor: 'pointer',
+                        flexShrink: 0
+                      }}
+                    >
+                      {isFollowed ? 'Following' : 'Follow'}
+                    </button>
+                  </div>
+                );
+              })
+            ) : (
+              <div style={{ padding: '32px 16px', textAlign: 'center', color: isDarkMode ? '#71767b' : '#536471' }}>
+                No courses available yet.
+              </div>
+            )
+          )}
+
+          {/* COMMUNITY VIEW */}
+          {creatorProfileTab === 'community' && (
+            <>
+              {/* Post Composer */}
+              <div style={{ 
+                padding: '16px', 
+                borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
+                background: isDarkMode ? '#000' : '#fff'
+              }}>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <div style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: '50%',
+                    background: '#1d9bf0',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 14,
+                    fontWeight: 700,
+                    flexShrink: 0
+                  }}>
+                    {currentUser?.name?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'U'}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <textarea
+                      placeholder={`Post to ${creator.name}'s community...`}
+                      style={{
+                        width: '100%',
+                        border: 'none',
+                        outline: 'none',
+                        resize: 'none',
+                        fontSize: 15,
+                        background: 'transparent',
+                        color: isDarkMode ? '#e7e9ea' : '#0f1419',
+                        padding: '8px 0',
+                        minHeight: 48,
+                        fontFamily: 'inherit'
+                      }}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <button style={{
+                        background: '#1d9bf0',
+                        color: '#fff',
+                        border: 'none',
+                        padding: '8px 20px',
+                        borderRadius: 20,
+                        fontWeight: 700,
+                        fontSize: 14,
+                        cursor: 'pointer',
+                        opacity: 0.5
+                      }}>
+                        Post
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              );
-            })
-          ) : (
-            <div style={{ padding: '32px 16px', textAlign: 'center', color: isDarkMode ? '#71767b' : '#536471' }}>
-              No courses available yet.
-            </div>
+              </div>
+
+              {/* Community Posts */}
+              {creatorPosts.map(post => (
+                <div key={post.id} style={{ 
+                  padding: '16px', 
+                  borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
+                  background: isDarkMode ? '#000' : '#fff'
+                }}>
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <div style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      background: '#536471',
+                      color: '#fff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      flexShrink: 0
+                    }}>
+                      {post.author.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                        <span style={{ fontWeight: 700, fontSize: 15, color: isDarkMode ? '#e7e9ea' : '#0f1419' }}>{post.author}</span>
+                        <span style={{ color: isDarkMode ? '#71767b' : '#536471', fontSize: 15 }}>{post.handle}</span>
+                        <span style={{ color: isDarkMode ? '#71767b' : '#536471', fontSize: 15 }}>·</span>
+                        <span style={{ color: isDarkMode ? '#71767b' : '#536471', fontSize: 15 }}>{post.timestamp}</span>
+                      </div>
+                      <p style={{ margin: '0 0 12px 0', fontSize: 15, lineHeight: 1.4, color: isDarkMode ? '#e7e9ea' : '#0f1419' }}>{post.content}</p>
+                      <div style={{ display: 'flex', gap: 24, fontSize: 13, color: isDarkMode ? '#71767b' : '#536471' }}>
+                        <span style={{ cursor: 'pointer' }}>💬 {post.replies}</span>
+                        <span style={{ cursor: 'pointer' }}>❤️ {post.likes}</span>
+                        <span style={{ cursor: 'pointer' }}>🔗 Share</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </>
           )}
 
         </div>
