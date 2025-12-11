@@ -29,6 +29,11 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
   // New Option A states
   const [communityMode, setCommunityMode] = useState('hub'); // 'hub' for Community Hub (Everyone), 'creators' for My Creators
   const [selectedCreatorId, setSelectedCreatorId] = useState(null); // Selected creator in 'creators' mode
+  
+  // Creator links scroll state
+  const creatorLinksRef = useRef(null);
+  const [showCreatorLeftArrow, setShowCreatorLeftArrow] = useState(false);
+  const [showCreatorRightArrow, setShowCreatorRightArrow] = useState(false);
 
   // Initialize GetStream and load posts on mount
   useEffect(() => {
@@ -621,6 +626,32 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
     }
   };
 
+  // Check creator links scroll arrows visibility
+  const checkCreatorScrollArrows = () => {
+    if (creatorLinksRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = creatorLinksRef.current;
+      setShowCreatorLeftArrow(scrollLeft > 0);
+      setShowCreatorRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkCreatorScrollArrows();
+    window.addEventListener('resize', checkCreatorScrollArrows);
+    return () => window.removeEventListener('resize', checkCreatorScrollArrows);
+  }, [groupedByCreator, communityMode]);
+
+  const scrollCreatorLinks = (direction) => {
+    if (creatorLinksRef.current) {
+      const scrollAmount = 150;
+      creatorLinksRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+      setTimeout(checkCreatorScrollArrows, 300);
+    }
+  };
+
   const handleCommunityClick = (community) => {
     setSelectedCommunity(community);
   };
@@ -934,7 +965,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
     <div className="community-content-outer">
       <div className="community-three-column">
         <div className="community-center-column">
-          {/* Option A: Two-Panel Toggle */}
+          {/* Option A: Two-Panel Toggle - Compact version */}
           <div className="community-mode-toggle" style={{
             display: 'flex',
             gap: 0,
@@ -949,30 +980,26 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
               }}
               style={{
                 flex: 1,
-                padding: '16px 12px',
+                padding: '12px 16px',
                 background: communityMode === 'hub' 
                   ? (isDarkMode ? '#1d1f23' : '#f0f9ff') 
                   : 'transparent',
                 border: 'none',
                 borderBottom: communityMode === 'hub' ? '3px solid #1d9bf0' : '3px solid transparent',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8
               }}
             >
-              <div style={{ 
-                fontSize: 20, 
-                marginBottom: 4 
-              }}>🌍</div>
-              <div style={{ 
+              <span style={{ fontSize: 16 }}>🌍</span>
+              <span style={{ 
                 fontSize: 14, 
                 fontWeight: 700, 
                 color: communityMode === 'hub' ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419')
-              }}>COMMUNITY HUB</div>
-              <div style={{ 
-                fontSize: 11, 
-                color: isDarkMode ? '#71767b' : '#536471',
-                marginTop: 2
-              }}>Everyone</div>
+              }}>Community Hub</span>
             </button>
             
             <button
@@ -982,30 +1009,26 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
               }}
               style={{
                 flex: 1,
-                padding: '16px 12px',
+                padding: '12px 16px',
                 background: communityMode === 'creators' 
                   ? (isDarkMode ? '#1d1f23' : '#f0f9ff') 
                   : 'transparent',
                 border: 'none',
                 borderBottom: communityMode === 'creators' ? '3px solid #1d9bf0' : '3px solid transparent',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8
               }}
             >
-              <div style={{ 
-                fontSize: 20, 
-                marginBottom: 4 
-              }}>👤</div>
-              <div style={{ 
+              <span style={{ fontSize: 16 }}>👤</span>
+              <span style={{ 
                 fontSize: 14, 
                 fontWeight: 700, 
                 color: communityMode === 'creators' ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419')
-              }}>MY CREATORS</div>
-              <div style={{ 
-                fontSize: 11, 
-                color: isDarkMode ? '#71767b' : '#536471',
-                marginTop: 2
-              }}>Pick one to post</div>
+              }}>My Creators</span>
             </button>
           </div>
           
@@ -1014,64 +1037,131 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 0,
-              overflowX: 'auto',
+              position: 'relative',
               borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0',
-              background: isDarkMode ? '#000' : '#fff',
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none'
-            }}
-            className="creator-links-scroll"
-            >
-              {groupedByCreator.length === 0 ? (
-                <div style={{ 
-                  color: isDarkMode ? '#71767b' : '#536471', 
-                  fontSize: 13,
-                  padding: '16px'
-                }}>
-                  No creators followed yet. Go to Browse to follow creators.
-                </div>
-              ) : (
-                groupedByCreator.map(creator => (
-                  <button
-                    key={creator.id}
-                    onClick={() => {
-                      setSelectedCreatorId(creator.id);
-                      setPostAudience(creator.id);
-                      setActiveTab(creator.id);
-                    }}
-                    style={{
-                      padding: '16px 20px',
-                      background: 'transparent',
-                      border: 'none',
-                      borderBottom: selectedCreatorId === creator.id 
-                        ? '3px solid #1d9bf0' 
-                        : '3px solid transparent',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease',
-                      whiteSpace: 'nowrap',
-                      position: 'relative'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (selectedCreatorId !== creator.id) {
-                        e.currentTarget.style.background = isDarkMode ? '#1d1f23' : '#f7f9f9';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'transparent';
-                    }}
-                  >
-                    <span style={{
-                      fontSize: 15,
-                      fontWeight: selectedCreatorId === creator.id ? 700 : 500,
-                      color: selectedCreatorId === creator.id 
-                        ? (isDarkMode ? '#e7e9ea' : '#0f1419')
-                        : (isDarkMode ? '#71767b' : '#536471')
-                    }}>
-                      {creator.name}
-                    </span>
-                  </button>
-                ))
+              background: isDarkMode ? '#000' : '#fff'
+            }}>
+              {/* Left scroll arrow */}
+              {showCreatorLeftArrow && (
+                <button
+                  onClick={() => scrollCreatorLinks('left')}
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    background: isDarkMode ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.9)',
+                    border: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 10,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                  }}
+                  aria-label="Scroll left"
+                >
+                  <FaChevronLeft style={{ color: isDarkMode ? '#e7e9ea' : '#0f1419', fontSize: 12 }} />
+                </button>
+              )}
+              
+              {/* Scrollable creator links */}
+              <div 
+                ref={creatorLinksRef}
+                onScroll={checkCreatorScrollArrows}
+                className="creator-links-scroll"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0,
+                  overflowX: 'auto',
+                  flex: 1,
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  paddingLeft: showCreatorLeftArrow ? 36 : 0,
+                  paddingRight: showCreatorRightArrow ? 36 : 0
+                }}
+              >
+                {groupedByCreator.length === 0 ? (
+                  <div style={{ 
+                    color: isDarkMode ? '#71767b' : '#536471', 
+                    fontSize: 13,
+                    padding: '12px 16px'
+                  }}>
+                    No creators followed yet. Go to Browse to follow creators.
+                  </div>
+                ) : (
+                  groupedByCreator.map(creator => (
+                    <button
+                      key={creator.id}
+                      onClick={() => {
+                        setSelectedCreatorId(creator.id);
+                        setPostAudience(creator.id);
+                        setActiveTab(creator.id);
+                      }}
+                      style={{
+                        padding: '12px 20px',
+                        background: 'transparent',
+                        border: 'none',
+                        borderBottom: selectedCreatorId === creator.id 
+                          ? '3px solid #1d9bf0' 
+                          : '3px solid transparent',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        whiteSpace: 'nowrap',
+                        position: 'relative'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (selectedCreatorId !== creator.id) {
+                          e.currentTarget.style.background = isDarkMode ? '#1d1f23' : '#f7f9f9';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      <span style={{
+                        fontSize: 15,
+                        fontWeight: selectedCreatorId === creator.id ? 700 : 500,
+                        color: selectedCreatorId === creator.id 
+                          ? (isDarkMode ? '#e7e9ea' : '#0f1419')
+                          : (isDarkMode ? '#71767b' : '#536471')
+                      }}>
+                        {creator.name}
+                      </span>
+                    </button>
+                  ))
+                )}
+              </div>
+              
+              {/* Right scroll arrow */}
+              {showCreatorRightArrow && (
+                <button
+                  onClick={() => scrollCreatorLinks('right')}
+                  style={{
+                    position: 'absolute',
+                    right: 0,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    background: isDarkMode ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.9)',
+                    border: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 10,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                  }}
+                  aria-label="Scroll right"
+                >
+                  <FaChevronRight style={{ color: isDarkMode ? '#e7e9ea' : '#0f1419', fontSize: 12 }} />
+                </button>
               )}
             </div>
           )}
