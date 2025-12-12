@@ -25,6 +25,7 @@ import {
   FaChalkboardTeacher
 } from 'react-icons/fa';
 import { UserPropType } from './PropTypes';
+import useDeviceDetect from '../hooks/useDeviceDetect';
 
 /**
  * Sidebar Component
@@ -40,6 +41,11 @@ const Sidebar = ({ onMenuChange, activeMenu, currentUser, isDarkMode, toggleDark
   // Track which tooltip is visible (by index)
   const [visibleTooltip, setVisibleTooltip] = useState(null);
   const timerRef = useRef(null);
+  
+  // Detect device type - collapse sidebar on non-desktop devices
+  const { isWindows, isMac, isDesktop } = useDeviceDetect();
+  const isDesktopComputer = (isWindows || isMac) && isDesktop;
+  const shouldCollapse = !isDesktopComputer;
 
   // Cleanup timer on unmount
   useEffect(() => {
@@ -137,7 +143,7 @@ const Sidebar = ({ onMenuChange, activeMenu, currentUser, isDarkMode, toggleDark
   };
 
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${shouldCollapse ? 'sidebar-collapsed' : ''}`}>
       {/* Header section with logo */}
       <div className="sidebar-header" style={{ padding: '4px 8px', marginBottom: '0px' }}>
         <div className="logo" style={{ 

@@ -17,7 +17,8 @@ import {
 
 const StudentTeacherDashboard = ({ isDarkMode = true }) => {
   const [activeTab, setActiveTab] = useState('calendar');
-  const [currentWeekStart, setCurrentWeekStart] = useState(new Date(2025, 11, 9)); // Dec 9, 2025
+  const [currentMonth, setCurrentMonth] = useState(new Date(2025, 11, 1)); // December 2025
+  const [selectedDate, setSelectedDate] = useState(new Date(2025, 11, 8)); // Dec 8, 2025 selected by default
   
   // Student-Teacher info
   const stInfo = {
@@ -37,74 +38,69 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
   ];
   
   // Quick stats
-  const quickStats = {
-    sessionsThisWeek: 8,
-    activeStudents: 4,
-    totalEarned: 2520
+  const quickStats = [
+    { value: 8, label: 'sessions', sublabel: 'this week', icon: '⚡', color: '#1d9bf0' },
+    { value: 4, label: 'students', sublabel: 'active', icon: '👥', color: '#1d9bf0' },
+    { value: '$2,520', label: 'earned', sublabel: 'total', icon: '💰', color: '#00ba7c' },
+    { value: 1, label: 'cert ready', sublabel: 'to review', icon: '🎓', color: '#f97316', action: 'Review →' }
+  ];
+  
+  // Sessions data organized by date (key: "YYYY-MM-DD")
+  const sessionsByDate = {
+    '2025-12-03': [
+      { time: '10:00 AM', student: 'Sarah Johnson', initials: 'SJ', module: 'Module 3: Advanced Applications', progress: 100, status: 'ready_for_cert' }
+    ],
+    '2025-12-05': [
+      { time: '2:00 PM', student: 'Mike Chen', initials: 'MC', module: 'Module 4: Specialization', progress: 60, status: 'on_track' },
+      { time: '4:00 PM', student: 'Emma Wilson', initials: 'EW', module: 'Module 1: Foundations', progress: 20, status: 'new' }
+    ],
+    '2025-12-06': [
+      { time: '11:00 AM', student: 'David Kim', initials: 'DK', module: 'Module 2: Intermediate', progress: 40, status: 'on_track' }
+    ],
+    '2025-12-08': [
+      { time: '10:00 AM', student: 'Sarah Johnson', initials: 'SJ', module: 'Module 3: Advanced Applications', progress: 100, status: 'ready_for_cert', canJoin: true, startsIn: '45 min' },
+      { time: '11:00 AM', student: 'Mike Chen', initials: 'MC', module: 'Module 4: Specialization', progress: 60, status: 'on_track', startsIn: '1hr 45min' },
+      { time: '2:00 PM', student: 'Emma Wilson', initials: 'EW', module: 'Module 1: Foundations', progress: 20, status: 'new', startsIn: '4 hours' },
+      { time: '7:00 PM', student: 'Alex Rivera', initials: 'AR', module: 'Module 5: Certification Prep', progress: 80, status: 'final_module', startsIn: '9 hours' }
+    ],
+    '2025-12-09': [
+      { time: '10:00 AM', student: 'David Kim', initials: 'DK', module: 'Module 2: Intermediate', progress: 40, status: 'on_track' }
+    ],
+    '2025-12-11': [
+      { time: '2:00 PM', student: 'Sarah Johnson', initials: 'SJ', module: 'Module 3: Advanced Applications', progress: 100, status: 'ready_for_cert' },
+      { time: '5:00 PM', student: 'Mike Chen', initials: 'MC', module: 'Module 4: Specialization', progress: 60, status: 'on_track' }
+    ],
+    '2025-12-13': [
+      { time: '11:00 AM', student: 'Emma Wilson', initials: 'EW', module: 'Module 1: Foundations', progress: 20, status: 'new' }
+    ],
+    '2025-12-15': [
+      { time: '3:00 PM', student: 'Alex Rivera', initials: 'AR', module: 'Module 5: Certification Prep', progress: 80, status: 'final_module' }
+    ],
+    '2025-12-16': [
+      { time: '10:00 AM', student: 'David Kim', initials: 'DK', module: 'Module 2: Intermediate', progress: 40, status: 'on_track' },
+      { time: '2:00 PM', student: 'Sarah Johnson', initials: 'SJ', module: 'Module 3: Advanced Applications', progress: 100, status: 'ready_for_cert' }
+    ],
+    '2025-12-18': [
+      { time: '11:00 AM', student: 'Mike Chen', initials: 'MC', module: 'Module 4: Specialization', progress: 60, status: 'on_track' }
+    ],
+    '2025-12-19': [
+      { time: '2:00 PM', student: 'Emma Wilson', initials: 'EW', module: 'Module 1: Foundations', progress: 20, status: 'new' },
+      { time: '4:00 PM', student: 'Alex Rivera', initials: 'AR', module: 'Module 5: Certification Prep', progress: 80, status: 'final_module' }
+    ],
+    '2025-12-23': [
+      { time: '10:00 AM', student: 'David Kim', initials: 'DK', module: 'Module 2: Intermediate', progress: 40, status: 'on_track' }
+    ],
+    '2025-12-26': [
+      { time: '3:00 PM', student: 'Sarah Johnson', initials: 'SJ', module: 'Module 3: Advanced Applications', progress: 100, status: 'ready_for_cert' }
+    ],
+    '2025-12-29': [
+      { time: '11:00 AM', student: 'Mike Chen', initials: 'MC', module: 'Module 4: Specialization', progress: 60, status: 'on_track' },
+      { time: '2:00 PM', student: 'Emma Wilson', initials: 'EW', module: 'Module 1: Foundations', progress: 20, status: 'new' }
+    ],
+    '2025-12-30': [
+      { time: '10:00 AM', student: 'Alex Rivera', initials: 'AR', module: 'Module 5: Certification Prep', progress: 80, status: 'final_module' }
+    ]
   };
-  
-  // Students with progress
-  const students = [
-    { id: 1, name: 'Sarah Johnson', initials: 'SJ', progress: 100, module: 3, status: 'ready_for_cert' },
-    { id: 2, name: 'Mike Chen', initials: 'MC', progress: 60, module: 4, status: 'on_track' },
-    { id: 3, name: 'Emma Wilson', initials: 'EW', progress: 20, module: 1, status: 'new' },
-    { id: 4, name: 'David Kim', initials: 'DK', progress: 40, module: 2, status: 'on_track' }
-  ];
-  
-  // Weekly availability - which slots are set as available
-  // Key: "dayIndex-hour" (0=Mon, 6=Sun)
-  const availability = {
-    '0-10': true, '0-11': true,
-    '1-10': true, '1-14': true, '1-19': true,
-    '2-14': true, '2-19': true,
-    '3-10': true,
-    '4-10': true,
-    '5-19': true
-  };
-  
-  // Booked sessions for this week
-  const bookedSessions = [
-    { day: 0, hour: 10, student: 'Sarah Johnson', initials: 'SJ', module: 3, canJoin: true },
-    { day: 0, hour: 11, student: 'Mike Chen', initials: 'MC', module: 4, canJoin: false },
-    { day: 1, hour: 14, student: 'Emma Wilson', initials: 'EW', module: 1, canJoin: false },
-    { day: 3, hour: 10, student: 'David Kim', initials: 'DK', module: 2, canJoin: false },
-    { day: 4, hour: 10, student: 'David Kim', initials: 'DK', module: 2, canJoin: false },
-    { day: 0, hour: 19, student: 'Alex Rivera', initials: 'AR', module: 5, canJoin: false }
-  ];
-  
-  // Today's sessions (detailed view)
-  const todaysSessions = [
-    { 
-      time: '10:00 AM', 
-      student: 'Sarah Johnson', 
-      initials: 'SJ',
-      module: 'Module 3: Advanced Applications',
-      progress: 100,
-      status: 'ready_for_cert',
-      startsIn: '45 min',
-      canJoin: true
-    },
-    { 
-      time: '11:00 AM', 
-      student: 'Mike Chen', 
-      initials: 'MC',
-      module: 'Module 4: Specialization',
-      progress: 60,
-      status: 'on_track',
-      startsIn: '1hr 45min',
-      canJoin: false
-    },
-    { 
-      time: '7:00 PM', 
-      student: 'Alex Rivera', 
-      initials: 'AR',
-      module: 'Module 5: Certification Prep',
-      progress: 80,
-      status: 'final_module',
-      startsIn: '9 hours',
-      canJoin: false
-    }
-  ];
 
   // Colors
   const bgPrimary = isDarkMode ? '#000' : '#fff';
@@ -115,50 +111,92 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
   const borderColor = isDarkMode ? '#2f3336' : '#e2e8f0';
   const accentBlue = '#1d9bf0';
   const accentGreen = '#00ba7c';
-  const accentRed = '#ef4444';
-  const slotAvailable = isDarkMode ? '#2f3336' : '#e2e8f0';
-  const slotBooked = isDarkMode ? '#1a3a5c' : '#dbeafe';
+  const accentOrange = '#f97316';
 
   // Helper functions
-  const getDayName = (dayIndex) => {
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    return days[dayIndex];
-  };
-  
-  const getDateForDay = (dayIndex) => {
-    const date = new Date(currentWeekStart);
-    date.setDate(date.getDate() + dayIndex);
-    return date.getDate();
-  };
-  
-  const formatWeekRange = () => {
-    const endDate = new Date(currentWeekStart);
-    endDate.setDate(endDate.getDate() + 6);
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${months[currentWeekStart.getMonth()]} ${currentWeekStart.getDate()}-${endDate.getDate()}, ${currentWeekStart.getFullYear()}`;
-  };
-  
-  const navigateWeek = (direction) => {
-    const newDate = new Date(currentWeekStart);
-    newDate.setDate(newDate.getDate() + (direction * 7));
-    setCurrentWeekStart(newDate);
-  };
-  
-  const getSessionForSlot = (dayIndex, hour) => {
-    return bookedSessions.find(s => s.day === dayIndex && s.hour === hour);
-  };
-  
-  const isSlotAvailable = (dayIndex, hour) => {
-    return availability[`${dayIndex}-${hour}`] === true;
+  const formatDateKey = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
-  // Hours to display (9 AM to 8 PM)
-  const hours = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-  const formatHour = (hour) => {
-    if (hour === 12) return '12 PM';
-    if (hour > 12) return `${hour - 12} PM`;
-    return `${hour} AM`;
+  const getSessionsForDate = (date) => {
+    const key = formatDateKey(date);
+    return sessionsByDate[key] || [];
   };
+
+  const getMonthName = (date) => {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+    return months[date.getMonth()];
+  };
+
+  const getDaysInMonth = (date) => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  };
+
+  const getFirstDayOfMonth = (date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  };
+
+  const navigateMonth = (direction) => {
+    const newDate = new Date(currentMonth);
+    newDate.setMonth(newDate.getMonth() + direction);
+    setCurrentMonth(newDate);
+    setSelectedDate(null);
+  };
+
+  const goToToday = () => {
+    const today = new Date(2025, 11, 8); // Simulated "today"
+    setCurrentMonth(new Date(today.getFullYear(), today.getMonth(), 1));
+    setSelectedDate(today);
+  };
+
+  const handleDateClick = (day) => {
+    const clickedDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    setSelectedDate(clickedDate);
+  };
+
+  const isToday = (day) => {
+    const today = new Date(2025, 11, 8); // Simulated "today"
+    return day === today.getDate() && 
+           currentMonth.getMonth() === today.getMonth() && 
+           currentMonth.getFullYear() === today.getFullYear();
+  };
+
+  const isSelected = (day) => {
+    if (!selectedDate) return false;
+    return day === selectedDate.getDate() && 
+           currentMonth.getMonth() === selectedDate.getMonth() && 
+           currentMonth.getFullYear() === selectedDate.getFullYear();
+  };
+
+  const formatSelectedDate = () => {
+    if (!selectedDate) return '';
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+    return `${days[selectedDate.getDay()]}, ${months[selectedDate.getMonth()]} ${selectedDate.getDate()}, ${selectedDate.getFullYear()}`;
+  };
+
+  // Build calendar grid
+  const daysInMonth = getDaysInMonth(currentMonth);
+  const firstDay = getFirstDayOfMonth(currentMonth);
+  const calendarDays = [];
+  
+  // Add empty cells for days before the first day of the month
+  for (let i = 0; i < firstDay; i++) {
+    calendarDays.push(null);
+  }
+  
+  // Add the days of the month
+  for (let day = 1; day <= daysInMonth; day++) {
+    calendarDays.push(day);
+  }
+
+  // Get sessions for selected date
+  const selectedSessions = selectedDate ? getSessionsForDate(selectedDate) : [];
 
   return (
     <div style={{
@@ -225,7 +263,7 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
               {tab.label}
               {tab.badge && (
                 <span style={{
-                  background: accentRed,
+                  background: '#ef4444',
                   color: '#fff',
                   fontSize: 10,
                   fontWeight: 700,
@@ -275,22 +313,18 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
 
       {/* Main Content */}
       <div style={{ padding: 24 }}>
-        {/* Calendar Header */}
+        {/* Page Header */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: 24,
-          background: bgCard,
-          padding: '16px 20px',
-          borderRadius: 12,
-          border: `1px solid ${borderColor}`
+          marginBottom: 20
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <FaCalendarAlt style={{ color: accentBlue, fontSize: 20 }} />
+            <FaCalendarAlt style={{ color: accentBlue, fontSize: 24 }} />
             <div>
               <h1 style={{ 
-                fontSize: 20, 
+                fontSize: 22, 
                 fontWeight: 700, 
                 color: textPrimary, 
                 margin: 0 
@@ -298,7 +332,7 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
                 My Schedule
               </h1>
               <p style={{ 
-                fontSize: 13, 
+                fontSize: 14, 
                 color: textSecondary, 
                 margin: '4px 0 0 0' 
               }}>
@@ -317,13 +351,13 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
               fontSize: 13,
               cursor: 'pointer'
             }}>
-              <option>Week</option>
               <option>Month</option>
+              <option>Week</option>
             </select>
             
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <button 
-                onClick={() => navigateWeek(-1)}
+                onClick={() => navigateMonth(-1)}
                 style={{
                   padding: 8,
                   border: `1px solid ${borderColor}`,
@@ -339,16 +373,16 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
               </button>
               <span style={{ 
                 padding: '8px 16px',
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: 600,
                 color: textPrimary,
-                minWidth: 140,
+                minWidth: 160,
                 textAlign: 'center'
               }}>
-                {formatWeekRange()}
+                {getMonthName(currentMonth)} {currentMonth.getFullYear()}
               </span>
               <button 
-                onClick={() => navigateWeek(1)}
+                onClick={() => navigateMonth(1)}
                 style={{
                   padding: 8,
                   border: `1px solid ${borderColor}`,
@@ -364,650 +398,494 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
               </button>
             </div>
             
-            <button style={{
-              padding: '8px 16px',
-              border: `1px solid ${borderColor}`,
-              borderRadius: 8,
-              background: bgSecondary,
-              color: textPrimary,
-              fontSize: 13,
-              fontWeight: 500,
-              cursor: 'pointer'
-            }}>
+            <button 
+              onClick={goToToday}
+              style={{
+                padding: '8px 16px',
+                border: `1px solid ${borderColor}`,
+                borderRadius: 8,
+                background: bgSecondary,
+                color: textPrimary,
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: 'pointer'
+              }}
+            >
               Today
             </button>
           </div>
         </div>
-        
-        {/* Main Grid: Calendar + Sidebar */}
+
+        {/* Stats Row */}
         <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: '1fr 280px',
-          gap: 24
+          display: 'flex', 
+          gap: 12, 
+          marginBottom: 20,
+          flexWrap: 'wrap'
         }}>
-          {/* Calendar Grid */}
-          <div style={{
-            background: bgCard,
-            borderRadius: 12,
-            border: `1px solid ${borderColor}`,
-            overflow: 'hidden'
-          }}>
-            {/* Day Headers */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '60px repeat(7, 1fr)',
-              borderBottom: `1px solid ${borderColor}`
-            }}>
-              <div style={{ padding: 12 }}></div>
-              {[0, 1, 2, 3, 4, 5, 6].map(dayIndex => (
-                <div 
-                  key={dayIndex}
-                  style={{
-                    padding: '12px 8px',
-                    textAlign: 'center',
-                    borderLeft: `1px solid ${borderColor}`,
-                    background: dayIndex === 0 ? (isDarkMode ? '#1a3a5c' : '#dbeafe') : 'transparent'
-                  }}
-                >
-                  <div style={{ 
-                    fontSize: 12, 
-                    color: textSecondary,
-                    marginBottom: 4
-                  }}>
-                    {getDayName(dayIndex)}
-                  </div>
-                  <div style={{ 
-                    fontSize: 18, 
-                    fontWeight: 700,
-                    color: dayIndex === 0 ? accentBlue : textPrimary
-                  }}>
-                    {getDateForDay(dayIndex)}
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            {/* Time Slots */}
-            <div style={{ maxHeight: 480, overflowY: 'auto' }}>
-              {hours.map(hour => (
-                <div 
-                  key={hour}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '60px repeat(7, 1fr)',
-                    minHeight: 48,
-                    borderBottom: `1px solid ${borderColor}`
-                  }}
-                >
-                  {/* Time Label */}
-                  <div style={{
-                    padding: '8px 12px',
-                    fontSize: 11,
-                    color: textSecondary,
-                    textAlign: 'right',
-                    borderRight: `1px solid ${borderColor}`
-                  }}>
-                    {formatHour(hour)}
-                  </div>
-                  
-                  {/* Day Cells */}
-                  {[0, 1, 2, 3, 4, 5, 6].map(dayIndex => {
-                    const session = getSessionForSlot(dayIndex, hour);
-                    const available = isSlotAvailable(dayIndex, hour);
-                    
-                    return (
-                      <div 
-                        key={dayIndex}
-                        style={{
-                          borderLeft: `1px solid ${borderColor}`,
-                          padding: 4,
-                          background: dayIndex === 0 ? (isDarkMode ? 'rgba(29, 155, 240, 0.05)' : 'rgba(29, 155, 240, 0.03)') : 'transparent'
-                        }}
-                      >
-                        {session ? (
-                          // Booked Session
-                          <div style={{
-                            background: slotBooked,
-                            borderRadius: 6,
-                            padding: '6px 8px',
-                            height: '100%',
-                            cursor: 'pointer',
-                            border: `1px solid ${accentBlue}`,
-                            position: 'relative'
-                          }}>
-                            <div style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 6
-                            }}>
-                              <div style={{
-                                width: 22,
-                                height: 22,
-                                borderRadius: '50%',
-                                background: accentBlue,
-                                color: '#fff',
-                                fontSize: 9,
-                                fontWeight: 700,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                              }}>
-                                {session.initials}
-                              </div>
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ 
-                                  fontSize: 11, 
-                                  fontWeight: 600, 
-                                  color: textPrimary,
-                                  whiteSpace: 'nowrap',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis'
-                                }}>
-                                  {session.student.split(' ')[0]}
-                                </div>
-                                <div style={{ 
-                                  fontSize: 9, 
-                                  color: textSecondary 
-                                }}>
-                                  M-{session.module}
-                                </div>
-                              </div>
-                            </div>
-                            {session.canJoin && (
-                              <div style={{
-                                position: 'absolute',
-                                bottom: 4,
-                                right: 4,
-                                background: accentGreen,
-                                color: '#fff',
-                                fontSize: 8,
-                                fontWeight: 700,
-                                padding: '2px 6px',
-                                borderRadius: 4
-                              }}>
-                                JOIN
-                              </div>
-                            )}
-                          </div>
-                        ) : available ? (
-                          // Available Slot
-                          <div style={{
-                            background: slotAvailable,
-                            borderRadius: 6,
-                            height: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            border: `1px dashed ${borderColor}`
-                          }}>
-                            <span style={{ 
-                              fontSize: 9, 
-                              color: textSecondary,
-                              fontWeight: 500
-                            }}>
-                              OPEN
-                            </span>
-                          </div>
-                        ) : (
-                          // Not Available
-                          <div style={{ height: '100%' }} />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-            
-            {/* Legend */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 24,
-              padding: '12px 16px',
-              borderTop: `1px solid ${borderColor}`,
-              background: bgSecondary
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: textSecondary }}>
-                <div style={{ 
-                  width: 16, 
-                  height: 16, 
-                  background: slotAvailable, 
-                  borderRadius: 4,
-                  border: `1px dashed ${borderColor}`
-                }} />
-                Available (open for booking)
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: textSecondary }}>
-                <div style={{ 
-                  width: 16, 
-                  height: 16, 
-                  background: slotBooked, 
-                  borderRadius: 4,
-                  border: `1px solid ${accentBlue}`
-                }} />
-                Booked session
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: textSecondary }}>
-                <div style={{ 
-                  width: 16, 
-                  height: 16, 
-                  background: 'transparent', 
-                  borderRadius: 4,
-                  border: `1px solid ${borderColor}`
-                }} />
-                Not set
-              </div>
-            </div>
-          </div>
-          
-          {/* Right Sidebar */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {/* Quick Stats */}
-            <div style={{
-              background: bgCard,
-              borderRadius: 12,
-              padding: 16,
-              border: `1px solid ${borderColor}`
-            }}>
-              <h3 style={{ 
-                fontSize: 12, 
-                fontWeight: 700, 
-                color: textSecondary,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                margin: '0 0 12px 0',
+          {quickStats.map((stat, index) => (
+            <div 
+              key={index}
+              style={{
+                flex: '1 1 200px',
+                background: bgCard,
+                borderRadius: 12,
+                padding: '16px 20px',
+                border: `1px solid ${borderColor}`,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 6
-              }}>
-                ⚡ Quick Stats
-              </h3>
-              <div style={{ fontSize: 12, color: textSecondary, marginBottom: 8 }}>
-                This Week:
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{
-                  background: bgSecondary,
-                  borderRadius: 8,
-                  padding: 12,
-                  textAlign: 'center'
-                }}>
-                  <div style={{ fontSize: 24, fontWeight: 700, color: textPrimary }}>
-                    {quickStats.sessionsThisWeek}
-                  </div>
-                  <div style={{ fontSize: 11, color: textSecondary }}>sessions scheduled</div>
-                </div>
-                <div style={{
-                  background: bgSecondary,
-                  borderRadius: 8,
-                  padding: 12,
-                  textAlign: 'center'
-                }}>
-                  <div style={{ fontSize: 24, fontWeight: 700, color: textPrimary }}>
-                    {quickStats.activeStudents}
-                  </div>
-                  <div style={{ fontSize: 11, color: textSecondary }}>students active</div>
-                </div>
-                <div style={{
-                  background: bgSecondary,
-                  borderRadius: 8,
-                  padding: 12,
-                  textAlign: 'center'
-                }}>
-                  <div style={{ fontSize: 24, fontWeight: 700, color: accentGreen }}>
-                    ${quickStats.totalEarned.toLocaleString()}
-                  </div>
-                  <div style={{ fontSize: 11, color: textSecondary }}>earned (total)</div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Action Item */}
-            <div style={{
-              background: bgCard,
-              borderRadius: 12,
-              padding: 16,
-              border: `1px solid ${borderColor}`
-            }}>
-              <h3 style={{ 
-                fontSize: 12, 
-                fontWeight: 700, 
-                color: textSecondary,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                margin: '0 0 12px 0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6
-              }}>
-                🎓 Actions
-              </h3>
-              <div style={{
-                background: isDarkMode ? 'rgba(0, 186, 124, 0.1)' : 'rgba(0, 186, 124, 0.1)',
-                border: `1px solid ${accentGreen}`,
-                borderRadius: 8,
-                padding: 12
-              }}>
+                gap: 12,
+                cursor: stat.action ? 'pointer' : 'default'
+              }}
+            >
+              <span style={{ fontSize: 24 }}>{stat.icon}</span>
+              <div style={{ flex: 1 }}>
                 <div style={{ 
+                  fontSize: 24, 
+                  fontWeight: 700, 
+                  color: stat.color || textPrimary 
+                }}>
+                  {stat.value}
+                </div>
+                <div style={{ fontSize: 13, color: textSecondary }}>
+                  {stat.label} <span style={{ opacity: 0.7 }}>{stat.sublabel}</span>
+                </div>
+              </div>
+              {stat.action && (
+                <span style={{ 
                   fontSize: 13, 
-                  fontWeight: 600, 
-                  color: textPrimary,
-                  marginBottom: 4
+                  color: accentBlue, 
+                  fontWeight: 500 
                 }}>
-                  Sarah Johnson
-                </div>
-                <div style={{ 
-                  fontSize: 11, 
-                  color: textSecondary,
-                  marginBottom: 8
-                }}>
-                  100% complete
-                </div>
-                <button style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  background: accentGreen,
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 6,
+                  {stat.action}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar Grid */}
+        <div style={{
+          background: bgCard,
+          borderRadius: 12,
+          border: `1px solid ${borderColor}`,
+          overflow: 'hidden',
+          marginBottom: 20
+        }}>
+          {/* Day Headers */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(7, 1fr)',
+            borderBottom: `1px solid ${borderColor}`,
+            background: bgSecondary
+          }}>
+            {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => (
+              <div 
+                key={day}
+                style={{
+                  padding: '12px 8px',
+                  textAlign: 'center',
                   fontSize: 12,
                   fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6
-                }}>
-                  <FaGraduationCap style={{ fontSize: 12 }} />
-                  Recommend for Cert →
-                </button>
+                  color: textSecondary,
+                  letterSpacing: '0.5px'
+                }}
+              >
+                {day}
               </div>
-            </div>
-            
-            {/* Availability */}
-            <div style={{
-              background: bgCard,
-              borderRadius: 12,
-              padding: 16,
-              border: `1px solid ${borderColor}`
-            }}>
-              <h3 style={{ 
-                fontSize: 12, 
-                fontWeight: 700, 
-                color: textSecondary,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                margin: '0 0 12px 0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6
-              }}>
-                ⚙️ Availability
-              </h3>
-              <div style={{ 
-                fontSize: 20, 
-                fontWeight: 700, 
-                color: textPrimary,
-                marginBottom: 4
-              }}>
-                10 hrs/week
-              </div>
-              <div style={{ 
-                fontSize: 12, 
-                color: textSecondary,
-                marginBottom: 12
-              }}>
-                set for teaching
-              </div>
-              <button style={{
-                width: '100%',
-                padding: '10px 12px',
-                background: 'transparent',
-                color: accentBlue,
-                border: `1px solid ${accentBlue}`,
-                borderRadius: 8,
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}>
-                Edit Hours →
-              </button>
-            </div>
+            ))}
           </div>
-        </div>
-        
-        {/* Today's Sessions */}
-        <div style={{ marginTop: 24 }}>
+          
+          {/* Calendar Days */}
           <div style={{
-            background: bgCard,
-            borderRadius: 12,
-            border: `1px solid ${borderColor}`,
-            overflow: 'hidden'
+            display: 'grid',
+            gridTemplateColumns: 'repeat(7, 1fr)'
           }}>
-            <div style={{
-              padding: '16px 20px',
-              borderBottom: `1px solid ${borderColor}`,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8
-            }}>
-              <FaClock style={{ color: accentBlue }} />
-              <span style={{ 
-                fontSize: 15, 
-                fontWeight: 700, 
-                color: textPrimary 
-              }}>
-                Today's Sessions
-              </span>
-              <span style={{ 
-                fontSize: 13, 
-                color: textSecondary 
-              }}>
-                · Mon, Dec 9
-              </span>
-            </div>
-            
-            <div>
-              {todaysSessions.map((session, index) => (
+            {calendarDays.map((day, index) => {
+              if (day === null) {
+                return (
+                  <div 
+                    key={`empty-${index}`}
+                    style={{
+                      minHeight: 80,
+                      borderBottom: `1px solid ${borderColor}`,
+                      borderRight: index % 7 !== 6 ? `1px solid ${borderColor}` : 'none',
+                      background: isDarkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)'
+                    }}
+                  />
+                );
+              }
+
+              const dateForDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+              const sessions = getSessionsForDate(dateForDay);
+              const hasSession = sessions.length > 0;
+              const dayIsToday = isToday(day);
+              const dayIsSelected = isSelected(day);
+
+              return (
                 <div 
-                  key={index}
+                  key={day}
+                  onClick={() => handleDateClick(day)}
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '16px 20px',
-                    borderBottom: index < todaysSessions.length - 1 ? `1px solid ${borderColor}` : 'none',
-                    gap: 16
+                    minHeight: 80,
+                    padding: 8,
+                    borderBottom: `1px solid ${borderColor}`,
+                    borderRight: index % 7 !== 6 ? `1px solid ${borderColor}` : 'none',
+                    cursor: 'pointer',
+                    background: dayIsSelected 
+                      ? (isDarkMode ? 'rgba(29, 155, 240, 0.15)' : 'rgba(29, 155, 240, 0.1)')
+                      : dayIsToday 
+                        ? (isDarkMode ? 'rgba(29, 155, 240, 0.08)' : 'rgba(29, 155, 240, 0.05)')
+                        : 'transparent',
+                    transition: 'background 0.2s',
+                    position: 'relative'
                   }}
                 >
-                  {/* Avatar */}
+                  {/* Day Number */}
                   <div style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: '50%',
-                    background: accentBlue,
-                    color: '#fff',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    width: 28,
+                    height: 28,
+                    borderRadius: '50%',
                     fontSize: 14,
-                    fontWeight: 700,
-                    flexShrink: 0
+                    fontWeight: dayIsToday || dayIsSelected ? 700 : 500,
+                    color: dayIsToday ? '#fff' : dayIsSelected ? accentBlue : textPrimary,
+                    background: dayIsToday ? accentBlue : 'transparent',
+                    marginBottom: 4
                   }}>
-                    {session.initials}
+                    {day}
                   </div>
                   
-                  {/* Info */}
-                  <div style={{ flex: 1 }}>
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: 8,
-                      marginBottom: 4
+                  {/* Session Dots */}
+                  {hasSession && (
+                    <div style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: 4,
+                      marginTop: 4
                     }}>
-                      <span style={{ 
-                        fontSize: 15, 
-                        fontWeight: 700, 
-                        color: textPrimary 
-                      }}>
-                        {session.time}
-                      </span>
-                      <span style={{ 
-                        fontSize: 15, 
-                        fontWeight: 600, 
-                        color: textPrimary 
-                      }}>
-                        {session.student}
-                      </span>
-                      <span style={{ color: textSecondary }}>·</span>
-                      <span style={{ 
-                        fontSize: 14, 
-                        color: textSecondary 
-                      }}>
-                        {session.module}
-                      </span>
-                    </div>
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: 12 
-                    }}>
-                      {/* Progress Bar */}
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: 8,
-                        flex: 1
-                      }}>
-                        <span style={{ fontSize: 12, color: textSecondary }}>Progress:</span>
-                        <div style={{
-                          flex: 1,
-                          maxWidth: 200,
-                          height: 6,
-                          background: isDarkMode ? '#2f3336' : '#e2e8f0',
-                          borderRadius: 3,
-                          overflow: 'hidden'
-                        }}>
-                          <div style={{
-                            width: `${session.progress}%`,
-                            height: '100%',
-                            background: session.progress === 100 ? accentGreen : accentBlue,
-                            borderRadius: 3
-                          }} />
-                        </div>
-                        <span style={{ 
-                          fontSize: 12, 
-                          fontWeight: 600,
-                          color: session.progress === 100 ? accentGreen : textSecondary
-                        }}>
-                          {session.progress}%
-                        </span>
-                      </div>
-                      
-                      {/* Status Badge */}
-                      {session.status === 'ready_for_cert' && (
-                        <span style={{
-                          fontSize: 11,
-                          fontWeight: 600,
-                          color: accentGreen,
-                          background: isDarkMode ? 'rgba(0, 186, 124, 0.1)' : 'rgba(0, 186, 124, 0.1)',
-                          padding: '4px 8px',
-                          borderRadius: 4
-                        }}>
-                          📝 Ready for certification
-                        </span>
-                      )}
-                      {session.status === 'on_track' && (
-                        <span style={{
-                          fontSize: 11,
-                          fontWeight: 600,
-                          color: accentBlue,
-                          background: isDarkMode ? 'rgba(29, 155, 240, 0.1)' : 'rgba(29, 155, 240, 0.1)',
-                          padding: '4px 8px',
-                          borderRadius: 4
-                        }}>
-                          📚 On track
-                        </span>
-                      )}
-                      {session.status === 'final_module' && (
-                        <span style={{
-                          fontSize: 11,
-                          fontWeight: 600,
-                          color: '#f97316',
-                          background: 'rgba(249, 115, 22, 0.1)',
-                          padding: '4px 8px',
-                          borderRadius: 4
-                        }}>
-                          🎯 Final module
-                        </span>
+                      {sessions.slice(0, 4).map((session, idx) => (
+                        <div 
+                          key={idx}
+                          style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: '50%',
+                            background: session.status === 'ready_for_cert' ? accentGreen 
+                                      : session.status === 'final_module' ? accentOrange 
+                                      : accentBlue
+                          }}
+                          title={`${session.time} - ${session.student}`}
+                        />
+                      ))}
+                      {sessions.length > 4 && (
+                        <span style={{ fontSize: 10, color: textSecondary }}>+{sessions.length - 4}</span>
                       )}
                     </div>
-                  </div>
-                  
-                  {/* Time & Actions */}
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 12,
-                    flexShrink: 0
-                  }}>
-                    <span style={{ 
-                      fontSize: 12, 
-                      color: session.canJoin ? accentGreen : textSecondary,
-                      fontWeight: session.canJoin ? 600 : 400
-                    }}>
-                      {session.canJoin ? '🟢 Starts in ' : 'Starts in '}{session.startsIn}
-                    </span>
-                    
-                    {session.canJoin ? (
-                      <button style={{
-                        padding: '10px 20px',
-                        background: accentGreen,
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 8,
-                        fontSize: 13,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6
-                      }}>
-                        <FaVideo style={{ fontSize: 12 }} />
-                        Join Session
-                      </button>
-                    ) : (
-                      <button style={{
-                        padding: '10px 20px',
-                        background: 'transparent',
-                        color: textSecondary,
-                        border: `1px solid ${borderColor}`,
-                        borderRadius: 8,
-                        fontSize: 13,
-                        fontWeight: 500,
-                        cursor: 'pointer'
-                      }}>
-                        Prepare
-                      </button>
-                    )}
-                    
-                    <button style={{
-                      padding: '10px 16px',
-                      background: 'transparent',
+                  )}
+
+                  {/* Today Label */}
+                  {dayIsToday && (
+                    <div style={{
+                      position: 'absolute',
+                      bottom: 4,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      fontSize: 9,
+                      fontWeight: 600,
                       color: accentBlue,
-                      border: `1px solid ${borderColor}`,
-                      borderRadius: 8,
-                      fontSize: 13,
-                      fontWeight: 500,
-                      cursor: 'pointer'
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
                     }}>
-                      View Student
-                    </button>
-                  </div>
+                      Today
+                    </div>
+                  )}
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
+        </div>
+
+        {/* Selected Day Details */}
+        <div style={{
+          background: bgCard,
+          borderRadius: 12,
+          border: `1px solid ${borderColor}`,
+          overflow: 'hidden'
+        }}>
+          {selectedDate ? (
+            <>
+              {/* Details Header */}
+              <div style={{
+                padding: '16px 20px',
+                borderBottom: `1px solid ${borderColor}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: bgSecondary
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <FaClock style={{ color: accentBlue }} />
+                  <span style={{ 
+                    fontSize: 16, 
+                    fontWeight: 700, 
+                    color: textPrimary 
+                  }}>
+                    📆 {formatSelectedDate()}
+                  </span>
+                </div>
+                <span style={{ 
+                  fontSize: 14, 
+                  color: textSecondary 
+                }}>
+                  {selectedSessions.length} session{selectedSessions.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              
+              {/* Session Cards */}
+              <div style={{ padding: 16 }}>
+                {selectedSessions.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {selectedSessions.map((session, index) => (
+                      <div 
+                        key={index}
+                        style={{
+                          background: bgSecondary,
+                          borderRadius: 12,
+                          padding: 16,
+                          border: `1px solid ${borderColor}`
+                        }}
+                      >
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: 16
+                        }}>
+                          {/* Avatar */}
+                          <div style={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: '50%',
+                            background: session.status === 'ready_for_cert' ? accentGreen 
+                                      : session.status === 'final_module' ? accentOrange 
+                                      : accentBlue,
+                            color: '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 14,
+                            fontWeight: 700,
+                            flexShrink: 0
+                          }}>
+                            {session.initials}
+                          </div>
+                          
+                          {/* Info */}
+                          <div style={{ flex: 1 }}>
+                            <div style={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: 8,
+                              marginBottom: 4
+                            }}>
+                              <span style={{ 
+                                fontSize: 16, 
+                                fontWeight: 700, 
+                                color: textPrimary 
+                              }}>
+                                {session.time}
+                              </span>
+                              <span style={{ 
+                                fontSize: 16, 
+                                fontWeight: 600, 
+                                color: textPrimary 
+                              }}>
+                                {session.student}
+                              </span>
+                            </div>
+                            <div style={{ 
+                              fontSize: 14, 
+                              color: textSecondary,
+                              marginBottom: 12
+                            }}>
+                              {session.module}
+                            </div>
+                            
+                            {/* Progress Bar */}
+                            <div style={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: 12,
+                              marginBottom: 8
+                            }}>
+                              <span style={{ fontSize: 12, color: textSecondary }}>Progress:</span>
+                              <div style={{
+                                flex: 1,
+                                maxWidth: 200,
+                                height: 8,
+                                background: isDarkMode ? '#2f3336' : '#e2e8f0',
+                                borderRadius: 4,
+                                overflow: 'hidden'
+                              }}>
+                                <div style={{
+                                  width: `${session.progress}%`,
+                                  height: '100%',
+                                  background: session.progress === 100 ? accentGreen : accentBlue,
+                                  borderRadius: 4
+                                }} />
+                              </div>
+                              <span style={{ 
+                                fontSize: 13, 
+                                fontWeight: 600,
+                                color: session.progress === 100 ? accentGreen : textSecondary
+                              }}>
+                                {session.progress}%
+                              </span>
+                              
+                              {/* Status Badge */}
+                              {session.status === 'ready_for_cert' && (
+                                <span style={{
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  color: accentGreen,
+                                  background: isDarkMode ? 'rgba(0, 186, 124, 0.15)' : 'rgba(0, 186, 124, 0.1)',
+                                  padding: '4px 10px',
+                                  borderRadius: 6
+                                }}>
+                                  📝 Ready for certification
+                                </span>
+                              )}
+                              {session.status === 'on_track' && (
+                                <span style={{
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  color: accentBlue,
+                                  background: isDarkMode ? 'rgba(29, 155, 240, 0.15)' : 'rgba(29, 155, 240, 0.1)',
+                                  padding: '4px 10px',
+                                  borderRadius: 6
+                                }}>
+                                  📚 On track
+                                </span>
+                              )}
+                              {session.status === 'final_module' && (
+                                <span style={{
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  color: accentOrange,
+                                  background: 'rgba(249, 115, 22, 0.15)',
+                                  padding: '4px 10px',
+                                  borderRadius: 6
+                                }}>
+                                  🎯 Final module
+                                </span>
+                              )}
+                              {session.status === 'new' && (
+                                <span style={{
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  color: '#a855f7',
+                                  background: 'rgba(168, 85, 247, 0.15)',
+                                  padding: '4px 10px',
+                                  borderRadius: 6
+                                }}>
+                                  🆕 New student
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Actions */}
+                          <div style={{ 
+                            display: 'flex', 
+                            flexDirection: 'column',
+                            alignItems: 'flex-end',
+                            gap: 8,
+                            flexShrink: 0
+                          }}>
+                            {session.startsIn && (
+                              <span style={{ 
+                                fontSize: 12, 
+                                color: session.canJoin ? accentGreen : textSecondary,
+                                fontWeight: session.canJoin ? 600 : 400
+                              }}>
+                                {session.canJoin ? '🟢 ' : ''}Starts in {session.startsIn}
+                              </span>
+                            )}
+                            <div style={{ display: 'flex', gap: 8 }}>
+                              {session.canJoin ? (
+                                <button style={{
+                                  padding: '10px 20px',
+                                  background: accentGreen,
+                                  color: '#fff',
+                                  border: 'none',
+                                  borderRadius: 8,
+                                  fontSize: 13,
+                                  fontWeight: 600,
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 6
+                                }}>
+                                  <FaVideo style={{ fontSize: 12 }} />
+                                  Join Session
+                                </button>
+                              ) : (
+                                <button style={{
+                                  padding: '10px 20px',
+                                  background: 'transparent',
+                                  color: textSecondary,
+                                  border: `1px solid ${borderColor}`,
+                                  borderRadius: 8,
+                                  fontSize: 13,
+                                  fontWeight: 500,
+                                  cursor: 'pointer'
+                                }}>
+                                  Prepare
+                                </button>
+                              )}
+                              <button style={{
+                                padding: '10px 16px',
+                                background: 'transparent',
+                                color: accentBlue,
+                                border: `1px solid ${borderColor}`,
+                                borderRadius: 8,
+                                fontSize: 13,
+                                fontWeight: 500,
+                                cursor: 'pointer'
+                              }}>
+                                View Student
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '40px 20px',
+                    color: textSecondary
+                  }}>
+                    <div style={{ fontSize: 32, marginBottom: 12 }}>📅</div>
+                    <div style={{ fontSize: 15, fontWeight: 500 }}>No sessions scheduled</div>
+                    <div style={{ fontSize: 13, marginTop: 4 }}>This day is open for new bookings</div>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div style={{
+              textAlign: 'center',
+              padding: '60px 20px',
+              color: textSecondary
+            }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>👆</div>
+              <div style={{ fontSize: 16, fontWeight: 500 }}>Click on a day to view session details</div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -1015,6 +893,3 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
 };
 
 export default StudentTeacherDashboard;
-
-
-
