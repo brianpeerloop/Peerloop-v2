@@ -40,7 +40,7 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
     { value: '$2,520 earned', sublabel: 'total' },
     { value: '1 cert ready', sublabel: 'to review' }
   ];
-
+  
   // Colors
   const bgPrimary = isDarkMode ? '#000' : '#fff';
   const bgSecondary = isDarkMode ? '#16181c' : '#f8fafc';
@@ -331,29 +331,51 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
           </div>
         </div>
 
-        {/* Stats Row - Twitter style links */}
+        {/* Stats Row */}
         <div style={{ 
           display: 'flex', 
-          alignItems: 'center',
-          gap: 24,
+          gap: 12, 
           marginBottom: 20,
           flexWrap: 'wrap'
         }}>
           {quickStats.map((stat, index) => (
-            <span 
+            <div 
               key={index}
               style={{
-                fontSize: 14,
-                color: textSecondary,
-                cursor: 'pointer',
-                transition: 'color 0.15s'
+                flex: '1 1 200px',
+                background: bgCard,
+                borderRadius: 12,
+                padding: '16px 20px',
+                border: `1px solid ${borderColor}`,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                cursor: stat.action ? 'pointer' : 'default'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.color = accentBlue}
-              onMouseLeave={(e) => e.currentTarget.style.color = textSecondary}
             >
-              <span style={{ fontWeight: 700, color: textPrimary }}>{stat.value}</span>
-              {' '}{stat.sublabel}
-            </span>
+              <span style={{ fontSize: 24 }}>{stat.icon}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ 
+                  fontSize: 24, 
+                  fontWeight: 700, 
+                  color: stat.color || textPrimary 
+                }}>
+                  {stat.value}
+                </div>
+                <div style={{ fontSize: 13, color: textSecondary }}>
+                  {stat.label} <span style={{ opacity: 0.7 }}>{stat.sublabel}</span>
+                </div>
+              </div>
+              {stat.action && (
+                <span style={{ 
+                  fontSize: 13, 
+                  color: accentBlue, 
+                  fontWeight: 500 
+                }}>
+                  {stat.action}
+                </span>
+              )}
+            </div>
           ))}
         </div>
 
@@ -377,9 +399,9 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
               <div 
                 key={day}
                 style={{
-                  padding: '8px 4px',
+                  padding: '12px 8px',
                   textAlign: 'center',
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: 600,
                   color: textSecondary,
                   letterSpacing: '0.5px'
@@ -401,7 +423,7 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
                   <div 
                     key={`empty-${index}`}
                     style={{
-                      minHeight: 54,
+                      minHeight: 80,
                       borderBottom: `1px solid ${borderColor}`,
                       borderRight: index % 7 !== 6 ? `1px solid ${borderColor}` : 'none',
                       background: isDarkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)'
@@ -418,8 +440,8 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
                   key={day}
                   onClick={() => handleDateClick(day)}
                   style={{
-                    minHeight: 54,
-                    padding: 4,
+                    minHeight: 80,
+                    padding: 8,
                     borderBottom: `1px solid ${borderColor}`,
                     borderRight: index % 7 !== 6 ? `1px solid ${borderColor}` : 'none',
                     cursor: 'pointer',
@@ -444,24 +466,23 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
                     fontWeight: dayIsToday || dayIsSelected ? 700 : 500,
                     color: dayIsToday ? '#fff' : dayIsSelected ? accentBlue : textPrimary,
                     background: dayIsToday ? accentBlue : 'transparent',
-                    marginBottom: 2
+                    marginBottom: 4
                   }}>
                     {day}
                   </div>
                   
-
                   {/* Today Label */}
                   {dayIsToday && (
                     <div style={{
                       position: 'absolute',
-                      bottom: 2,
+                      bottom: 4,
                       left: '50%',
                       transform: 'translateX(-50%)',
-                      fontSize: 7,
+                      fontSize: 9,
                       fontWeight: 600,
                       color: accentBlue,
                       textTransform: 'uppercase',
-                      letterSpacing: '0.3px'
+                      letterSpacing: '0.5px'
                     }}>
                       Today
                     </div>
@@ -471,6 +492,7 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
             })}
           </div>
         </div>
+
       </div>
     </div>
   );
