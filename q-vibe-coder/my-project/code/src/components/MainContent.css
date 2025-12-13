@@ -234,6 +234,38 @@ body.dark-mode .top-menu-section,
   border-bottom: 1px solid #2f3336;
 }
 
+/* Responsive top menu */
+@media (max-width: 600px) {
+  .top-menu-section {
+    padding: 0 8px !important;
+    gap: 4px !important;
+  }
+  
+  .top-menu-section button {
+    padding: 12px 8px !important;
+    font-size: 12px !important;
+  }
+  
+  .top-menu-section .search-container {
+    min-width: 60px !important;
+    max-width: 100px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .top-menu-section {
+    padding: 0 4px !important;
+  }
+  
+  .top-menu-section button span {
+    display: none;
+  }
+  
+  .top-menu-section button svg {
+    font-size: 18px !important;
+  }
+}
+
 .browse-instruction {
   margin: 0;
   padding: 8px 0 0 0;

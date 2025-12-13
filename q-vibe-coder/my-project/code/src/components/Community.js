@@ -1472,22 +1472,12 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                 }}>
                   <span style={{ color: '#fff' }}>Posting to:</span>
                   {communityMode === 'hub' ? (
-                    <>
-                      <span style={{ 
-                        fontWeight: 700, 
-                        color: '#fff'
-                      }}>
-                        All followed Creator communities
-                      </span>
-                      <span style={{ 
-                        marginLeft: 'auto', 
-                        fontSize: 13, 
-                        color: isDarkMode ? '#71767b' : '#536471',
-                        fontStyle: 'italic'
-                      }}>
-                        This displays all posts for courses followed.
-                      </span>
-                    </>
+                    <span style={{ 
+                      fontWeight: 700, 
+                      color: '#fff'
+                    }}>
+                      All followed Creator communities
+                    </span>
                   ) : (
                     <div className="posting-course-dropdown" style={{ position: 'relative' }}>
                       <span 

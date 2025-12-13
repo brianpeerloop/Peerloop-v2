@@ -133,6 +133,10 @@
   color: #1d9bf0;
 }
 
+.nav-item.active .nav-icon {
+  color: #1d9bf0;
+}
+
 .nav-icon {
   margin-right: 16px;
   width: 22px;
@@ -462,13 +466,25 @@
 }
 
 .dark-mode .nav-item.active {
-  color: #e7e9ea;
+  color: #1d9bf0;
   font-weight: 700;
+}
+
+.dark-mode .nav-item.active .nav-icon {
+  color: #1d9bf0;
 }
 
 .dark-mode .nav-label {
   color: #e7e9ea;
   font-size: 20px;
+}
+
+.dark-mode .nav-item.active .nav-label {
+  color: #1d9bf0;
+}
+
+.nav-item.active .nav-label {
+  color: #1d9bf0;
 }
 
 .dark-mode .profile-name {
