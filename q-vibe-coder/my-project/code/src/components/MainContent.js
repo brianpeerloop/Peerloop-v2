@@ -206,6 +206,24 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
       }
     }, [lastBrowseClick]);
 
+    // Check for pending instructor navigation from Community
+    React.useEffect(() => {
+      if (activeMenu === 'Browse') {
+        const pendingInstructor = localStorage.getItem('pendingBrowseInstructor');
+        if (pendingInstructor) {
+          try {
+            const instructor = JSON.parse(pendingInstructor);
+            setSelectedInstructor(instructor);
+            setActiveTopMenu('creators');
+            localStorage.removeItem('pendingBrowseInstructor');
+          } catch (e) {
+            console.error('Error parsing pending instructor:', e);
+            localStorage.removeItem('pendingBrowseInstructor');
+          }
+        }
+      }
+    }, [activeMenu]);
+
     // Track last selected top menu
     useEffect(() => {
       lastTopMenuRef.current = activeTopMenu;

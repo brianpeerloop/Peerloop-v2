@@ -991,9 +991,9 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
   };
 
   return (
-    <div className="community-content-outer">
-      <div className="community-three-column">
-        <div className="community-center-column">
+    <div className="community-content-outer" style={{ background: isDarkMode ? '#000' : '#fff' }}>
+      <div className="community-three-column" style={{ background: isDarkMode ? '#000' : '#fff' }}>
+        <div className="community-center-column" style={{ background: isDarkMode ? '#000' : '#fff' }}>
           {/* Single row with Community Hub + Creator names */}
           <div className="community-top-menu" style={{ display: 'block' }}>
             <div style={{
@@ -1174,6 +1174,234 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
               </div>
             </div>
           </div>
+
+          {/* Community Hub Welcome Section */}
+          {communityMode === 'hub' && (
+            <div style={{
+              background: isDarkMode ? '#000' : '#fff',
+              borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
+              padding: '20px 16px'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12
+              }}>
+                <div style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: '50%',
+                  background: '#1d9bf0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <FaUsers style={{ color: '#fff', fontSize: 20 }} />
+                </div>
+                <div>
+                  <div style={{
+                    fontSize: 18,
+                    fontWeight: 700,
+                    color: isDarkMode ? '#e7e9ea' : '#0f1419',
+                    marginBottom: 4
+                  }}>
+                    Welcome to Your Community
+                  </div>
+                  <div style={{
+                    fontSize: 14,
+                    color: isDarkMode ? '#71767b' : '#536471',
+                    lineHeight: 1.4
+                  }}>
+                    Connect with creators, share insights, and learn together. Select a creator above to see their community feed.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Mini Creator Profile - Shows when a creator is selected */}
+          {communityMode === 'creators' && selectedCreatorId && (() => {
+            const selectedCreator = groupedByCreator.find(c => c.id === selectedCreatorId);
+            if (!selectedCreator) return null;
+            const instructor = getInstructorById(selectedCreator.instructorId);
+            if (!instructor) return null;
+            
+            return (
+              <div style={{
+                background: isDarkMode ? '#000' : '#fff',
+                borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
+                padding: '16px'
+              }}>
+                {/* Creator Info Row */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 12,
+                  marginBottom: 12
+                }}>
+                  {/* Avatar */}
+                  {instructor.avatar ? (
+                    <img
+                      src={instructor.avatar}
+                      alt={instructor.name}
+                      style={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                        flexShrink: 0
+                      }}
+                    />
+                  ) : (
+                    <div style={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: '50%',
+                      background: '#1d9bf0',
+                      color: '#fff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 20,
+                      fontWeight: 700,
+                      flexShrink: 0
+                    }}>
+                      {instructor.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                    </div>
+                  )}
+                  
+                  {/* Creator Details */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 12,
+                      marginBottom: 4
+                    }}>
+                      <div>
+                        <div 
+                          onClick={() => {
+                            // Store instructor info and navigate to Browse -> Creators
+                            localStorage.setItem('pendingBrowseInstructor', JSON.stringify(instructor));
+                            localStorage.setItem('browseActiveTopMenu', 'creators');
+                            if (onMenuChange) {
+                              onMenuChange('Browse');
+                            }
+                          }}
+                          style={{
+                            fontSize: 18,
+                            fontWeight: 700,
+                            color: '#1d9bf0',
+                            cursor: 'pointer',
+                            display: 'inline-block'
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
+                          onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
+                        >
+                          {instructor.name}
+                        </div>
+                        <div style={{
+                          fontSize: 14,
+                          color: isDarkMode ? '#71767b' : '#536471'
+                        }}>
+                          @{instructor.name.replace(/\s+/g, '')} · {(instructor.totalStudents || 0).toLocaleString()} students
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Bio */}
+                    <div style={{
+                      fontSize: 14,
+                      color: isDarkMode ? '#e7e9ea' : '#0f1419',
+                      marginTop: 8,
+                      lineHeight: 1.4
+                    }}>
+                      {instructor.bio || `Expert instructor teaching ${selectedCreator.allCourses.length} courses`}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Course Slider */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  marginTop: 12,
+                  background: isDarkMode ? '#000' : '#fff'
+                }}>
+                  <span style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: isDarkMode ? '#71767b' : '#536471',
+                    flexShrink: 0
+                  }}>
+                    COURSES:
+                  </span>
+                  
+                  <div style={{
+                    display: 'flex',
+                    gap: 8,
+                    overflowX: 'auto',
+                    flex: 1,
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                    paddingBottom: 4
+                  }}>
+                    {/* All Courses option */}
+                    <button
+                      onClick={() => {
+                        setSelectedPostingCourse(null);
+                      }}
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: 4,
+                        border: 'none',
+                        background: isDarkMode ? '#2f3336' : '#e1e8ed',
+                        color: selectedPostingCourse === null ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
+                        fontSize: 13,
+                        fontWeight: selectedPostingCourse === null ? 700 : 500,
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      All Courses
+                    </button>
+                    
+                    {/* Individual Courses */}
+                    {selectedCreator.allCourses
+                      .filter(course => selectedCreator.followedCourseIds.includes(course.id))
+                      .map(course => {
+                        const isSelected = selectedPostingCourse?.id === course.id;
+                        return (
+                          <button
+                            key={course.id}
+                            onClick={() => {
+                              setSelectedPostingCourse({ id: course.id, name: course.title });
+                            }}
+                            style={{
+                              padding: '8px 12px',
+                              borderRadius: 4,
+                              border: 'none',
+                              background: isDarkMode ? '#2f3336' : '#e1e8ed',
+                              color: isSelected ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
+                              fontSize: 13,
+                              fontWeight: isSelected ? 700 : 500,
+                              cursor: 'pointer',
+                              whiteSpace: 'nowrap',
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            {course.title.length > 25 ? course.title.substring(0, 22) + '...' : course.title}
+                          </button>
+                        );
+                      })}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* REMOVED: Old tabs code - replaced with toggle above */}
           {false && <div className="old-tabs-removed">
@@ -1415,7 +1643,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
           </div>}
 
           {/* Feed Content */}
-          <div className="community-feed-content">
+          <div className="community-feed-content" style={{ background: isDarkMode ? '#000' : '#fff' }}>
             {/* What's Happening Post Composer - Compact */}
             <div 
               className="post-composer"
@@ -1424,7 +1652,8 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                 padding: '10px 16px',
                 display: 'flex',
                 gap: 10,
-                background: isDarkMode ? '#000' : '#fff'
+                background: isDarkMode ? '#000' : '#fff',
+                backgroundColor: isDarkMode ? '#000' : '#fff'
               }}
             >
               {/* User Avatar - Clickable to go to Profile */}
@@ -1459,8 +1688,8 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
               </div>
               
               {/* Composer Input Area */}
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                {/* Posting To Label - With Dropdown for My Creators mode */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: isDarkMode ? '#000' : '#fff' }}>
+                {/* Posting To Label - Simple display */}
                 <div style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
@@ -1468,118 +1697,20 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                   marginBottom: 8,
                   fontSize: 14,
                   color: isDarkMode ? '#71767b' : '#536471',
-                  position: 'relative'
+                  background: isDarkMode ? '#000' : '#fff'
                 }}>
-                  <span style={{ color: '#fff' }}>Posting to:</span>
-                  {communityMode === 'hub' ? (
-                    <span style={{ 
-                      fontWeight: 700, 
-                      color: '#fff'
-                    }}>
-                      All followed Creator communities
-                    </span>
-                  ) : (
-                    <div className="posting-course-dropdown" style={{ position: 'relative' }}>
-                      <span 
-                        onClick={() => setShowPostingCourseDropdown(!showPostingCourseDropdown)}
-                        style={{ 
-                          fontWeight: 700, 
-                          color: '#fff',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 4
-                        }}
-                      >
-                        {selectedPostingCourse 
-                          ? selectedPostingCourse.name 
-                          : (groupedByCreator.find(c => c.id === selectedCreatorId)?.name || 'Community') + "'s community wide posts"
-                        }
-                        <span style={{ fontSize: 10 }}>▼</span>
-                      </span>
-                      
-                      {/* Dropdown showing followed courses for this creator */}
-                      {showPostingCourseDropdown && (
-                        <div className="posting-course-dropdown" style={{
-                          position: 'absolute',
-                          top: '100%',
-                          left: 0,
-                          marginTop: 4,
-                          background: isDarkMode ? '#16181c' : '#fff',
-                          border: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0',
-                          borderRadius: 8,
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                          zIndex: 1000,
-                          minWidth: 200,
-                          maxWidth: 300,
-                          maxHeight: '40vh',
-                          overflowY: 'auto'
-                        }}>
-                          {/* All Community option */}
-                          <div
-                            onClick={() => {
-                              setSelectedPostingCourse(null);
-                              setShowPostingCourseDropdown(false);
-                            }}
-                            style={{
-                              padding: '10px 12px',
-                              cursor: 'pointer',
-                              fontSize: 14,
-                              fontWeight: !selectedPostingCourse ? 600 : 400,
-                              color: !selectedPostingCourse ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
-                              borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0'
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = isDarkMode ? '#2f3336' : '#f7f9f9'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                          >
-                            {(groupedByCreator.find(c => c.id === selectedCreatorId)?.name || 'Creator')}'s community wide posts
-                          </div>
-                          
-                          {/* Followed courses for this creator */}
-                          {(() => {
-                            const creator = groupedByCreator.find(c => c.id === selectedCreatorId);
-                            if (!creator) return null;
-                            // Use the pre-computed followedCourseIds from groupedByCreator
-                            const followedCourses = (creator.allCourses || []).filter(course => 
-                              creator.followedCourseIds.includes(course.id)
-                            );
-                            if (followedCourses.length === 0) {
-                              return (
-                                <div style={{
-                                  padding: '10px 12px',
-                                  fontSize: 13,
-                                  color: isDarkMode ? '#71767b' : '#536471',
-                                  fontStyle: 'italic'
-                                }}>
-                                  No courses followed yet
-                                </div>
-                              );
-                            }
-                            return followedCourses.map(course => (
-                              <div
-                                key={course.id}
-                                onClick={() => {
-                                  setSelectedPostingCourse({ id: course.id, name: course.title });
-                                  setShowPostingCourseDropdown(false);
-                                }}
-                                style={{
-                                  padding: '10px 12px',
-                                  cursor: 'pointer',
-                                  fontSize: 14,
-                                  fontWeight: selectedPostingCourse?.id === course.id ? 600 : 400,
-                                  color: selectedPostingCourse?.id === course.id ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419')
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.background = isDarkMode ? '#2f3336' : '#f7f9f9'}
-                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                              >
-                                {course.title}
-                              </div>
-                            ));
-                          })()}
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  <span style={{ color: isDarkMode ? '#71767b' : '#536471' }}>Posting to:</span>
+                  <span style={{
+                    fontWeight: 700,
+                    color: '#1d9bf0'
+                  }}>
+                    {communityMode === 'hub'
+                      ? 'All followed communities'
+                      : selectedPostingCourse
+                        ? selectedPostingCourse.name
+                        : 'Common Area'
+                    }
+                  </span>
                 </div>
                 
                 <textarea

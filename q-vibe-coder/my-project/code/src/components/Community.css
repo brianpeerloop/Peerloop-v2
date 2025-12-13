@@ -940,6 +940,11 @@
 /* Community Content Sections */
 .community-feed-content {
   padding: 0;
+  background: var(--bg-primary) !important;
+}
+
+.post-composer {
+  background: var(--bg-primary) !important;
 }
 
 .community-home-content,
