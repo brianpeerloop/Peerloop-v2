@@ -78,25 +78,20 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
         const container = tabsContainerRef.current;
         if (!container) return;
         
-        // Find the button for the selected creator
-        const buttons = container.querySelectorAll('button');
-        const selectedButton = Array.from(buttons).find(btn => {
-          // Match by checking if this button's creator id matches
-          const creatorId = btn.getAttribute('data-creator-id');
-          return creatorId === selectedCreatorId;
-        });
+        // Find the div with data-creator-id matching the selected creator
+        const creatorTab = container.querySelector(`[data-creator-id="${selectedCreatorId}"]`);
         
-        if (selectedButton) {
-          // Scroll the button into view, centered
+        if (creatorTab) {
+          // Scroll the tab into view, centered
           const containerWidth = container.clientWidth;
-          const buttonLeft = selectedButton.offsetLeft;
-          const buttonWidth = selectedButton.offsetWidth;
-          const scrollTo = buttonLeft - (containerWidth / 2) + (buttonWidth / 2);
+          const tabLeft = creatorTab.offsetLeft;
+          const tabWidth = creatorTab.offsetWidth;
+          const scrollTo = tabLeft - (containerWidth / 2) + (tabWidth / 2);
           container.scrollTo({ left: Math.max(0, scrollTo), behavior: 'smooth' });
         }
-      }, 100);
+      }, 150);
     }
-  }, [communityMode, selectedCreatorId]);
+  }, [communityMode, selectedCreatorId, pendingCreatorName]);
 
   // Handle posting a new message
   const handleSubmitPost = async () => {
@@ -1116,6 +1111,37 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                     </button>
                   </div>
                 ))}
+                
+                {/* Show pending creator tab if they're not in the followed list */}
+                {selectedCreatorId && pendingCreatorName && !groupedByCreator.find(c => c.id === selectedCreatorId) && (
+                  <div 
+                    style={{ 
+                      position: 'relative', 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      borderBottom: '4px solid #1d9bf0',
+                      marginBottom: -1
+                    }}
+                    data-creator-id={selectedCreatorId}
+                  >
+                    <button
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: '8px 16px',
+                        fontSize: 15,
+                        fontWeight: 700,
+                        color: isDarkMode ? '#fff' : '#0f1419',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        transition: 'all 0.2s',
+                        opacity: 0.7
+                      }}
+                    >
+                      {pendingCreatorName}
+                    </button>
+                  </div>
+                )}
               </div>
               
               <button 

@@ -433,8 +433,8 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
             
             {/* Action Buttons - Top Right */}
             <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-              {/* Go to Community Button - navigates to Community page with creator selected */}
-              <button 
+              {/* Go to Community Link - navigates to Community page with creator selected */}
+              <span 
                 onClick={() => {
                   // Store the creator info so Community page can select this creator
                   localStorage.setItem('pendingCommunityCreator', JSON.stringify({
@@ -447,25 +447,30 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                   }
                 }}
                 style={{ 
-                  background: isDarkMode ? '#16181c' : '#fff',
-                  color: '#1d9bf0', 
-                  border: '1px solid #1d9bf0', 
-                  padding: '8px 16px', 
-                  borderRadius: 20, 
-                  fontWeight: 600, 
-                  fontSize: 13, 
+                  color: '#fff',
+                  fontWeight: 500, 
+                  fontSize: 14, 
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 6,
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '0.7';
+                  e.currentTarget.style.textDecoration = 'underline';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '1';
+                  e.currentTarget.style.textDecoration = 'none';
                 }}
               >
-                💬 Go to Community
-              </button>
+                Go to Community
+              </span>
               
               {/* Follow Button with Dropdown - Same pattern as Summary view */}
-              <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
+              <div className="creator-follow-dropdown-wrapper" style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
                 <button 
                   type="button"
                   onClick={(e) => {
@@ -517,14 +522,19 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                         fontWeight: 500,
                         background: 'transparent',
                         border: 'none',
+                        borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #f1f5f9',
                         width: '100%',
-                        textAlign: 'left'
+                        textAlign: 'left',
+                        display: 'block'
                       }}
                       onClick={(e) => {
                         e.stopPropagation();
+                        e.preventDefault();
                         handleFollowInstructor(creator.id);
                         setOpenCreatorFollowDropdown(null);
                       }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = isDarkMode ? '#2f3336' : '#f8fafc'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
                       {hasAnyCreatorCourseFollowed(creator.id) ? 'Unfollow All' : 'Follow All Courses'}
                     </button>
@@ -541,15 +551,19 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             fontSize: 14,
-                            color: isDarkMode ? '#e7e9ea' : '#0f1419'
+                            color: isFollowed ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
+                            fontWeight: isFollowed ? 500 : 400
                           }}
                           onClick={(e) => {
                             e.stopPropagation();
+                            e.preventDefault();
                             handleFollowCourse(course.id);
                           }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = isDarkMode ? '#2f3336' : '#f8fafc'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                         >
                           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{course.title}</span>
-                          {isFollowed && <span style={{ color: '#1d9bf0' }}>✓</span>}
+                          {isFollowed && <span>✓</span>}
                         </div>
                       );
                     })}
@@ -1629,24 +1643,26 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
           <div className="center-column">
             <div className="top-menu-section" style={{ 
               borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
-              padding: '0 12px',
+              padding: '0 16px',
               position: 'sticky',
               top: 0,
               zIndex: 100,
               background: isDarkMode ? '#000' : '#fff',
               display: 'flex',
+              flexDirection: 'row',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'space-between',
+              gap: 16
             }}>
-              {/* Left spacer to balance the search box on the right */}
-              <div style={{ flex: '0 0 auto', minWidth: 80, maxWidth: 200, width: 150 }} />
+              {/* Left spacer to balance search bar on right - keeps tabs centered */}
+              <div style={{ flex: '0 0 150px', minWidth: 80, maxWidth: 200 }} />
               
               {/* Centered tabs */}
               <div style={{
                 display: 'flex',
-                justifyContent: 'center',
                 alignItems: 'center',
-                gap: 0,
+                justifyContent: 'center',
+                gap: 48,
                 flex: '1 1 auto'
               }}>
                 <button
@@ -1711,22 +1727,30 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                 </button>
               </div>
               
-              {/* Search box on right */}
-              <div className="search-container" style={{ 
+              {/* Search box on right - wrapped to match tab height */}
+              <div style={{ 
                 flex: '0 0 auto',
                 minWidth: 80,
                 maxWidth: 200,
-                width: 150
+                width: 150,
+                display: 'flex',
+                alignItems: 'center',
+                padding: '12px 0'
               }}>
-                <FaSearch className="search-icon" />
-                <input
-                  type="text"
-                  placeholder="Search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="search-input"
-                  style={{ width: '100%' }}
-                />
+                <div className="search-container" style={{ 
+                  width: '100%',
+                  marginLeft: 0
+                }}>
+                  <FaSearch className="search-icon" />
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="search-input"
+                    style={{ width: '100%' }}
+                  />
+                </div>
               </div>
             </div>
             <div className="browse-content">
@@ -2344,24 +2368,6 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                 color: notifTextSecondary,
                 cursor: 'pointer'
               }}>Mentions</button>
-              <button style={{ 
-                flex: 1, 
-                padding: '16px', 
-                background: 'none', 
-                border: 'none', 
-                fontWeight: 500, 
-                color: notifTextSecondary,
-                cursor: 'pointer'
-              }}>Sessions</button>
-              <button style={{ 
-                flex: 1, 
-                padding: '16px', 
-                background: 'none', 
-                border: 'none', 
-                fontWeight: 500, 
-                color: notifTextSecondary,
-                cursor: 'pointer'
-              }}>Earnings</button>
             </div>
 
             {/* Notifications List */}
