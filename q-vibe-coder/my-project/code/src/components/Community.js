@@ -1006,6 +1006,45 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
               borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
               padding: '8px 0'
             }}>
+              {/* Community Hub - Fixed/Stationary */}
+              <div 
+                style={{ 
+                  position: 'relative', 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  borderBottom: communityMode === 'hub' 
+                    ? '4px solid #1d9bf0' 
+                    : '4px solid transparent',
+                  marginBottom: -1,
+                  flexShrink: 0
+                }}
+              >
+                <button
+                  onClick={() => {
+                    setCommunityMode('hub');
+                    setSelectedCreatorId(null);
+                    setPostAudience('everyone');
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: '8px 16px',
+                    fontSize: 15,
+                    fontWeight: communityMode === 'hub' ? 700 : 400,
+                    color: isDarkMode ? '#fff' : '#0f1419',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}
+                >
+                  <FaHome style={{ fontSize: 14 }} />
+                  Community Hub
+                </button>
+              </div>
+
               <button 
                 onClick={() => {
                   if (tabsContainerRef.current) {
@@ -1036,44 +1075,6 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                   msOverflowStyle: 'none'
                 }}
               >
-                {/* Community Hub - always first */}
-                <div 
-                  style={{ 
-                    position: 'relative', 
-                    display: 'flex', 
-                    alignItems: 'center',
-                    borderBottom: communityMode === 'hub' 
-                      ? '4px solid #1d9bf0' 
-                      : '4px solid transparent',
-                    marginBottom: -1
-                  }}
-                >
-                  <button
-                    onClick={() => {
-                      setCommunityMode('hub');
-                      setSelectedCreatorId(null);
-                      setPostAudience('everyone');
-                    }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      padding: '8px 16px',
-                      fontSize: 15,
-                      fontWeight: communityMode === 'hub' ? 700 : 400,
-                      color: isDarkMode ? '#fff' : '#0f1419',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
-                      transition: 'all 0.2s',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6
-                    }}
-                  >
-                    <FaHome style={{ fontSize: 14 }} />
-                    Community Hub
-                  </button>
-                </div>
-
                 {/* Creator tabs */}
                 {groupedByCreator.map(creator => (
                   <div 
@@ -1180,15 +1181,15 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
           {/* Community Hub Welcome Section - Floating Card */}
           {communityMode === 'hub' && (
             <div style={{
-              background: isDarkMode ? '#111' : '#fff',
+              background: isDarkMode ? '#0a0a0a' : '#fff',
               borderRadius: 16,
               padding: '20px',
               margin: '8px 16px 0 16px',
               position: 'relative',
               zIndex: 1,
-              border: isDarkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+              border: isDarkMode ? '1px solid #2f3336' : '1px solid rgba(0, 0, 0, 0.1)',
               boxShadow: isDarkMode
-                ? '0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 10px 20px -3px rgba(0, 0, 0, 0.6), 0 20px 40px -4px rgba(0, 0, 0, 0.4)'
+                ? '0 0 60px 20px rgba(255, 255, 255, 0.08), 0 0 100px 40px rgba(255, 255, 255, 0.04)'
                 : '0 4px 12px rgba(0, 0, 0, 0.08)'
             }}>
               <div style={{
@@ -1237,15 +1238,15 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
             
             return (
               <div style={{
-                background: isDarkMode ? '#111' : '#fff',
+                background: isDarkMode ? '#0a0a0a' : '#fff',
                 borderRadius: 16,
                 padding: '20px',
                 margin: '8px 16px 0 16px',
                 position: 'relative',
                 zIndex: 1,
-                border: isDarkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+                border: isDarkMode ? '1px solid #2f3336' : '1px solid rgba(0, 0, 0, 0.1)',
                 boxShadow: isDarkMode 
-                  ? '0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 10px 20px -3px rgba(0, 0, 0, 0.6), 0 20px 40px -4px rgba(0, 0, 0, 0.4)' 
+                  ? '0 0 60px 20px rgba(255, 255, 255, 0.08), 0 0 100px 40px rgba(255, 255, 255, 0.04)' 
                   : '0 4px 12px rgba(0, 0, 0, 0.08)'
               }}>
                 {/* Creator Info Row */}
