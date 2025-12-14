@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import './Community.css';
-import { FaUsers, FaStar, FaClock, FaPlay, FaBook, FaGraduationCap, FaHome, FaChevronLeft, FaChevronRight, FaHeart, FaComment, FaRetweet, FaBookmark, FaShare, FaChevronDown, FaInfoCircle } from 'react-icons/fa';
+import { FaUsers, FaStar, FaClock, FaPlay, FaBook, FaGraduationCap, FaHome, FaChevronLeft, FaChevronRight, FaHeart, FaComment, FaRetweet, FaBookmark, FaShare, FaChevronDown, FaInfoCircle, FaImage, FaLink, FaPaperclip } from 'react-icons/fa';
 import { getAllCourses, getInstructorById, getCourseById } from '../data/database';
 import { createPost, getPosts, likePost } from '../services/posts';
 import { initGetStream } from '../services/getstream';
@@ -226,7 +226,8 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showPostingCourseDropdown && 
-          !event.target.closest('.posting-course-dropdown')) {
+          !event.target.closest('.posting-course-dropdown') &&
+          !event.target.closest('.filter-courses-dropdown-wrapper')) {
         setShowPostingCourseDropdown(false);
       }
     };
@@ -779,10 +780,11 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
       // My Creators mode: Filter based on selected creator's followed courses
       const activeCreator = groupedByCreator.find(c => c.id === selectedCreatorId);
       if (activeCreator) {
-        // If a specific course is selected in "Posting to", only show posts from that course
-        if (selectedPostingCourse) {
+        // If specific courses are selected in filter, only show posts from those courses
+        if (selectedCourseFilters.length > 0) {
+          const selectedCourseIds = selectedCourseFilters.map(c => c.id);
           filteredFakePosts = fakePosts.filter(post => 
-            post.courseId === selectedPostingCourse.id
+            selectedCourseIds.includes(post.courseId)
           );
         } else {
           // Show all posts from this creator's followed courses
@@ -827,7 +829,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
       // Combine engagement and recency (recent + high engagement first)
       return (engagementB / (timeB + 1)) - (engagementA / (timeA + 1));
     });
-  }, [communityMode, selectedCreatorId, groupedByCreator, realPosts, selectedPostingCourse]);
+  }, [communityMode, selectedCreatorId, groupedByCreator, realPosts, selectedCourseFilters]);
 
   if (selectedCommunity) {
     // Get posts for this community
@@ -1092,7 +1094,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                         setCommunityMode('creators');
                         setSelectedCreatorId(creator.id);
                         setPostAudience(creator.id);
-                        setSelectedPostingCourse(null);
+                        setSelectedCourseFilters([]);
                         setShowPostingCourseDropdown(false);
                       }}
                       style={{
@@ -1322,83 +1324,204 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                   </div>
                 </div>
                 
-                {/* Course Slider */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  marginTop: 12,
-                  background: isDarkMode ? '#000' : '#fff'
-                }}>
-                  <span style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: isDarkMode ? '#71767b' : '#536471',
-                    flexShrink: 0
-                  }}>
-                    COURSES:
-                  </span>
+                {/* Filter by Courses Dropdown - Multi-select */}
+                {(() => {
+                  const availableCourses = selectedCreator.allCourses.filter(course => selectedCreator.followedCourseIds.includes(course.id));
+                  const allSelected = availableCourses.length > 0 && selectedCourseFilters.length === availableCourses.length;
+                  const noneSelected = selectedCourseFilters.length === 0;
                   
-                  <div style={{
-                    display: 'flex',
-                    gap: 8,
-                    overflowX: 'auto',
-                    flex: 1,
-                    scrollbarWidth: 'none',
-                    msOverflowStyle: 'none',
-                    paddingBottom: 4
-                  }}>
-                    {/* All Courses option */}
-                    <button
-                      onClick={() => {
-                        setSelectedPostingCourse(null);
-                      }}
-                      style={{
-                        padding: '8px 12px',
-                        borderRadius: 4,
-                        border: 'none',
-                        background: isDarkMode ? '#2f3336' : '#e1e8ed',
-                        color: selectedPostingCourse === null ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
-                        fontSize: 13,
-                        fontWeight: selectedPostingCourse === null ? 700 : 500,
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        transition: 'all 0.2s'
-                      }}
-                    >
-                      All Courses
-                    </button>
-                    
-                    {/* Individual Courses */}
-                    {selectedCreator.allCourses
-                      .filter(course => selectedCreator.followedCourseIds.includes(course.id))
-                      .map(course => {
-                        const isSelected = selectedPostingCourse?.id === course.id;
-                        return (
-                          <button
-                            key={course.id}
-                            onClick={() => {
-                              setSelectedPostingCourse({ id: course.id, name: course.title });
-                            }}
+                  return (
+                    <div style={{
+                      marginTop: 12,
+                      background: isDarkMode ? '#000' : '#fff'
+                    }}>
+                      <div style={{
+                        fontSize: 14,
+                        fontWeight: 500,
+                        color: isDarkMode ? '#71767b' : '#536471',
+                        marginBottom: 8
+                      }}>
+                        Filter by Courses
+                      </div>
+                      
+                      <div className="filter-courses-dropdown-wrapper" style={{ position: 'relative' }}>
+                        <button
+                          onClick={() => setShowPostingCourseDropdown(!showPostingCourseDropdown)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            width: '100%',
+                            maxWidth: 320,
+                            padding: '10px 14px',
+                            borderRadius: 6,
+                            border: isDarkMode ? '1px solid #2f3336' : '1px solid #cfd9de',
+                            background: isDarkMode ? '#000' : '#fff',
+                            color: isDarkMode ? '#e7e9ea' : '#0f1419',
+                            fontSize: 15,
+                            fontWeight: 400,
+                            cursor: 'pointer',
+                            transition: 'border-color 0.2s'
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.borderColor = '#1d9bf0'}
+                          onMouseLeave={e => e.currentTarget.style.borderColor = isDarkMode ? '#2f3336' : '#cfd9de'}
+                        >
+                          <span>
+                            {(noneSelected || allSelected)
+                              ? 'All Courses' 
+                              : selectedCourseFilters.length === 1 
+                                ? selectedCourseFilters[0].name 
+                                : `${selectedCourseFilters.length} courses selected`}
+                          </span>
+                          <FaChevronDown style={{ fontSize: 12, color: isDarkMode ? '#71767b' : '#536471' }} />
+                        </button>
+                        
+                        {/* Dropdown Menu */}
+                        {showPostingCourseDropdown && (
+                          <div 
+                            className="posting-course-dropdown"
                             style={{
-                              padding: '8px 12px',
-                              borderRadius: 4,
-                              border: 'none',
-                              background: isDarkMode ? '#2f3336' : '#e1e8ed',
-                              color: isSelected ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
-                              fontSize: 13,
-                              fontWeight: isSelected ? 700 : 500,
-                              cursor: 'pointer',
-                              whiteSpace: 'nowrap',
-                              transition: 'all 0.2s'
+                              position: 'absolute',
+                              top: '100%',
+                              left: 0,
+                              width: '100%',
+                              maxWidth: 320,
+                              marginTop: 4,
+                              background: isDarkMode ? '#16181c' : '#fff',
+                              border: isDarkMode ? '1px solid #2f3336' : '1px solid #cfd9de',
+                              borderRadius: 8,
+                              boxShadow: isDarkMode ? '0 4px 12px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,0,0,0.1)',
+                              zIndex: 100,
+                              maxHeight: 280,
+                              overflowY: 'auto'
                             }}
                           >
-                            {course.title.length > 25 ? course.title.substring(0, 22) + '...' : course.title}
-                          </button>
-                        );
-                      })}
-                  </div>
-                </div>
+                            {/* All Courses option - selects/deselects all */}
+                            <div
+                              onClick={() => {
+                                if (allSelected || noneSelected) {
+                                  // If all selected or none selected, select all
+                                  const allCoursesList = availableCourses.map(c => ({ id: c.id, name: c.title }));
+                                  setSelectedCourseFilters(allCoursesList);
+                                } else {
+                                  // If some selected, select all
+                                  const allCoursesList = availableCourses.map(c => ({ id: c.id, name: c.title }));
+                                  setSelectedCourseFilters(allCoursesList);
+                                }
+                              }}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 10,
+                                padding: '12px 14px',
+                                cursor: 'pointer',
+                                color: (allSelected || noneSelected) ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
+                                fontWeight: (allSelected || noneSelected) ? 600 : 400,
+                                fontSize: 15,
+                                background: 'transparent',
+                                transition: 'background 0.15s',
+                                borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4'
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.background = isDarkMode ? '#2f3336' : '#f7f9f9'}
+                              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                            >
+                              <div style={{
+                                width: 18,
+                                height: 18,
+                                borderRadius: 4,
+                                border: (allSelected || noneSelected) ? '2px solid #1d9bf0' : (isDarkMode ? '2px solid #536471' : '2px solid #cfd9de'),
+                                background: (allSelected || noneSelected) ? '#1d9bf0' : 'transparent',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0
+                              }}>
+                                {(allSelected || noneSelected) && <span style={{ color: '#fff', fontSize: 12 }}>✓</span>}
+                              </div>
+                              <span>All Courses</span>
+                            </div>
+                            
+                            {/* Individual Courses - Multi-select */}
+                            {availableCourses.map(course => {
+                              const isSelected = noneSelected || selectedCourseFilters.some(c => c.id === course.id);
+                              return (
+                                <div
+                                  key={course.id}
+                                  onClick={() => {
+                                    if (noneSelected) {
+                                      // Currently showing all, clicking one means select only that one
+                                      setSelectedCourseFilters([{ id: course.id, name: course.title }]);
+                                    } else if (isSelected) {
+                                      // Remove from selection
+                                      const newFilters = selectedCourseFilters.filter(c => c.id !== course.id);
+                                      setSelectedCourseFilters(newFilters);
+                                    } else {
+                                      // Add to selection
+                                      setSelectedCourseFilters(prev => [...prev, { id: course.id, name: course.title }]);
+                                    }
+                                  }}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 10,
+                                    padding: '12px 14px',
+                                    cursor: 'pointer',
+                                    color: isSelected ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
+                                    fontWeight: isSelected ? 600 : 400,
+                                    fontSize: 15,
+                                    background: 'transparent',
+                                    transition: 'background 0.15s'
+                                  }}
+                                  onMouseEnter={e => e.currentTarget.style.background = isDarkMode ? '#2f3336' : '#f7f9f9'}
+                                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                >
+                                  <div style={{
+                                    width: 18,
+                                    height: 18,
+                                    borderRadius: 4,
+                                    border: isSelected ? '2px solid #1d9bf0' : (isDarkMode ? '2px solid #536471' : '2px solid #cfd9de'),
+                                    background: isSelected ? '#1d9bf0' : 'transparent',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexShrink: 0
+                                  }}>
+                                    {isSelected && <span style={{ color: '#fff', fontSize: 12 }}>✓</span>}
+                                  </div>
+                                  <span>{course.title}</span>
+                                </div>
+                              );
+                            })}
+                            
+                            {/* Done button */}
+                            <div style={{
+                              padding: '10px 14px',
+                              borderTop: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
+                              display: 'flex',
+                              justifyContent: 'flex-end'
+                            }}>
+                              <button
+                                onClick={() => setShowPostingCourseDropdown(false)}
+                                style={{
+                                  background: '#1d9bf0',
+                                  color: '#fff',
+                                  border: 'none',
+                                  borderRadius: 6,
+                                  padding: '6px 16px',
+                                  fontSize: 14,
+                                  fontWeight: 600,
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Done
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             );
           })()}
@@ -1644,183 +1767,154 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
 
           {/* Feed Content */}
           <div className="community-feed-content" style={{ background: isDarkMode ? '#000' : '#fff' }}>
-            {/* What's Happening Post Composer - Compact */}
+            {/* Post Box - Clean Card Design */}
             <div 
               className="post-composer"
               style={{
                 borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
-                padding: '10px 16px',
-                display: 'flex',
-                gap: 10,
+                padding: '16px',
                 background: isDarkMode ? '#000' : '#fff',
-                backgroundColor: isDarkMode ? '#000' : '#fff'
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                boxSizing: 'border-box'
               }}
             >
-              {/* User Avatar - Clickable to go to Profile */}
-              <div 
-                className="post-card-avatar"
-                onClick={handleAvatarClick}
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  background: '#1d9bf0',
-                  color: '#fff',
-                  fontWeight: 700,
-                  fontSize: 13,
-                  lineHeight: '36px',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  flexShrink: 0,
-                  transition: 'transform 0.15s, box-shadow 0.15s'
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(29, 155, 240, 0.4)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-                title={`View ${currentUser?.name || 'your'} profile`}
-              >
-                {getUserInitials()}
+              {/* Post Box Label */}
+              <div style={{
+                fontSize: 16,
+                fontWeight: 700,
+                color: isDarkMode ? '#e7e9ea' : '#0f1419',
+                marginBottom: 12,
+                display: 'block',
+                width: '100%'
+              }}>
+                Post Box
               </div>
               
-              {/* Composer Input Area */}
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: isDarkMode ? '#000' : '#fff' }}>
-                {/* Posting To Label - Simple display */}
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: 8, 
-                  marginBottom: 8,
-                  fontSize: 14,
-                  color: isDarkMode ? '#71767b' : '#536471',
-                  background: isDarkMode ? '#000' : '#fff'
-                }}>
-                  <span style={{ color: isDarkMode ? '#71767b' : '#536471' }}>Posting to:</span>
-                  <span style={{
-                    fontWeight: 700,
-                    color: '#1d9bf0'
-                  }}>
-                    {communityMode === 'hub'
-                      ? 'All followed communities'
-                      : selectedPostingCourse
-                        ? selectedPostingCourse.name
-                        : 'Common Area'
-                    }
-                  </span>
-                </div>
-                
+              {/* Input Card */}
+              <div style={{
+                border: isDarkMode ? '1px solid #2f3336' : '1px solid #cfd9de',
+                borderRadius: 8,
+                background: isDarkMode ? '#16181c' : '#fff',
+                overflow: 'hidden',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}>
+                {/* Text Area */}
                 <textarea
                   value={newPostText}
                   onChange={(e) => setNewPostText(e.target.value)}
                   onFocus={() => setIsComposerFocused(true)}
-                  placeholder="Post here..."
+                  placeholder="Share your knowledge or ask a question..."
                   style={{
                     width: '100%',
                     border: 'none',
                     outline: 'none',
                     resize: 'none',
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: 400,
-                    lineHeight: 1.4,
+                    lineHeight: 1.5,
                     background: 'transparent',
                     color: isDarkMode ? '#e7e9ea' : '#0f1419',
-                    padding: '4px 0',
-                    minHeight: isComposerFocused ? '60px' : '20px',
+                    padding: '12px 14px',
+                    minHeight: 60,
                     fontFamily: 'inherit',
-                    transition: 'min-height 0.2s ease'
+                    boxSizing: 'border-box',
+                    display: 'block'
                   }}
                 />
                 
-                {/* Action Row - only show when focused or has text */}
-                {(isComposerFocused || newPostText) && (
-                  <div 
+                {/* Bottom Action Bar */}
+                <div 
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '8px 12px',
+                    borderTop: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
+                    background: isDarkMode ? '#16181c' : '#f7f9f9',
+                    width: '100%',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  {/* Media Icons */}
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <button 
+                      style={{ 
+                        background: 'none', 
+                        border: 'none', 
+                        color: isDarkMode ? '#71767b' : '#536471', 
+                        cursor: 'pointer',
+                        padding: 4,
+                        borderRadius: 4,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 18
+                      }}
+                      title="Add image"
+                    >
+                      <FaImage />
+                    </button>
+                    <button 
+                      style={{ 
+                        background: 'none', 
+                        border: 'none', 
+                        color: isDarkMode ? '#71767b' : '#536471', 
+                        cursor: 'pointer',
+                        padding: 4,
+                        borderRadius: 4,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 18
+                      }}
+                      title="Add link"
+                    >
+                      <FaLink />
+                    </button>
+                    <button 
+                      style={{ 
+                        background: 'none', 
+                        border: 'none', 
+                        color: isDarkMode ? '#71767b' : '#536471', 
+                        cursor: 'pointer',
+                        padding: 4,
+                        borderRadius: 4,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 18
+                      }}
+                      title="Attach file"
+                    >
+                      <FaPaperclip />
+                    </button>
+                  </div>
+                  
+                  {/* Post Button */}
+                  <button
+                    disabled={!newPostText.trim() || isPosting}
+                    onClick={handleSubmitPost}
                     style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      borderTop: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
-                      paddingTop: 12,
-                      marginTop: 12
+                      background: '#1d9bf0',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 6,
+                      padding: '8px 20px',
+                      fontWeight: 600,
+                      fontSize: 14,
+                      cursor: (newPostText.trim() && !isPosting) ? 'pointer' : 'not-allowed',
+                      opacity: (newPostText.trim() && !isPosting) ? 1 : 0.5,
+                      transition: 'opacity 0.2s'
                     }}
                   >
-                    {/* Media Icons */}
-                    <div style={{ display: 'flex', gap: 4 }}>
-                      <button 
-                        style={{ 
-                          background: 'none', 
-                          border: 'none', 
-                          color: '#1d9bf0', 
-                          cursor: 'pointer',
-                          padding: 8,
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                        title="Media"
-                      >
-                        🖼️
-                      </button>
-                      <button 
-                        style={{ 
-                          background: 'none', 
-                          border: 'none', 
-                          color: '#1d9bf0', 
-                          cursor: 'pointer',
-                          padding: 8,
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                        title="GIF"
-                      >
-                        GIF
-                      </button>
-                      <button 
-                        style={{ 
-                          background: 'none', 
-                          border: 'none', 
-                          color: '#1d9bf0', 
-                          cursor: 'pointer',
-                          padding: 8,
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                        title="Emoji"
-                      >
-                        😊
-                      </button>
-                    </div>
-                    
-                    {/* Post Button */}
-                    <button
-                      disabled={!newPostText.trim() || isPosting}
-                      onClick={handleSubmitPost}
-                      style={{
-                        background: (newPostText.trim() && !isPosting) ? '#1d9bf0' : (isDarkMode ? '#0e4d78' : '#8ecdf8'),
-                        color: (newPostText.trim() && !isPosting) ? '#fff' : (isDarkMode ? '#808080' : '#fff'),
-                        border: 'none',
-                        borderRadius: 20,
-                        padding: '8px 16px',
-                        fontWeight: 700,
-                        fontSize: 15,
-                        cursor: (newPostText.trim() && !isPosting) ? 'pointer' : 'not-allowed',
-                        opacity: (newPostText.trim() && !isPosting) ? 1 : 0.5
-                      }}
-                    >
-                      {isPosting ? 'Posting...' : 'Post'}
-                    </button>
-                    {postError && (
-                      <span style={{ color: '#f44', fontSize: 12, marginLeft: 8 }}>{postError}</span>
-                    )}
-                  </div>
+                    {isPosting ? 'Posting...' : 'Post'}
+                  </button>
+                </div>
+                {postError && (
+                  <div style={{ color: '#f44', fontSize: 12, padding: '0 12px 8px' }}>{postError}</div>
                 )}
               </div>
             </div>

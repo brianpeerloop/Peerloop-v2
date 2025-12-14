@@ -1923,32 +1923,24 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
               ) : activeTopMenu === 'courses' ? (
                 <div className="courses-section">
                   {selectedCourse ? (
-                    <div className="course-detail-view">
-                      <div style={{
-                        position: 'sticky',
-                        top: 0,
-                        background: isDarkMode ? '#000' : '#fff',
-                        padding: '12px 0',
-                        zIndex: 10,
-                        borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0'
-                      }}>
-                        <span 
-                          onClick={() => setSelectedCourse(null)}
-                          style={{
-                            color: '#1d9bf0',
-                            fontWeight: 500,
-                            fontSize: 16,
-                            cursor: 'pointer',
-                            transition: 'opacity 0.15s'
-                          }}
-                          onMouseEnter={e => e.target.style.opacity = '0.7'}
-                          onMouseLeave={e => e.target.style.opacity = '1'}
-                        >
-                          ← Back to Courses
-                        </span>
-                      </div>
-                      {renderCourseDetail()}
-                    </div>
+                    <CourseDetailView
+                      course={getCourseById(selectedCourse.id)}
+                      onBack={() => setSelectedCourse(null)}
+                      isDarkMode={isDarkMode}
+                      followedCommunities={followedCommunities}
+                      setFollowedCommunities={setFollowedCommunities}
+                      onViewInstructor={(instructorId) => {
+                        const instructor = getInstructorById(instructorId);
+                        if (instructor) {
+                          setSelectedInstructor(instructor);
+                          setActiveTopMenu('creators');
+                        }
+                      }}
+                      onEnroll={(course) => {
+                        setEnrollingCourse(course);
+                        setShowEnrollmentFlow(true);
+                      }}
+                    />
                   ) : (
                     <>
                       <div className="browse-header">
@@ -1962,221 +1954,258 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                           const instructorData = getInstructorById(course.instructorId);
                           const isFollowed = isCourseFollowed(course.id);
                           const isViaCreator = isCourseFollowedViaCreator(course.id);
-                          // Generate avatar initials and color for creator
-                          const creatorInitials = instructorData?.name?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || '??';
-                          const avatarColors = ['#2f3336', '#3a3f44', '#4a5056', '#5a6167', '#6a7178'];
-                          const colorIndex = instructorData?.name?.charCodeAt(0) % avatarColors.length || 0;
-                          const avatarColor = avatarColors[colorIndex];
                           return (
-                            <div key={course.id} className="course-post" onClick={() => setSelectedCourse(course)} style={{ background: isDarkMode ? '#000' : '#fff', boxShadow: 'none', padding: '12px 18px', fontFamily: 'system-ui, sans-serif', fontSize: 15, lineHeight: '20px', width: '100%', marginLeft: 0, marginRight: 0, cursor: 'pointer', color: isDarkMode ? '#e7e9ea' : '#222', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                              {/* Creator Avatar */}
-                              <img 
-                                className="course-creator-avatar"
-                                src={instructorData?.avatar}
-                                alt={instructorData?.name}
-                                onClick={e => { 
-                                  e.stopPropagation(); 
-                                  const fullCreatorData = getInstructorWithCourses(course.instructorId);
-                                  // Save current context before navigating to creator
-                                  setPreviousBrowseContext({ type: 'courseList' });
-                                  setSelectedInstructor(fullCreatorData || instructorData);
-                                  setActiveTopMenu('instructors');
-                                }}
-                                style={{
-                                  width: 40,
-                                  height: 40,
-                                  borderRadius: '50%',
-                                  objectFit: 'cover',
-                                  flexShrink: 0,
-                                  cursor: 'pointer'
-                                }}
-                                title={`View ${instructorData?.name}'s profile`}
-                              />
-                              <div className="post-content" style={{ padding: 0, flex: 1, minWidth: 0 }}>
-                                {/* Title, Duration, Badge, and Follow Button Row */}
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: isDarkMode ? '#e7e9ea' : '#222', flex: 1, minWidth: 0 }}>
-                                    <span style={{ fontWeight: 700, fontSize: 17, lineHeight: '22px', color: isDarkMode ? '#e7e9ea' : '#0f1419', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{course.title}</span>
-                                    {course.badge && (
-                                      <span style={{
-                                        background: course.badge === 'Bestseller' ? '#fbbf24' : 
-                                                   course.badge === 'Popular' ? '#1d9bf0' : 
-                                                   course.badge === 'New' ? '#22c55e' : 
-                                                   course.badge === 'Featured' ? '#a855f7' : '#6b7280',
-                                        color: course.badge === 'Bestseller' ? '#000' : '#fff',
-                                        padding: '2px 8px',
-                                        borderRadius: 12,
-                                        fontSize: 11,
-                                        fontWeight: 600,
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.5px',
-                                        flexShrink: 0
-                                      }}>
-                                        {course.badge}
-                                      </span>
-                                    )}
-                                    <span style={{ color: isDarkMode ? '#71767b' : '#536471', fontSize: 17, fontWeight: 400, flexShrink: 0 }}>• {course.duration}</span>
-                                  </div>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 12, flexShrink: 0 }}>
-                                    <span 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        localStorage.setItem('pendingCommunityCreator', JSON.stringify({
-                                          id: `creator-${course.instructorId}`,
-                                          name: instructorData?.name || 'Creator'
-                                        }));
-                                        if (onMenuChange) onMenuChange('My Community');
-                                      }}
-                                      style={{ 
-                                        color: '#fff',
-                                        fontWeight: 500, 
-                                        fontSize: 13, 
-                                        cursor: 'pointer',
-                                        whiteSpace: 'nowrap',
-                                        transition: 'opacity 0.15s ease'
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        e.currentTarget.style.opacity = '0.7';
-                                        e.currentTarget.style.textDecoration = 'underline';
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.currentTarget.style.opacity = '1';
-                                        e.currentTarget.style.textDecoration = 'none';
-                                      }}
-                                    >
-                                      Go to Community
-                                    </span>
-                                    <button 
-                                      onClick={e => { e.stopPropagation(); handleFollowCourse(course.id); }}
-                                      disabled={isFollowingLoading}
-                                      style={{ 
-                                        background: isFollowed ? (isDarkMode ? '#2f3336' : '#e2e8f0') : '#1d9bf0',
-                                        color: isFollowed ? (isDarkMode ? '#71767b' : '#64748b') : '#fff',
-                                        border: 'none', 
-                                        padding: '6px 14px', 
-                                        borderRadius: 20, 
-                                        fontWeight: 600, 
-                                        fontSize: 13, 
-                                        cursor: 'pointer',
-                                        flexShrink: 0
-                                      }}
-                                    >
-                                      {isFollowed ? '✓ Following' : 'Follow'}
-                                    </button>
-                                  </div>
-                                </div>
-                                <div style={{ fontSize: 17, lineHeight: '22px', color: isDarkMode ? '#71767b' : '#536471', fontWeight: 400, margin: '0 0 4px 0' }}>
-                                  Created by <span 
+                            <div 
+                              key={course.id} 
+                              className="course-post" 
+                              onClick={() => setSelectedCourse(course)} 
+                              style={{ 
+                                background: isDarkMode ? '#16181c' : '#fff', 
+                                borderRadius: 16,
+                                border: isDarkMode ? '1px solid #2f3336' : '1px solid #e5e7eb',
+                                padding: 0,
+                                marginBottom: 16,
+                                cursor: 'pointer',
+                                overflow: 'hidden',
+                                display: 'flex',
+                                flexDirection: 'row'
+                              }}
+                            >
+                              {/* Left Column - Course Info */}
+                              <div style={{ flex: 1, padding: 24, minWidth: 0 }}>
+                                {/* Badge */}
+                                {course.badge && (
+                                  <span style={{
+                                    display: 'inline-block',
+                                    background: course.badge === 'Bestseller' ? '#fef3c7' : 
+                                               course.badge === 'Popular' ? '#dbeafe' : 
+                                               course.badge === 'New' ? '#dcfce7' : 
+                                               course.badge === 'Featured' ? '#f3e8ff' : '#f3f4f6',
+                                    color: course.badge === 'Bestseller' ? '#92400e' : 
+                                           course.badge === 'Popular' ? '#1e40af' : 
+                                           course.badge === 'New' ? '#166534' : 
+                                           course.badge === 'Featured' ? '#7c3aed' : '#374151',
+                                    padding: '4px 10px',
+                                    borderRadius: 4,
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px',
+                                    marginBottom: 12
+                                  }}>
+                                    {course.badge}
+                                  </span>
+                                )}
+                                
+                                {/* Title */}
+                                <h3 style={{ 
+                                  fontSize: 22, 
+                                  fontWeight: 700, 
+                                  color: isDarkMode ? '#e7e9ea' : '#111827',
+                                  margin: '0 0 8px 0',
+                                  lineHeight: 1.3
+                                }}>
+                                  {course.title}
+                                </h3>
+                                
+                                {/* Instructor + Duration + Go to Community */}
+                                <div style={{ 
+                                  display: 'flex', 
+                                  alignItems: 'center', 
+                                  gap: 8,
+                                  fontSize: 14,
+                                  color: isDarkMode ? '#9ca3af' : '#6b7280',
+                                  marginBottom: 12
+                                }}>
+                                  <span 
                                     onClick={e => { 
                                       e.stopPropagation(); 
                                       const fullCreatorData = getInstructorWithCourses(course.instructorId);
-                                      // Save current context before navigating to creator
                                       setPreviousBrowseContext({ type: 'courseList' });
                                       setSelectedInstructor(fullCreatorData || instructorData);
                                       setActiveTopMenu('instructors');
                                     }}
-                                    style={{ 
-                                      color: '#1d9bf0', 
-                                      cursor: 'pointer',
-                                      fontWeight: 500
-                                    }}
-                                    onMouseEnter={e => e.target.style.textDecoration = 'underline'}
-                                    onMouseLeave={e => e.target.style.textDecoration = 'none'}
-                                  >{instructorData?.name}</span>
-                                </div>
-                                {/* Description Row - truncated to 2 lines */}
-                                <div className="post-text" style={{ 
-                                  color: isDarkMode ? '#e7e9ea' : '#0f1419', 
-                                  fontSize: 17, 
-                                  lineHeight: '22px',
-                                  display: '-webkit-box',
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: 'vertical',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis'
-                                }}>
-                                  {course.description}
-                                </div>
-
-                                {/* Course Stats Row */}
-                                <div style={{ 
-                                  display: 'flex', 
-                                  flexWrap: 'wrap', 
-                                  gap: 12, 
-                                  marginTop: 10,
-                                  fontSize: 15, 
-                                  color: isDarkMode ? '#71767b' : '#536471' 
-                                }}>
-                                  <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><AiOutlineStar /> {course.rating} ({course.ratingCount || 0} reviews)</span>
-                                  <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><AiOutlineTeam /> {course.students?.toLocaleString()} students</span>
-                                  <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><AiOutlineBarChart /> {course.level}</span>
-                                  <span style={{ color: '#1d9bf0', fontWeight: 700 }}>{course.price}</span>
+                                    style={{ cursor: 'pointer' }}
+                                    onMouseEnter={e => e.target.style.color = '#1d9bf0'}
+                                    onMouseLeave={e => e.target.style.color = isDarkMode ? '#9ca3af' : '#6b7280'}
+                                  >
+                                    {instructorData?.name}
+                                  </span>
+                                  <span>·</span>
+                                  <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    <AiOutlineClockCircle style={{ fontSize: 14 }} />
+                                    {course.duration}
+                                  </span>
+                                  <span>·</span>
                                   <span 
-                                    onClick={(e) => { e.stopPropagation(); setSelectedCourse(course); }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      localStorage.setItem('pendingCommunityCreator', JSON.stringify({
+                                        id: `creator-${course.instructorId}`,
+                                        name: instructorData?.name || 'Creator'
+                                      }));
+                                      if (onMenuChange) onMenuChange('My Community');
+                                    }}
                                     style={{ 
-                                      color: '#1d9bf0', 
+                                      color: '#10b981',
                                       cursor: 'pointer',
                                       fontWeight: 500
                                     }}
                                     onMouseEnter={e => e.target.style.textDecoration = 'underline'}
                                     onMouseLeave={e => e.target.style.textDecoration = 'none'}
                                   >
-                                    View course →
+                                    Go to Community →
                                   </span>
                                 </div>
-
-                                {/* About the Creator Section */}
-                                <div style={{
-                                  marginTop: 12,
-                                  padding: 12,
-                                  background: isDarkMode ? '#16181c' : '#f8fafc',
-                                  borderRadius: 12,
-                                  border: `1px solid ${isDarkMode ? '#2f3336' : '#e2e8f0'}`
+                                
+                                {/* Description */}
+                                <p style={{ 
+                                  fontSize: 15, 
+                                  lineHeight: 1.6,
+                                  color: isDarkMode ? '#d1d5db' : '#374151',
+                                  margin: '0 0 16px 0',
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 3,
+                                  WebkitBoxOrient: 'vertical',
+                                  overflow: 'hidden'
                                 }}>
-                                  <div style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 6,
-                                    marginBottom: 8,
-                                    color: isDarkMode ? '#71767b' : '#64748b',
-                                    fontSize: 11,
-                                    fontWeight: 600,
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.5px'
-                                  }}>
-                                    👤 About the Creator
-                                  </div>
-                                  <div style={{
-                                    color: isDarkMode ? '#e7e9ea' : '#0f1419',
-                                    fontSize: 14,
-                                    lineHeight: '20px',
-                                    fontStyle: 'italic',
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: 2,
-                                    WebkitBoxOrient: 'vertical',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    marginBottom: 8
-                                  }}>
-                                    "{instructorData?.bio || 'Expert instructor dedicated to helping students master new skills.'}"
-                                  </div>
-                                  <div style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 12,
-                                    fontSize: 12,
-                                    color: isDarkMode ? '#71767b' : '#64748b'
-                                  }}>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}><AiOutlineStar style={{ fontSize: 11 }} /> {instructorData?.stats?.averageRating || '4.8'}</span>
-                                    <span>•</span>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}><AiOutlineTeam style={{ fontSize: 11 }} /> {instructorData?.stats?.studentsTaught?.toLocaleString() || '1,000+'} students</span>
-                                    <span>•</span>
+                                  {course.description}
+                                </p>
+                                
+                                {/* Stats Row */}
+                                <div style={{ 
+                                  display: 'flex', 
+                                  alignItems: 'center', 
+                                  gap: 16,
+                                  flexWrap: 'wrap'
+                                }}>
+                                  {/* Rating Stars */}
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    {[...Array(5)].map((_, i) => (
+                                      <AiOutlineStar 
+                                        key={i} 
+                                        style={{ 
+                                          color: i < Math.floor(course.rating) ? '#fbbf24' : (isDarkMode ? '#4b5563' : '#d1d5db'),
+                                          fontSize: 16
+                                        }} 
+                                      />
+                                    ))}
                                     <span style={{ 
-                                      overflow: 'hidden', 
-                                      textOverflow: 'ellipsis', 
-                                      whiteSpace: 'nowrap',
-                                      flex: 1
-                                    }}>{instructorData?.title || 'Expert Instructor'}</span>
+                                      marginLeft: 4,
+                                      fontSize: 14, 
+                                      color: isDarkMode ? '#9ca3af' : '#6b7280' 
+                                    }}>
+                                      {course.rating})
+                                    </span>
+                                  </div>
+                                  
+                                  {/* Students */}
+                                  <div style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: 4,
+                                    fontSize: 14,
+                                    color: isDarkMode ? '#9ca3af' : '#6b7280'
+                                  }}>
+                                    <AiOutlineTeam style={{ fontSize: 16 }} />
+                                    {course.students?.toLocaleString()} students
+                                  </div>
+                                  
+                                  {/* Level Badge */}
+                                  <span style={{
+                                    background: isDarkMode ? '#374151' : '#e0f2fe',
+                                    color: isDarkMode ? '#9ca3af' : '#0369a1',
+                                    padding: '4px 12px',
+                                    borderRadius: 20,
+                                    fontSize: 12,
+                                    fontWeight: 500
+                                  }}>
+                                    {course.level || 'Intermediate'}
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              {/* Right Column - About the Creator (hidden on small screens) */}
+                              <div 
+                                className="course-card-creator-sidebar"
+                                style={{ 
+                                  width: 280,
+                                  flexShrink: 0,
+                                  padding: 24,
+                                  background: isDarkMode ? '#1f2937' : '#f9fafb',
+                                  borderLeft: isDarkMode ? '1px solid #374151' : '1px solid #e5e7eb',
+                                  display: 'flex',
+                                  flexDirection: 'column'
+                                }}>
+                                <h4 style={{ 
+                                  fontSize: 13, 
+                                  fontWeight: 600, 
+                                  color: isDarkMode ? '#9ca3af' : '#6b7280',
+                                  margin: '0 0 12px 0',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.5px'
+                                }}>
+                                  About the Creator
+                                </h4>
+                                
+                                {/* Bio Quote */}
+                                <p style={{ 
+                                  fontSize: 14,
+                                  lineHeight: 1.5,
+                                  color: isDarkMode ? '#d1d5db' : '#374151',
+                                  fontStyle: 'italic',
+                                  margin: '0 0 16px 0',
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 4,
+                                  WebkitBoxOrient: 'vertical',
+                                  overflow: 'hidden'
+                                }}>
+                                  "{instructorData?.bio || 'Expert instructor dedicated to helping students master new skills and advance their careers.'}"
+                                </p>
+                                
+                                {/* Creator Info */}
+                                <div style={{ 
+                                  display: 'flex', 
+                                  alignItems: 'center', 
+                                  gap: 12,
+                                  marginTop: 'auto'
+                                }}>
+                                  <img 
+                                    src={instructorData?.avatar}
+                                    alt={instructorData?.name}
+                                    style={{
+                                      width: 48,
+                                      height: 48,
+                                      borderRadius: '50%',
+                                      objectFit: 'cover',
+                                      border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb'
+                                    }}
+                                    onClick={e => { 
+                                      e.stopPropagation(); 
+                                      const fullCreatorData = getInstructorWithCourses(course.instructorId);
+                                      setPreviousBrowseContext({ type: 'courseList' });
+                                      setSelectedInstructor(fullCreatorData || instructorData);
+                                      setActiveTopMenu('instructors');
+                                    }}
+                                  />
+                                  <div>
+                                    <div style={{ 
+                                      fontWeight: 600, 
+                                      fontSize: 15,
+                                      color: isDarkMode ? '#e7e9ea' : '#111827'
+                                    }}>
+                                      {instructorData?.name}
+                                    </div>
+                                    <div style={{ 
+                                      fontSize: 13,
+                                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                                      display: '-webkit-box',
+                                      WebkitLineClamp: 2,
+                                      WebkitBoxOrient: 'vertical',
+                                      overflow: 'hidden'
+                                    }}>
+                                      {instructorData?.title || 'Expert Instructor'}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -2191,32 +2220,24 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                 <div className="creators-section">
                   {/* If viewing a course from instructor profile, show course detail */}
                   {selectedCourse ? (
-                    <div className="course-detail-view">
-                      <div style={{
-                        position: 'sticky',
-                        top: 0,
-                        background: isDarkMode ? '#000' : '#fff',
-                        padding: '12px 0',
-                        zIndex: 10,
-                        borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0'
-                      }}>
-                        <span 
-                          onClick={() => setSelectedCourse(null)}
-                          style={{
-                            color: '#1d9bf0',
-                            fontWeight: 500,
-                            fontSize: 16,
-                            cursor: 'pointer',
-                            transition: 'opacity 0.15s'
-                          }}
-                          onMouseEnter={e => e.target.style.opacity = '0.7'}
-                          onMouseLeave={e => e.target.style.opacity = '1'}
-                        >
-                          ← Back to {selectedInstructor?.name || 'Creator'}
-                        </span>
-                      </div>
-                      {renderCourseDetail()}
-                    </div>
+                    <CourseDetailView
+                      course={getCourseById(selectedCourse.id)}
+                      onBack={() => setSelectedCourse(null)}
+                      isDarkMode={isDarkMode}
+                      followedCommunities={followedCommunities}
+                      setFollowedCommunities={setFollowedCommunities}
+                      onViewInstructor={(instructorId) => {
+                        const instructor = getInstructorById(instructorId);
+                        if (instructor) {
+                          setSelectedCourse(null);
+                          setSelectedInstructor(instructor);
+                        }
+                      }}
+                      onEnroll={(course) => {
+                        setEnrollingCourse(course);
+                        setShowEnrollmentFlow(true);
+                      }}
+                    />
                   ) : selectedInstructor ? (
                     renderInstructorProfile()
                   ) : (

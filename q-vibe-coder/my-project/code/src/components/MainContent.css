@@ -2206,4 +2206,63 @@ body.dark-mode .search-container:focus-within {
   margin-right: 4px;
   vertical-align: middle;
   color: #4e8dd2;
+}
+
+/* Course Card - Responsive: Hide creator sidebar on smaller screens */
+@media (max-width: 900px) {
+  .course-card-creator-sidebar {
+    display: none !important;
+  }
+  
+  /* Hide course detail page sidebar on smaller screens */
+  .course-detail-sidebar {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .course-card-creator-sidebar {
+    display: none !important;
+  }
+  
+  .course-detail-sidebar {
+    display: none !important;
+  }
+}
+
+/* Course Detail Tabs - Responsive */
+.course-detail-tabs {
+  display: flex;
+  gap: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.course-detail-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.course-detail-tab-btn {
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .course-detail-tabs {
+    width: 100%;
+  }
+  
+  .course-detail-tab-btn {
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .course-detail-tab-btn {
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
 } 

@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
-import { FaStar, FaUsers, FaClock, FaPlay, FaBook, FaDollarSign, FaCertificate, FaChalkboardTeacher, FaCheck, FaHeart, FaUserGraduate } from 'react-icons/fa';
-import { getInstructorById, getCourseById } from '../data/database';
+import { FaStar, FaUsers, FaClock, FaPlay, FaBook, FaCertificate, FaChalkboardTeacher, FaCheck, FaPlus, FaInfinity, FaGraduationCap, FaHeart, FaComment, FaRetweet, FaShare } from 'react-icons/fa';
+import { getInstructorById } from '../data/database';
+import './MainContent.css';
 
 /**
  * CourseDetailView Component
- * Shows detailed view of a course with back navigation
+ * Shows detailed view of a course with tabs and two-column layout
  */
 const CourseDetailView = ({ course, onBack, isDarkMode, followedCommunities = [], setFollowedCommunities, onViewInstructor, onEnroll }) => {
   const [isFollowing, setIsFollowing] = useState(() => {
     return followedCommunities.some(c => c.id === `course-${course?.id}`);
   });
+  const [activeTab, setActiveTab] = useState('overview');
 
   if (!course) {
     return (
       <div style={{ 
-        background: 'var(--bg-primary, #000)', 
+        background: isDarkMode ? '#000' : '#fff', 
         minHeight: '100vh',
         padding: 24
       }}>
@@ -29,7 +31,7 @@ const CourseDetailView = ({ course, onBack, isDarkMode, followedCommunities = []
             style={{
               background: 'none',
               border: 'none',
-              color: 'var(--text-primary, #e7e9ea)',
+              color: isDarkMode ? '#e7e9ea' : '#0f1419',
               fontSize: 20,
               cursor: 'pointer',
               padding: 8,
@@ -38,14 +40,14 @@ const CourseDetailView = ({ course, onBack, isDarkMode, followedCommunities = []
           >
             ←
           </button>
-          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--text-primary, #e7e9ea)' }}>
+          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: isDarkMode ? '#e7e9ea' : '#0f1419' }}>
             Course
           </h1>
         </div>
         
-        <div style={{ textAlign: 'center', padding: 48, color: 'var(--text-secondary, #71767b)' }}>
+        <div style={{ textAlign: 'center', padding: 48, color: isDarkMode ? '#71767b' : '#536471' }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>📚</div>
-          <h2 style={{ color: 'var(--text-primary, #e7e9ea)', marginBottom: 8 }}>Course Not Found</h2>
+          <h2 style={{ color: isDarkMode ? '#e7e9ea' : '#0f1419', marginBottom: 8 }}>Course Not Found</h2>
           <button onClick={onBack} style={{
             marginTop: 24,
             background: '#1d9bf0',
@@ -65,19 +67,6 @@ const CourseDetailView = ({ course, onBack, isDarkMode, followedCommunities = []
 
   const instructor = getInstructorById(course.instructorId);
   const instructorInitials = instructor?.name?.split(' ').map(n => n[0]).join('') || 'IN';
-  
-  // Generate a color based on the course category
-  const categoryColors = {
-    'AI & Machine Learning': '#FF6B6B',
-    'Web Development': '#4ECDC4',
-    'Cloud Computing': '#FF9900',
-    'Data Science': '#794BC4',
-    'Business': '#3498DB',
-    'Robotics': '#50C878',
-    'Healthcare': '#E74C3C',
-    'Programming': '#FFD93D'
-  };
-  const themeColor = categoryColors[course.category] || '#1d9bf0';
 
   const handleFollowToggle = () => {
     if (setFollowedCommunities) {
@@ -98,349 +87,641 @@ const CourseDetailView = ({ course, onBack, isDarkMode, followedCommunities = []
     }
   };
 
+  const tabs = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'curriculum', label: 'Curriculum' },
+    { id: 'feed', label: 'Course Feed' },
+    { id: 'reviews', label: 'Reviews' }
+  ];
+
   return (
     <div style={{ 
-      background: 'var(--bg-primary, #000)', 
+      background: isDarkMode ? '#000' : '#fff', 
       minHeight: '100vh'
     }}>
-      {/* Header with back button */}
+      {/* Header Section */}
       <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '12px 16px',
-        borderBottom: '1px solid var(--border-color, #2f3336)',
-        position: 'sticky',
-        top: 0,
-        background: 'var(--bg-primary, #000)',
-        zIndex: 10
+        padding: '24px 24px 0 24px',
+        borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <button
-            onClick={onBack}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-primary, #e7e9ea)',
-              fontSize: 20,
-              cursor: 'pointer',
-              padding: 8,
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'none'}
-            title="Go back"
-          >
-            ←
-          </button>
-          <div>
-            <h1 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: 'var(--text-primary, #e7e9ea)' }}>
-              Course Details
-            </h1>
-          </div>
-        </div>
-        
-        {/* Follow Button */}
+        {/* Back button */}
         <button
-          onClick={handleFollowToggle}
+          onClick={onBack}
           style={{
-            background: isFollowing ? 'transparent' : themeColor,
-            border: isFollowing ? `1px solid ${themeColor}` : 'none',
-            color: isFollowing ? themeColor : '#fff',
-            padding: '8px 20px',
-            borderRadius: 20,
-            fontWeight: 600,
-            fontSize: 14,
+            background: 'none',
+            border: 'none',
+            color: isDarkMode ? '#e7e9ea' : '#0f1419',
+            fontSize: 18,
             cursor: 'pointer',
+            padding: '8px 0',
+            marginBottom: 16,
             display: 'flex',
             alignItems: 'center',
-            gap: 6
+            gap: 8
           }}
         >
-          {isFollowing ? <><FaCheck /> Following</> : <><FaHeart /> Follow</>}
+          ← Back
         </button>
-      </div>
 
-      {/* Course Content */}
-      <div style={{ padding: '0' }}>
-        {/* Banner */}
+        {/* Title and Actions Row */}
         <div style={{
-          background: `linear-gradient(135deg, ${themeColor} 0%, ${adjustColor(themeColor, -30)} 100%)`,
-          height: 180,
           display: 'flex',
-          alignItems: 'flex-end',
-          padding: 24
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: 24,
+          marginBottom: 20
         }}>
-          <div>
-            <span style={{
-              background: 'rgba(255,255,255,0.2)',
-              color: '#fff',
-              padding: '4px 12px',
-              borderRadius: 20,
-              fontSize: 12,
-              fontWeight: 600
+          {/* Title & Subtitle */}
+          <div style={{ flex: 1 }}>
+            <h1 style={{ 
+              fontSize: 28, 
+              fontWeight: 700, 
+              marginBottom: 8, 
+              color: isDarkMode ? '#e7e9ea' : '#0f1419',
+              lineHeight: 1.2
             }}>
-              {course.category}
-            </span>
-          </div>
-        </div>
-
-        {/* Course Info */}
-        <div style={{ padding: '24px' }}>
-          <h1 style={{ 
-            fontSize: 28, 
-            fontWeight: 700, 
-            marginBottom: 12, 
-            color: 'var(--text-primary, #e7e9ea)',
-            lineHeight: 1.3
-          }}>
-            {course.title}
-          </h1>
-
-          <p style={{ 
-            fontSize: 16, 
-            color: 'var(--text-secondary, #71767b)', 
-            lineHeight: 1.6,
-            marginBottom: 24
-          }}>
-            {course.description}
-          </p>
-
-          {/* Instructor */}
-          {instructor && (
+              {course.title}
+            </h1>
+            <p style={{ 
+              fontSize: 16, 
+              color: isDarkMode ? '#71767b' : '#536471', 
+              margin: '0 0 8px 0'
+            }}>
+              {course.description?.substring(0, 80)}...
+            </p>
+            {/* Creator Link */}
             <div 
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onViewInstructor) onViewInstructor(course.instructorId);
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 12,
-                padding: 16,
-                background: 'var(--bg-secondary, #16181c)',
-                borderRadius: 12,
-                marginBottom: 24,
-                cursor: onViewInstructor ? 'pointer' : 'default'
+                gap: 8,
+                cursor: 'pointer'
               }}
-              onClick={() => onViewInstructor && onViewInstructor(instructor.id)}
-              onMouseEnter={e => onViewInstructor && (e.currentTarget.style.background = 'var(--bg-hover, #1d1f23)')}
-              onMouseLeave={e => onViewInstructor && (e.currentTarget.style.background = 'var(--bg-secondary, #16181c)')}
             >
-              <div style={{
-                width: 56,
-                height: 56,
-                borderRadius: '50%',
-                background: themeColor,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#fff',
-                fontSize: 20,
-                fontWeight: 700
-              }}>
-                {instructorInitials}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: 16, color: 'var(--text-primary, #e7e9ea)' }}>
-                  {instructor.name}
-                </div>
-                <div style={{ fontSize: 13, color: 'var(--text-secondary, #71767b)' }}>
-                  <FaChalkboardTeacher style={{ marginRight: 4 }} />
-                  Course Creator
-                </div>
-              </div>
-              {onViewInstructor && (
-                <span style={{ color: '#1d9bf0', fontSize: 14 }}>View Profile →</span>
-              )}
-            </div>
-          )}
-
-          {/* Stats Grid */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-            gap: 16,
-            marginBottom: 24
-          }}>
-            <div style={{
-              background: 'var(--bg-secondary, #16181c)',
-              padding: 16,
-              borderRadius: 12,
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: 24, fontWeight: 700, color: '#fbbf24', marginBottom: 4 }}>
-                <FaStar style={{ marginRight: 4 }} />
-                {course.rating}
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary, #71767b)' }}>Rating</div>
-            </div>
-            <div style={{
-              background: 'var(--bg-secondary, #16181c)',
-              padding: 16,
-              borderRadius: 12,
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: 24, fontWeight: 700, color: '#1d9bf0', marginBottom: 4 }}>
-                <FaUsers style={{ marginRight: 4 }} />
-                {course.students?.toLocaleString()}
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary, #71767b)' }}>Students</div>
-            </div>
-            <div style={{
-              background: 'var(--bg-secondary, #16181c)',
-              padding: 16,
-              borderRadius: 12,
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: 24, fontWeight: 700, color: '#10b981', marginBottom: 4 }}>
-                <FaClock style={{ marginRight: 4 }} />
-                {course.duration}
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary, #71767b)' }}>Duration</div>
-            </div>
-            <div style={{
-              background: 'var(--bg-secondary, #16181c)',
-              padding: 16,
-              borderRadius: 12,
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: 24, fontWeight: 700, color: themeColor, marginBottom: 4 }}>
-                <FaDollarSign />
-                {course.price}
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary, #71767b)' }}>Price</div>
+              <img 
+                src={instructor?.avatar}
+                alt={instructor?.name}
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: '50%',
+                  objectFit: 'cover'
+                }}
+              />
+              <span 
+                style={{ 
+                  color: '#1d9bf0', 
+                  fontSize: 14,
+                  fontWeight: 500
+                }}
+                onMouseEnter={e => e.target.style.textDecoration = 'underline'}
+                onMouseLeave={e => e.target.style.textDecoration = 'none'}
+              >
+                {instructor?.name}
+              </span>
             </div>
           </div>
 
-          {/* What You'll Learn */}
-          {course.curriculum && course.curriculum.length > 0 && (
-            <div style={{ marginBottom: 24 }}>
-              <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: 'var(--text-primary, #e7e9ea)' }}>
-                <FaBook style={{ marginRight: 8 }} />
-                What You'll Learn
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {course.curriculum.slice(0, 6).map((item, idx) => {
-                  // Handle both string and object curriculum items
-                  const title = typeof item === 'object' ? item.title : item;
-                  const duration = typeof item === 'object' ? item.duration : null;
-                  
-                  return (
-                    <div key={idx} style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 12,
-                      padding: '12px 16px',
-                      background: 'var(--bg-secondary, #16181c)',
-                      borderRadius: 8
-                    }}>
-                      <FaPlay style={{ color: themeColor, fontSize: 12, flexShrink: 0 }} />
-                      <span style={{ color: 'var(--text-primary, #e7e9ea)', fontSize: 14, flex: 1 }}>{title}</span>
-                      {duration && (
-                        <span style={{ color: 'var(--text-secondary, #71767b)', fontSize: 12 }}>{duration}</span>
-                      )}
-                    </div>
-                  );
-                })}
-                {course.curriculum.length > 6 && (
-                  <div style={{ 
-                    color: 'var(--text-secondary, #71767b)', 
-                    fontSize: 14, 
-                    paddingLeft: 16 
-                  }}>
-                    + {course.curriculum.length - 6} more modules
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Tags */}
-          {course.tags && course.tags.length > 0 && (
-            <div style={{ marginBottom: 24 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #e7e9ea)' }}>
-                Topics
-              </h3>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {course.tags.map((tag, idx) => (
-                  <span key={idx} style={{
-                    background: 'var(--bg-secondary, #2f3336)',
-                    color: 'var(--text-primary, #e7e9ea)',
-                    padding: '6px 14px',
-                    borderRadius: 20,
-                    fontSize: 13
-                  }}>
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Features */}
-          <div style={{
-            background: `linear-gradient(135deg, ${themeColor}15 0%, ${themeColor}05 100%)`,
-            border: `1px solid ${themeColor}30`,
-            borderRadius: 12,
-            padding: 20,
-            marginBottom: 24
-          }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: 'var(--text-primary, #e7e9ea)' }}>
-              <FaCertificate style={{ marginRight: 8, color: themeColor }} />
-              Course Features
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
-              {[
-                { icon: <FaUserGraduate />, text: '1-on-1 Student-Teacher Sessions' },
-                { icon: <FaCertificate />, text: 'Certificate of Completion' },
-                { icon: <FaChalkboardTeacher />, text: 'Become a Student-Teacher' },
-                { icon: <FaDollarSign />, text: 'Earn 70% Teaching Others' }
-              ].map((feature, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ color: themeColor }}>{feature.icon}</span>
-                  <span style={{ fontSize: 14, color: 'var(--text-primary, #e7e9ea)' }}>{feature.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* CTA Buttons */}
-          <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flexShrink: 0 }}>
             <button 
               onClick={() => onEnroll && onEnroll(course)}
               style={{
-                flex: 1,
-                background: themeColor,
+                background: '#f97316',
                 color: '#fff',
                 border: 'none',
-                padding: '16px 24px',
-                borderRadius: 12,
-                fontSize: 16,
+                padding: '12px 28px',
+                borderRadius: 8,
+                fontSize: 15,
+                fontWeight: 600,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Enroll for ${course.price}
+            </button>
+            <button
+              onClick={handleFollowToggle}
+              style={{
+                background: isFollowing ? (isDarkMode ? '#16181c' : '#f7f9f9') : 'transparent',
+                border: isDarkMode ? '1px solid #536471' : '1px solid #cfd9de',
+                color: isFollowing ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
+                padding: '12px 28px',
+                borderRadius: 8,
+                fontSize: 15,
                 fontWeight: 600,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 8
-              }}>
-              <FaPlay />
-              Enroll Now - ${course.price}
+                gap: 6
+              }}
+            >
+              {isFollowing ? <><FaCheck /> Following</> : <><FaPlus /> Follow</>}
             </button>
           </div>
         </div>
+
+        {/* Tabs */}
+        <div 
+          className="course-detail-tabs"
+          style={{ 
+            display: 'flex', 
+            gap: 0,
+            flexWrap: 'wrap',
+            overflow: 'hidden'
+          }}
+        >
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className="course-detail-tab-btn"
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: '12px 16px',
+                fontSize: 14,
+                fontWeight: activeTab === tab.id ? 700 : 500,
+                color: activeTab === tab.id ? (isDarkMode ? '#e7e9ea' : '#0f1419') : (isDarkMode ? '#71767b' : '#536471'),
+                cursor: 'pointer',
+                borderBottom: activeTab === tab.id ? '3px solid #1d9bf0' : '3px solid transparent',
+                marginBottom: -1,
+                whiteSpace: 'nowrap',
+                flex: '1 1 auto',
+                minWidth: 0
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Two Column Layout - Full width for Course Feed */}
+      <div style={{
+        display: 'flex',
+        gap: activeTab === 'feed' ? 0 : 32,
+        padding: 24,
+        maxWidth: activeTab === 'feed' ? '100%' : 1200
+      }}>
+        {/* Left Column - Main Content (Full width on feed tab) */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {activeTab === 'overview' && (
+            <>
+              {/* Video Player Placeholder */}
+              <div style={{
+                background: isDarkMode ? '#16181c' : '#f7f9f9',
+                borderRadius: 12,
+                aspectRatio: '16/9',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 24,
+                border: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: '50%',
+                  background: 'rgba(0,0,0,0.7)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}>
+                  <FaPlay style={{ color: '#fff', fontSize: 28, marginLeft: 4 }} />
+                </div>
+                {/* Video controls bar */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  background: 'rgba(0,0,0,0.8)',
+                  padding: '8px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12
+                }}>
+                  <FaPlay style={{ color: '#fff', fontSize: 14 }} />
+                  <div style={{ flex: 1, height: 4, background: '#333', borderRadius: 2 }}>
+                    <div style={{ width: '30%', height: '100%', background: '#fff', borderRadius: 2 }} />
+                  </div>
+                  <span style={{ color: '#fff', fontSize: 12 }}>0:00 / {course.duration}</span>
+                </div>
+              </div>
+
+              {/* Course Description */}
+              <div style={{ marginBottom: 32 }}>
+                <p style={{ 
+                  fontSize: 15, 
+                  color: isDarkMode ? '#e7e9ea' : '#0f1419', 
+                  lineHeight: 1.7,
+                  margin: 0
+                }}>
+                  {course.description}
+                </p>
+              </div>
+
+              {/* What You'll Learn */}
+              <div style={{ marginBottom: 32 }}>
+                <h3 style={{ 
+                  fontSize: 18, 
+                  fontWeight: 700, 
+                  marginBottom: 16, 
+                  color: isDarkMode ? '#e7e9ea' : '#0f1419'
+                }}>
+                  What you'll learn
+                </h3>
+                <ul style={{ 
+                  margin: 0, 
+                  paddingLeft: 20,
+                  color: isDarkMode ? '#e7e9ea' : '#0f1419'
+                }}>
+                  {(course.curriculum || []).slice(0, 4).map((item, idx) => {
+                    const title = typeof item === 'object' ? item.title : item;
+                    return (
+                      <li key={idx} style={{ 
+                        marginBottom: 10, 
+                        fontSize: 15,
+                        lineHeight: 1.5
+                      }}>
+                        {title}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+
+              {/* Tags */}
+              {course.tags && course.tags.length > 0 && (
+                <div>
+                  <h3 style={{ 
+                    fontSize: 18, 
+                    fontWeight: 700, 
+                    marginBottom: 16, 
+                    color: isDarkMode ? '#e7e9ea' : '#0f1419'
+                  }}>
+                    Topics
+                  </h3>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {course.tags.map((tag, idx) => (
+                      <span key={idx} style={{
+                        background: isDarkMode ? '#2f3336' : '#eff3f4',
+                        color: isDarkMode ? '#e7e9ea' : '#0f1419',
+                        padding: '8px 16px',
+                        borderRadius: 20,
+                        fontSize: 14
+                      }}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {activeTab === 'curriculum' && (
+            <div>
+              <h3 style={{ 
+                fontSize: 20, 
+                fontWeight: 700, 
+                marginBottom: 20, 
+                color: isDarkMode ? '#e7e9ea' : '#0f1419'
+              }}>
+                Course Curriculum
+              </h3>
+              {(course.curriculum || []).map((item, idx) => {
+                const title = typeof item === 'object' ? item.title : item;
+                const duration = typeof item === 'object' ? item.duration : '15 min';
+                return (
+                  <div key={idx} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 16,
+                    padding: 16,
+                    background: isDarkMode ? '#16181c' : '#f7f9f9',
+                    borderRadius: 8,
+                    marginBottom: 8,
+                    border: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4'
+                  }}>
+                    <div style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      background: '#1d9bf0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      fontSize: 14,
+                      fontWeight: 600
+                    }}>
+                      {idx + 1}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, color: isDarkMode ? '#e7e9ea' : '#0f1419' }}>{title}</div>
+                    </div>
+                    <span style={{ color: isDarkMode ? '#71767b' : '#536471', fontSize: 14 }}>{duration}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {activeTab === 'reviews' && (
+            <div style={{ textAlign: 'center', padding: 48 }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>⭐</div>
+              <h3 style={{ color: isDarkMode ? '#e7e9ea' : '#0f1419', marginBottom: 8 }}>No Reviews Yet</h3>
+              <p style={{ color: isDarkMode ? '#71767b' : '#536471' }}>Be the first to review this course!</p>
+            </div>
+          )}
+
+          {activeTab === 'feed' && (
+            <div>
+              {/* Sample course feed posts */}
+              {[
+                {
+                  id: 1,
+                  author: 'CourseEnthusiast',
+                  authorHandle: '@CourseEnthusiast',
+                  authorAvatar: 'https://i.pravatar.cc/40?img=11',
+                  content: `Just finished the first module of ${course.title}! The content is incredibly well-structured. Can't wait to continue! 🚀`,
+                  timestamp: '2 hours ago',
+                  likes: 24,
+                  replies: 5,
+                  retweets: 3
+                },
+                {
+                  id: 2,
+                  author: 'LearningDaily',
+                  authorHandle: '@LearningDaily',
+                  authorAvatar: 'https://i.pravatar.cc/40?img=22',
+                  content: `The instructor explains complex concepts so clearly! This ${course.category} course is exactly what I needed. Highly recommend to anyone starting out.`,
+                  timestamp: '5 hours ago',
+                  likes: 42,
+                  replies: 8,
+                  retweets: 12
+                },
+                {
+                  id: 3,
+                  author: 'TechStudent2024',
+                  authorHandle: '@TechStudent2024',
+                  authorAvatar: 'https://i.pravatar.cc/40?img=33',
+                  content: `Question for fellow students: Has anyone completed the hands-on project in Module 3? Looking for study partners! #PeerLoop #${course.category?.replace(/\s+/g, '')}`,
+                  timestamp: '1 day ago',
+                  likes: 18,
+                  replies: 12,
+                  retweets: 2
+                },
+                {
+                  id: 4,
+                  author: 'CareerChanger',
+                  authorHandle: '@CareerChanger',
+                  authorAvatar: 'https://i.pravatar.cc/40?img=44',
+                  content: `Just became a Student-Teacher for this course! 🎉 Ready to help others learn while earning. The PeerLoop model is amazing - learn, teach, earn!`,
+                  timestamp: '2 days ago',
+                  likes: 89,
+                  replies: 15,
+                  retweets: 24
+                }
+              ].map(post => (
+                <div 
+                  key={post.id}
+                  style={{
+                    padding: 16,
+                    borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4'
+                  }}
+                >
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <img 
+                      src={post.authorAvatar}
+                      alt={post.author}
+                      style={{ width: 40, height: 40, borderRadius: '50%' }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                        <span style={{ fontWeight: 700, color: isDarkMode ? '#e7e9ea' : '#0f1419' }}>
+                          {post.author}
+                        </span>
+                        <span style={{ color: isDarkMode ? '#71767b' : '#536471' }}>
+                          {post.authorHandle}
+                        </span>
+                        <span style={{ color: isDarkMode ? '#71767b' : '#536471' }}>·</span>
+                        <span style={{ color: isDarkMode ? '#71767b' : '#536471' }}>
+                          {post.timestamp}
+                        </span>
+                      </div>
+                      <p style={{ 
+                        margin: '0 0 12px 0', 
+                        color: isDarkMode ? '#e7e9ea' : '#0f1419',
+                        fontSize: 15,
+                        lineHeight: 1.5
+                      }}>
+                        {post.content}
+                      </p>
+                      <div style={{ display: 'flex', gap: 24 }}>
+                        <button style={{ 
+                          background: 'none', 
+                          border: 'none', 
+                          color: isDarkMode ? '#71767b' : '#536471',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          cursor: 'pointer',
+                          fontSize: 13
+                        }}>
+                          <FaComment /> {post.replies}
+                        </button>
+                        <button style={{ 
+                          background: 'none', 
+                          border: 'none', 
+                          color: isDarkMode ? '#71767b' : '#536471',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          cursor: 'pointer',
+                          fontSize: 13
+                        }}>
+                          <FaRetweet /> {post.retweets}
+                        </button>
+                        <button style={{ 
+                          background: 'none', 
+                          border: 'none', 
+                          color: isDarkMode ? '#71767b' : '#536471',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          cursor: 'pointer',
+                          fontSize: 13
+                        }}>
+                          <FaHeart /> {post.likes}
+                        </button>
+                        <button style={{ 
+                          background: 'none', 
+                          border: 'none', 
+                          color: isDarkMode ? '#71767b' : '#536471',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          cursor: 'pointer',
+                          fontSize: 13
+                        }}>
+                          <FaShare />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Right Sidebar - Hidden on Course Feed tab and on small screens */}
+        {activeTab !== 'feed' && (
+        <div className="course-detail-sidebar" style={{ width: 300, flexShrink: 0 }}>
+          {/* Instructor Card */}
+          <div style={{
+            background: isDarkMode ? '#16181c' : '#f7f9f9',
+            borderRadius: 12,
+            padding: 20,
+            marginBottom: 20,
+            border: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4'
+          }}>
+            <h4 style={{ 
+              fontSize: 14, 
+              fontWeight: 700, 
+              marginBottom: 16, 
+              color: isDarkMode ? '#e7e9ea' : '#0f1419',
+              textTransform: 'uppercase',
+              letterSpacing: 0.5
+            }}>
+              Instructor
+            </h4>
+            
+            {instructor && (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                  {instructor.avatar ? (
+                    <img 
+                      src={instructor.avatar} 
+                      alt={instructor.name}
+                      style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <div style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: '50%',
+                      background: '#1d9bf0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      fontSize: 16,
+                      fontWeight: 700
+                    }}>
+                      {instructorInitials}
+                    </div>
+                  )}
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: 15, color: isDarkMode ? '#e7e9ea' : '#0f1419' }}>
+                      {instructor.name}
+                    </div>
+                    <div style={{ fontSize: 13, color: isDarkMode ? '#71767b' : '#536471' }}>
+                      Instructor
+                    </div>
+                  </div>
+                </div>
+                
+                <p style={{ 
+                  fontSize: 14, 
+                  color: isDarkMode ? '#71767b' : '#536471', 
+                  lineHeight: 1.5,
+                  marginBottom: 12
+                }}>
+                  {instructor.bio?.substring(0, 120) || `Expert instructor teaching ${course.category} courses.`}...
+                </p>
+                
+                {onViewInstructor && (
+                  <button
+                    onClick={() => onViewInstructor(instructor.id)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#1d9bf0',
+                      fontSize: 14,
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      padding: 0
+                    }}
+                  >
+                    View Profile →
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Course Details Card */}
+          <div style={{
+            background: isDarkMode ? '#16181c' : '#f7f9f9',
+            borderRadius: 12,
+            padding: 20,
+            border: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4'
+          }}>
+            <h4 style={{ 
+              fontSize: 14, 
+              fontWeight: 700, 
+              marginBottom: 16, 
+              color: isDarkMode ? '#e7e9ea' : '#0f1419',
+              textTransform: 'uppercase',
+              letterSpacing: 0.5
+            }}>
+              Course Details
+            </h4>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <FaBook style={{ color: isDarkMode ? '#71767b' : '#536471', fontSize: 16 }} />
+                <span style={{ color: isDarkMode ? '#e7e9ea' : '#0f1419', fontSize: 14 }}>
+                  {course.curriculum?.length || 6} Modules
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <FaPlay style={{ color: isDarkMode ? '#71767b' : '#536471', fontSize: 16 }} />
+                <span style={{ color: isDarkMode ? '#e7e9ea' : '#0f1419', fontSize: 14 }}>
+                  {(course.curriculum?.length || 6) * 4} Lessons
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <FaInfinity style={{ color: isDarkMode ? '#71767b' : '#536471', fontSize: 16 }} />
+                <span style={{ color: isDarkMode ? '#e7e9ea' : '#0f1419', fontSize: 14 }}>
+                  Lifetime Access
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <FaGraduationCap style={{ color: isDarkMode ? '#71767b' : '#536471', fontSize: 16 }} />
+                <span style={{ color: isDarkMode ? '#e7e9ea' : '#0f1419', fontSize: 14 }}>
+                  Certificate of Completion
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        )}
       </div>
     </div>
   );
 };
 
-// Helper function to adjust color brightness
-function adjustColor(color, amount) {
-  const hex = color.replace('#', '');
-  const r = Math.max(0, Math.min(255, parseInt(hex.substring(0, 2), 16) + amount));
-  const g = Math.max(0, Math.min(255, parseInt(hex.substring(2, 4), 16) + amount));
-  const b = Math.max(0, Math.min(255, parseInt(hex.substring(4, 6), 16) + amount));
-  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-}
-
 export default CourseDetailView;
-
