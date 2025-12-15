@@ -1774,7 +1774,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                   value={newPostText}
                   onChange={(e) => setNewPostText(e.target.value)}
                   onFocus={() => setIsComposerFocused(true)}
-                  placeholder="Share your knowledge or ask a question..."
+                  placeholder="This is an informal knowledge sharing community. We support each other on this learning journey."
                   style={{
                     width: '100%',
                     border: 'none',
