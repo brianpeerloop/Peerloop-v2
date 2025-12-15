@@ -7,11 +7,14 @@ import './MainContent.css';
  * CourseDetailView Component
  * Shows detailed view of a course with tabs and two-column layout
  */
-const CourseDetailView = ({ course, onBack, isDarkMode, followedCommunities = [], setFollowedCommunities, onViewInstructor, onEnroll }) => {
+const CourseDetailView = ({ course, onBack, isDarkMode, followedCommunities = [], setFollowedCommunities, onViewInstructor, onEnroll, isCoursePurchased = false }) => {
+  // Check if this specific course is being followed (within creator's followedCourseIds)
   const [isFollowing, setIsFollowing] = useState(() => {
-    return followedCommunities.some(c => c.id === `course-${course?.id}`);
+    if (!course) return false;
+    const creatorFollow = followedCommunities.find(c => c.instructorId === course.instructorId);
+    return creatorFollow?.followedCourseIds?.includes(course.id) || false;
   });
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('feed');
 
   if (!course) {
     return (
@@ -69,28 +72,41 @@ const CourseDetailView = ({ course, onBack, isDarkMode, followedCommunities = []
   const instructorInitials = instructor?.name?.split(' ').map(n => n[0]).join('') || 'IN';
 
   const handleFollowToggle = () => {
-    if (setFollowedCommunities) {
-      const courseCommunityId = `course-${course.id}`;
-      if (isFollowing) {
-        setFollowedCommunities(prev => prev.filter(c => c.id !== courseCommunityId));
-      } else {
-        const courseCommunity = {
-          id: courseCommunityId,
-          name: course.title,
-          type: 'course',
-          courseId: course.id,
-          instructorId: course.instructorId
-        };
-        setFollowedCommunities(prev => [...prev, courseCommunity]);
-      }
-      setIsFollowing(!isFollowing);
+    // Only allow follow/unfollow for purchased courses
+    if (!isCoursePurchased || !setFollowedCommunities) return;
+
+    const creatorId = `creator-${course.instructorId}`;
+
+    if (isFollowing) {
+      // Unfollow: Remove this course from creator's followedCourseIds
+      setFollowedCommunities(prev => prev.map(c => {
+        if (c.id === creatorId) {
+          return {
+            ...c,
+            followedCourseIds: (c.followedCourseIds || []).filter(id => id !== course.id)
+          };
+        }
+        return c;
+      }));
+    } else {
+      // Follow: Add this course to creator's followedCourseIds
+      setFollowedCommunities(prev => prev.map(c => {
+        if (c.id === creatorId) {
+          return {
+            ...c,
+            followedCourseIds: [...new Set([...(c.followedCourseIds || []), course.id])]
+          };
+        }
+        return c;
+      }));
     }
+    setIsFollowing(!isFollowing);
   };
 
   const tabs = [
+    { id: 'feed', label: 'Course Feed' },
     { id: 'overview', label: 'Overview' },
     { id: 'curriculum', label: 'Curriculum' },
-    { id: 'feed', label: 'Course Feed' },
     { id: 'reviews', label: 'Reviews' }
   ];
 
@@ -204,25 +220,28 @@ const CourseDetailView = ({ course, onBack, isDarkMode, followedCommunities = []
             >
               Enroll for ${course.price}
             </button>
-            <button
-              onClick={handleFollowToggle}
-              style={{
-                background: isFollowing ? (isDarkMode ? '#16181c' : '#f7f9f9') : 'transparent',
-                border: isDarkMode ? '1px solid #536471' : '1px solid #cfd9de',
-                color: isFollowing ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
-                padding: '12px 28px',
-                borderRadius: 8,
-                fontSize: 15,
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6
-              }}
-            >
-              {isFollowing ? <><FaCheck /> Following</> : <><FaPlus /> Follow</>}
-            </button>
+            {/* Follow button only shows for purchased courses */}
+            {isCoursePurchased && (
+              <button
+                onClick={handleFollowToggle}
+                style={{
+                  background: isFollowing ? (isDarkMode ? '#16181c' : '#f7f9f9') : 'transparent',
+                  border: isDarkMode ? '1px solid #536471' : '1px solid #cfd9de',
+                  color: isFollowing ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
+                  padding: '12px 28px',
+                  borderRadius: 8,
+                  fontSize: 15,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6
+                }}
+              >
+                {isFollowing ? <><FaCheck /> Following</> : <><FaPlus /> Follow</>}
+              </button>
+            )}
           </div>
         </div>
 

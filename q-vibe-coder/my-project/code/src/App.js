@@ -88,7 +88,8 @@ function App() {
       location: demoUser.location,
       stats: demoUser.stats,
       isDemo: true, // Flag to know this is a demo user
-      isNewUser: demoUser.isNewUser || false // Pass through the new user flag
+      isNewUser: demoUser.isNewUser || false, // Pass through the new user flag
+      interests: demoUser.interests || [] // Pass through selected interests
     });
     // Set a fake session to bypass login screen
     setSession({ user: { id: demoUser.id, email: demoUser.email }, isDemo: true });

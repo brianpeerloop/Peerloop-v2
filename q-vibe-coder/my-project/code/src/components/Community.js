@@ -156,60 +156,58 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
   // Group followed communities by creator - always show creator tabs, not individual courses
   const groupedByCreator = React.useMemo(() => {
     const creatorMap = new Map();
-    
-    // Only process course-type follows (not creator-type follows without courses)
+
+    // Process all followed communities
     actualFollowedCommunities.forEach(community => {
-      let creatorId, creatorName, courseIds;
-      
+      let creatorId, creatorName, followedCourseIds;
+
       if (community.type === 'creator') {
-        // Creator follow - only include if they have courseIds
-        const cIds = community.courseIds || [];
-        if (cIds.length === 0) return; // Skip creator follows with no courses
+        // Creator follow - show creator even if no courses purchased yet (Town Hall access)
         creatorId = community.id;
         creatorName = community.name;
-        courseIds = cIds;
+        followedCourseIds = community.followedCourseIds || []; // Use actual followed courses (purchased)
       } else if (community.type === 'course' || community.id?.startsWith('course-')) {
         // Individual course follow - get the creator
         const courseId = community.courseId || parseInt(community.id.replace('course-', ''));
         const course = getCourseById(courseId);
         if (!course) return;
-        
+
         const instructor = getInstructorById(course.instructorId);
         if (!instructor) return;
-        
+
         creatorId = `creator-${course.instructorId}`;
         creatorName = instructor.name;
-        courseIds = [courseId];
+        followedCourseIds = [courseId];
       } else {
         // Unknown type, skip
         return;
       }
-      
+
       // Merge into existing creator entry or create new one
       if (creatorMap.has(creatorId)) {
         const existing = creatorMap.get(creatorId);
-        // Merge course IDs, avoiding duplicates
-        const mergedCourseIds = [...new Set([...existing.followedCourseIds, ...courseIds])];
+        // Merge followed course IDs, avoiding duplicates
+        const mergedCourseIds = [...new Set([...existing.followedCourseIds, ...followedCourseIds])];
         existing.followedCourseIds = mergedCourseIds;
       } else {
         // Get all courses for this creator
         const instructorId = parseInt(creatorId.replace('creator-', ''));
         const instructor = getInstructorById(instructorId);
         const allCreatorCourses = getAllCourses().filter(c => c.instructorId === instructorId);
-        
+
         creatorMap.set(creatorId, {
           id: creatorId,
           name: creatorName,
           instructorId: instructorId,
           allCourses: allCreatorCourses,
-          followedCourseIds: courseIds,
+          followedCourseIds: followedCourseIds, // Only purchased courses
           isFullCreatorFollow: community.type === 'creator'
         });
       }
     });
-    
-    // Only return creators that have at least one followed course
-    return Array.from(creatorMap.values()).filter(creator => creator.followedCourseIds.length > 0);
+
+    // Return all followed creators (even those with no purchased courses - they have Town Hall access)
+    return Array.from(creatorMap.values());
   }, [actualFollowedCommunities]);
 
   // Close dropdown when clicking outside
@@ -1014,10 +1012,10 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
               }}
             >
               <div style={{
-                width: 44,
-                height: 44,
+                width: 56,
+                height: 56,
                 borderRadius: '50%',
-                border: communityMode === 'hub' ? '2px solid #1d9bf0' : '2px solid transparent',
+                border: communityMode === 'hub' ? '3px solid #1d9bf0' : '3px solid transparent',
                 padding: 2,
                 marginBottom: 2,
                 overflow: 'hidden'
@@ -1122,10 +1120,10 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                     }}
                   >
                     <div style={{
-                      width: 44,
-                      height: 44,
+                      width: 56,
+                      height: 56,
                       borderRadius: '50%',
-                      border: isSelected ? '2px solid #1d9bf0' : '2px solid transparent',
+                      border: isSelected ? '3px solid #1d9bf0' : '3px solid transparent',
                       padding: 2,
                       marginBottom: 2
                     }}>
@@ -1153,7 +1151,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontSize: 14,
+                          fontSize: 16,
                           fontWeight: 700
                         }}>
                           {creator.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
@@ -1192,10 +1190,10 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                   }}
                 >
                   <div style={{
-                    width: 44,
-                    height: 44,
+                    width: 56,
+                    height: 56,
                     borderRadius: '50%',
-                    border: '2px solid #1d9bf0',
+                    border: '3px solid #1d9bf0',
                     padding: 2,
                     marginBottom: 2
                   }}>
@@ -1208,7 +1206,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: 14,
+                      fontSize: 16,
                       fontWeight: 700
                     }}>
                       {pendingCreatorName.split(' ').map(n => n[0]).join('').substring(0, 2)}
@@ -1681,139 +1679,29 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                           width: 280,
                           padding: '4px 0'
                         }}>
-                        {/* Follow All option */}
-                        <div 
-                          style={{ 
+                        {/* Unfollow Creator option */}
+                        <div
+                          style={{
                             padding: '8px 12px',
                             cursor: 'pointer',
                             fontSize: 13,
-                            color: '#1d9bf0',
+                            color: '#dc2626',
                             fontWeight: 500
                           }}
                           onClick={(e) => {
                             e.stopPropagation();
                             e.preventDefault();
-                            // Follow all courses from this creator
-                            const allCourseIds = (creator.allCourses || []).map(c => c.id);
-                            allCourseIds.forEach(courseId => {
-                              const isAlreadyFollowed = creator.followedCourseIds.includes(courseId);
-                              if (!isAlreadyFollowed) {
-                                const course = (creator.allCourses || []).find(c => c.id === courseId);
-                                if (course) {
-                                  const courseCommunity = {
-                                    id: `course-${courseId}`,
-                                    name: course.title,
-                                    type: 'course',
-                                    courseId: courseId,
-                                    instructorId: creator.instructorId
-                                  };
-                                  actualSetFollowedCommunities(prev => {
-                                    if (prev.some(c => c.id === courseCommunity.id)) return prev;
-                                    return [...prev, courseCommunity];
-                                  });
-                                }
-                              }
-                            });
-                            setOpenCreatorDropdown(null);
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = isDarkMode ? '#2f3336' : '#f8fafc'}
-                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                        >
-                          Follow All
-                        </div>
-                        
-                        {/* Unfollow All option */}
-                        <div 
-                          style={{ 
-                            padding: '8px 12px',
-                            cursor: 'pointer',
-                            fontSize: 13,
-                            color: '#dc2626',
-                            fontWeight: 500,
-                            borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #f1f5f9'
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            // Remove all courses from this creator from followedCommunities
-                            actualSetFollowedCommunities(prev => 
-                              prev.filter(c => {
-                                // Remove creator follow
-                                if (c.id === creator.id) return false;
-                                // Remove individual course follows from this creator
-                                if (c.type === 'course') {
-                                  const courseId = c.courseId || parseInt(c.id.replace('course-', ''));
-                                  return !creator.followedCourseIds.includes(courseId);
-                                }
-                                return true;
-                              })
+                            // Remove this creator from followedCommunities
+                            actualSetFollowedCommunities(prev =>
+                              prev.filter(c => c.id !== creator.id)
                             );
                             setOpenCreatorDropdown(null);
                           }}
                           onMouseEnter={(e) => e.currentTarget.style.background = isDarkMode ? '#2f3336' : '#f8fafc'}
                           onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                         >
-                          Unfollow All
+                          Unfollow Creator
                         </div>
-                        
-                        {/* Individual courses - show ALL courses from creator */}
-                        {(creator.allCourses || []).map(course => {
-                          if (!course) return null;
-                          const isFollowed = creator.followedCourseIds.includes(course.id);
-                          return (
-                            <div 
-                              key={course.id}
-                              style={{ 
-                                padding: '8px 12px',
-                                cursor: 'pointer',
-                                fontSize: 13,
-                                color: isFollowed ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#475569'),
-                                fontWeight: isFollowed ? 500 : 400,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between'
-                              }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                // Toggle follow/unfollow for this course
-                                const courseCommunityId = `course-${course.id}`;
-                                if (isFollowed) {
-                                  // Unfollow this course
-                                  actualSetFollowedCommunities(prev => 
-                                    prev.filter(c => c.id !== courseCommunityId)
-                                  );
-                                } else {
-                                  // Follow this course
-                                  const courseCommunity = {
-                                    id: courseCommunityId,
-                                    name: course.title,
-                                    type: 'course',
-                                    courseId: course.id,
-                                    instructorId: creator.instructorId
-                                  };
-                                  actualSetFollowedCommunities(prev => {
-                                    if (prev.some(c => c.id === courseCommunityId)) return prev;
-                                    return [...prev, courseCommunity];
-                                  });
-                                }
-                                // Close the dropdown after selecting a course
-                                setOpenCreatorDropdown(null);
-                              }}
-                              onMouseEnter={(e) => e.currentTarget.style.background = isDarkMode ? '#2f3336' : '#f8fafc'}
-                              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                            >
-                              <span style={{ 
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis'
-                              }}>
-                                {course.title}
-                              </span>
-                              {isFollowed && <span style={{ color: '#1d9bf0' }}>✓</span>}
-                            </div>
-                          );
-                        })}
                       </div>,
                       document.body
                     )}

@@ -142,7 +142,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
         instructorId: instructor.id,
         instructorName: instructor.name,
         courseIds: courseIds,
-        followedCourseIds: courseIds, // Follow all their courses by default
+        followedCourseIds: [], // Empty until courses are purchased
         description: instructor.bio,
         members: Math.floor(totalStudents * 0.8),
         posts: Math.floor(totalStudents * 0.24),
@@ -211,6 +211,80 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false); // Track course description expansion
   const [showEnrollmentFlow, setShowEnrollmentFlow] = useState(false); // Track enrollment modal visibility
   const [enrollingCourse, setEnrollingCourse] = useState(null); // Course being enrolled in
+
+  // Purchased courses - courses the user has bought (enables course-level follow/unfollow)
+  const [purchasedCourses, setPurchasedCourses] = useState(() => {
+    if (currentUser?.isNewUser) return [];
+    try {
+      const storageKey = `purchasedCourses_${currentUser?.id}`;
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      // Demo users start with some purchased courses for testing
+      if (currentUser?.id?.startsWith('demo_') && !currentUser?.isNewUser) {
+        return [1, 2, 3]; // First 3 courses purchased by default for demo users
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  // Save purchased courses to localStorage
+  React.useEffect(() => {
+    if (currentUser?.id) {
+      localStorage.setItem(`purchasedCourses_${currentUser.id}`, JSON.stringify(purchasedCourses));
+    }
+  }, [purchasedCourses, currentUser?.id]);
+
+  // Helper to check if a course is purchased
+  const isCoursePurchased = (courseId) => purchasedCourses.includes(courseId);
+
+  // Handle course purchase - auto-follow the creator
+  const handleCoursePurchase = (courseId) => {
+    const course = getCourseById(courseId);
+    if (!course) return;
+
+    // Add to purchased courses
+    setPurchasedCourses(prev => {
+      if (prev.includes(courseId)) return prev;
+      return [...prev, courseId];
+    });
+
+    // Auto-follow the creator
+    const creatorId = `creator-${course.instructorId}`;
+    const isCreatorFollowed = followedCommunities.some(c => c.id === creatorId);
+
+    if (!isCreatorFollowed) {
+      const instructor = getInstructorById(course.instructorId);
+      if (instructor) {
+        const courseIds = instructor.courses || [];
+        setFollowedCommunities(prev => [...prev, {
+          id: creatorId,
+          type: 'creator',
+          name: instructor.name,
+          instructorId: instructor.id,
+          instructorName: instructor.name,
+          courseIds: courseIds,
+          followedCourseIds: [courseId], // Start with just the purchased course
+          description: instructor.bio,
+          avatar: instructor.avatar
+        }]);
+      }
+    } else {
+      // Creator already followed - add this course to their followedCourseIds
+      setFollowedCommunities(prev => prev.map(c => {
+        if (c.id === creatorId) {
+          return {
+            ...c,
+            followedCourseIds: [...new Set([...(c.followedCourseIds || []), courseId])]
+          };
+        }
+        return c;
+      }));
+    }
+  };
 
     // Only reset Browse state when explicitly requested (double-click Browse or Browse_Reset)
     // This preserves state when navigating away and back
@@ -535,107 +609,142 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                 Go to Community
               </span>
               
-              {/* Follow Button with Dropdown - Same pattern as Summary view */}
-              <div className="creator-follow-dropdown-wrapper" style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
-                <button 
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenCreatorFollowDropdown(openCreatorFollowDropdown === `detail-${creator.id}` ? null : `detail-${creator.id}`);
-                  }}
-                  disabled={isFollowingLoading}
-                  style={{ 
-                    background: hasAnyCreatorCourseFollowed(creator.id) ? (isDarkMode ? '#2f3336' : '#eff3f4') : '#1d9bf0',
-                    color: hasAnyCreatorCourseFollowed(creator.id) ? (isDarkMode ? '#e7e9ea' : '#0f1419') : '#fff',
-                    border: 'none', 
-                    padding: '8px 16px', 
-                    borderRadius: 20, 
-                    fontWeight: 600, 
-                    fontSize: 13, 
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {hasAnyCreatorCourseFollowed(creator.id) ? '✓ Following' : 'Follow'}
-                  <span style={{ fontSize: 10 }}>▼</span>
-                </button>
-                
-                {/* Follow Dropdown */}
-                {openCreatorFollowDropdown === `detail-${creator.id}` && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    right: 0,
-                    marginTop: 4,
-                    background: isDarkMode ? '#16181c' : '#fff',
-                    border: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0',
-                    borderRadius: 12,
-                    boxShadow: isDarkMode ? '0 4px 12px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,0,0,0.1)',
-                    zIndex: 1000,
-                    minWidth: 220,
-                    padding: '4px 0'
-                  }}>
-                    <button 
+              {/* Follow Button - Simple toggle if no purchased courses, dropdown if purchased courses exist */}
+              {(() => {
+                const purchasedCreatorCourses = creatorCourses.filter(course => isCoursePurchased(course.id));
+                const hasPurchasedCourses = purchasedCreatorCourses.length > 0;
+                const isFollowing = hasAnyCreatorCourseFollowed(creator.id);
+
+                if (!hasPurchasedCourses) {
+                  // Simple toggle button - no dropdown
+                  return (
+                    <button
                       type="button"
-                      style={{ 
-                        padding: '10px 16px',
-                        cursor: 'pointer',
-                        fontSize: 14,
-                        color: hasAnyCreatorCourseFollowed(creator.id) ? '#f4212e' : '#1d9bf0',
-                        fontWeight: 500,
-                        background: 'transparent',
-                        border: 'none',
-                        borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #f1f5f9',
-                        width: '100%',
-                        textAlign: 'left',
-                        display: 'block'
-                      }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        e.preventDefault();
                         handleFollowInstructor(creator.id);
-                        setOpenCreatorFollowDropdown(null);
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = isDarkMode ? '#2f3336' : '#f8fafc'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      disabled={isFollowingLoading}
+                      style={{
+                        background: isFollowing ? (isDarkMode ? '#2f3336' : '#eff3f4') : '#1d9bf0',
+                        color: isFollowing ? (isDarkMode ? '#e7e9ea' : '#0f1419') : '#fff',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: 20,
+                        fontWeight: 600,
+                        fontSize: 13,
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap'
+                      }}
                     >
-                      {hasAnyCreatorCourseFollowed(creator.id) ? 'Unfollow All' : 'Follow All Courses'}
+                      {isFollowing ? '✓ Following' : 'Follow'}
                     </button>
-                    <div style={{ borderTop: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4', margin: '4px 0' }} />
-                    {creatorCourses.map(course => {
-                      const isFollowed = isCourseFollowed(course.id);
-                      return (
-                        <div 
-                          key={course.id}
-                          style={{ 
+                  );
+                }
+
+                // Dropdown button - has purchased courses
+                return (
+                  <div className="creator-follow-dropdown-wrapper" style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenCreatorFollowDropdown(openCreatorFollowDropdown === `detail-${creator.id}` ? null : `detail-${creator.id}`);
+                      }}
+                      disabled={isFollowingLoading}
+                      style={{
+                        background: isFollowing ? (isDarkMode ? '#2f3336' : '#eff3f4') : '#1d9bf0',
+                        color: isFollowing ? (isDarkMode ? '#e7e9ea' : '#0f1419') : '#fff',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: 20,
+                        fontWeight: 600,
+                        fontSize: 13,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {isFollowing ? '✓ Following' : 'Follow'}
+                      <span style={{ fontSize: 10 }}>▼</span>
+                    </button>
+
+                    {/* Follow Dropdown */}
+                    {openCreatorFollowDropdown === `detail-${creator.id}` && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '100%',
+                        right: 0,
+                        marginTop: 4,
+                        background: isDarkMode ? '#16181c' : '#fff',
+                        border: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0',
+                        borderRadius: 12,
+                        boxShadow: isDarkMode ? '0 4px 12px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,0,0,0.1)',
+                        zIndex: 1000,
+                        minWidth: 220,
+                        padding: '4px 0'
+                      }}>
+                        <button
+                          type="button"
+                          style={{
                             padding: '10px 16px',
                             cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
                             fontSize: 14,
-                            color: isFollowed ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
-                            fontWeight: isFollowed ? 500 : 400
+                            color: isFollowing ? '#f4212e' : '#1d9bf0',
+                            fontWeight: 500,
+                            background: 'transparent',
+                            border: 'none',
+                            width: '100%',
+                            textAlign: 'left',
+                            display: 'block'
                           }}
                           onClick={(e) => {
                             e.stopPropagation();
                             e.preventDefault();
-                            handleFollowCourse(course.id);
+                            handleFollowInstructor(creator.id);
+                            setOpenCreatorFollowDropdown(null);
                           }}
                           onMouseEnter={(e) => e.currentTarget.style.background = isDarkMode ? '#2f3336' : '#f8fafc'}
                           onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                         >
-                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{course.title}</span>
-                          {isFollowed && <span>✓</span>}
-                        </div>
-                      );
-                    })}
+                          {isFollowing ? 'Unfollow Creator' : 'Follow Creator'}
+                        </button>
+                        <div style={{ borderTop: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4', margin: '4px 0' }} />
+                        {purchasedCreatorCourses.map(course => {
+                          const isFollowed = isCourseFollowed(course.id);
+                          return (
+                            <div
+                              key={course.id}
+                              style={{
+                                padding: '10px 16px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                fontSize: 14,
+                                color: isFollowed ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
+                                fontWeight: isFollowed ? 500 : 400
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                handleFollowCourse(course.id);
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.background = isDarkMode ? '#2f3336' : '#f8fafc'}
+                              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                            >
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{course.title}</span>
+                              {isFollowed && <span>✓</span>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                );
+              })()}
             </div>
           </div>
           
@@ -784,23 +893,46 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                       >
                         Go to Community
                       </span>
-                      <button 
-                        onClick={e => { e.stopPropagation(); handleFollowCourse(course.id); }}
-                        disabled={isFollowingLoading}
-                        style={{ 
-                          background: isFollowed ? 'transparent' : '#1d9bf0',
-                          color: isFollowed ? (isDarkMode ? '#e7e9ea' : '#0f1419') : '#fff',
-                          border: isFollowed ? (isDarkMode ? '1px solid #536471' : '1px solid #cfd9de') : 'none', 
-                          padding: '6px 16px', 
-                          borderRadius: 20, 
-                          fontWeight: 700, 
-                          fontSize: 13, 
-                          cursor: 'pointer',
-                          flexShrink: 0
-                        }}
-                      >
-                        {isFollowed ? 'Following' : 'Follow'}
-                      </button>
+                      {isCoursePurchased(course.id) ? (
+                        <button
+                          onClick={e => { e.stopPropagation(); handleFollowCourse(course.id); }}
+                          disabled={isFollowingLoading}
+                          style={{
+                            background: isFollowed ? 'transparent' : '#1d9bf0',
+                            color: isFollowed ? (isDarkMode ? '#e7e9ea' : '#0f1419') : '#fff',
+                            border: isFollowed ? (isDarkMode ? '1px solid #536471' : '1px solid #cfd9de') : 'none',
+                            padding: '6px 16px',
+                            borderRadius: 20,
+                            fontWeight: 700,
+                            fontSize: 13,
+                            cursor: 'pointer',
+                            flexShrink: 0
+                          }}
+                        >
+                          {isFollowed ? 'Following' : 'Follow'}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={e => {
+                            e.stopPropagation();
+                            setEnrollingCourse(course);
+                            setShowEnrollmentFlow(true);
+                          }}
+                          style={{
+                            background: '#f97316',
+                            color: '#fff',
+                            border: 'none',
+                            padding: '6px 16px',
+                            borderRadius: 20,
+                            fontWeight: 700,
+                            fontSize: 13,
+                            cursor: 'pointer',
+                            flexShrink: 0
+                          }}
+                        >
+                          Enroll
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -887,17 +1019,20 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
   const getCreatorCommunity = (instructorId) => {
     const instructor = getInstructorById(instructorId);
     if (!instructor) return null;
-    
+
     // Get all course IDs for this creator
     const courseIds = instructor.courses || [];
-    
+
+    // Get purchased courses from this creator - auto-follow these
+    const purchasedCreatorCourseIds = courseIds.filter(cid => purchasedCourses.includes(cid));
+
     // Calculate aggregate stats
     let totalStudents = 0;
     courseIds.forEach(cid => {
       const course = getCourseById(cid);
       if (course) totalStudents += course.students;
     });
-    
+
     // Create a creator community that aggregates all their courses
     return {
       id: `creator-${instructorId}`,
@@ -906,6 +1041,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
       instructorId: instructorId,
       instructorName: instructor.name,
       courseIds: courseIds, // All course IDs for filtering posts
+      followedCourseIds: purchasedCreatorCourseIds, // Only purchased courses are auto-followed
       description: instructor.bio,
       members: Math.floor(totalStudents * 0.8),
       posts: Math.floor(totalStudents * 0.24),
@@ -913,33 +1049,21 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
     };
   };
 
-  // Helper function to check if a course is followed (individually or via creator)
+  // Helper function to check if a course is followed (in creator's followedCourseIds)
   const isCourseFollowed = (courseId) => {
-    // Check if this specific course is followed
-    const courseSpecificId = `course-${courseId}`;
-    if (followedCommunities.some(c => c.id === courseSpecificId)) return true;
-    
-    // Also check if the creator of this course is followed
-    const course = getCourseById(courseId);
-    if (course) {
-      const creatorId = `creator-${course.instructorId}`;
-      if (followedCommunities.some(c => c.id === creatorId)) return true;
-    }
-    
-    return false;
-  };
-
-  // Helper to check if course is followed via creator (not individually)
-  const isCourseFollowedViaCreator = (courseId) => {
     const course = getCourseById(courseId);
     if (!course) return false;
-    
-    const courseSpecificId = `course-${courseId}`;
-    const isIndividuallyFollowed = followedCommunities.some(c => c.id === courseSpecificId);
-    if (isIndividuallyFollowed) return false;
-    
+
+    // Find the creator entry
     const creatorId = `creator-${course.instructorId}`;
-    return followedCommunities.some(c => c.id === creatorId);
+    const creatorEntry = followedCommunities.find(c => c.id === creatorId);
+
+    if (creatorEntry) {
+      // Check if this course is in the creator's followedCourseIds
+      return (creatorEntry.followedCourseIds || []).includes(courseId);
+    }
+
+    return false;
   };
 
   // Helper function to check if a creator is followed (all courses)
@@ -1031,13 +1155,13 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
     }
   };
 
-  // Follow/unfollow a SINGLE course (individual course follow)
+  // Follow/unfollow a SINGLE course (toggle in creator's followedCourseIds)
   const handleFollowCourse = (courseId) => {
     if (isFollowingLoading) return; // Prevent rapid clicking
-    
+
     try {
       setIsFollowingLoading(true);
-      
+
       // Validate courseId
       if (!courseId || typeof courseId !== 'number') {
         console.error('Invalid courseId:', courseId);
@@ -1050,53 +1174,47 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
         return;
       }
 
-      // Get the course-specific community for this single course
-      const courseCommunity = getCourseSpecificCommunity(courseId);
-      if (!courseCommunity) {
-        console.error('Could not create community for courseId:', courseId);
-        return;
-      }
-
-      // Check if this SPECIFIC course is followed (not via creator)
-      const courseSpecificId = `course-${courseId}`;
-      const isIndividuallyFollowed = followedCommunities.some(c => c.id === courseSpecificId);
-      
-      // Check if the creator of this course is followed
+      // Find the creator entry in followedCommunities
       const creatorId = `creator-${course.instructorId}`;
-      const creatorCommunity = followedCommunities.find(c => c.id === creatorId);
-      const isCreatorFollowed = !!creatorCommunity;
-      
+
       setFollowedCommunities(prev => {
-        if (isIndividuallyFollowed) {
-          // Unfollow: remove just this course community
-          return prev.filter(c => c.id !== courseCommunity.id);
-        } else if (isCreatorFollowed) {
-          // Course is followed via creator - unfollow this specific course
-          // Remove the creator follow and add individual follows for OTHER courses
+        const creatorEntry = prev.find(c => c.id === creatorId);
+
+        if (creatorEntry) {
+          // Creator is followed - toggle this course in followedCourseIds
+          const currentFollowedCourses = creatorEntry.followedCourseIds || [];
+          const isCurrentlyFollowed = currentFollowedCourses.includes(courseId);
+
+          return prev.map(c => {
+            if (c.id === creatorId) {
+              return {
+                ...c,
+                followedCourseIds: isCurrentlyFollowed
+                  ? currentFollowedCourses.filter(id => id !== courseId) // Remove course
+                  : [...currentFollowedCourses, courseId] // Add course
+              };
+            }
+            return c;
+          });
+        } else {
+          // Creator not followed - this shouldn't happen for purchased courses
+          // but handle it by creating a new creator follow with this course
           const instructor = getInstructorById(course.instructorId);
           if (!instructor) return prev;
-          
-          const otherCourseIds = (instructor.courses || []).filter(cid => cid !== courseId);
-          
-          // Remove creator follow
-          let newList = prev.filter(c => c.id !== creatorId);
-          
-          // Add individual follows for the other courses
-          otherCourseIds.forEach(cid => {
-            const otherCourseCommunity = getCourseSpecificCommunity(cid);
-            if (otherCourseCommunity && !newList.some(c => c.id === otherCourseCommunity.id)) {
-              newList.push(otherCourseCommunity);
-            }
-          });
-          
-          return newList;
-        } else {
-          // Follow: add just this course community (avoid duplicates)
-          const existingIds = new Set(prev.map(c => c.id));
-          if (existingIds.has(courseCommunity.id)) {
-            return prev; // Already exists
-          }
-          return [...prev, courseCommunity];
+
+          const newCreatorEntry = {
+            id: creatorId,
+            type: 'creator',
+            name: instructor.name,
+            instructorId: course.instructorId,
+            instructorName: instructor.name,
+            courseIds: instructor.courses || [],
+            followedCourseIds: [courseId],
+            description: instructor.bio,
+            avatar: instructor.avatar
+          };
+
+          return [...prev, newCreatorEntry];
         }
       });
     } catch (error) {
@@ -1628,197 +1746,267 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
           return (
           <div key={creator.id} className="creator-card" onClick={() => {
             const fullCreatorData = getInstructorWithCourses(creator.id);
-            // Clear previous context since we're coming from creators list
             setPreviousBrowseContext({ type: 'creatorList' });
             setSelectedInstructor(fullCreatorData || creator);
           }} style={{
             background: isDarkMode ? '#000' : '#fff',
             borderRadius: 0,
-            padding: '12px 16px',
+            padding: '16px',
             marginBottom: 0,
             border: 'none',
             borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
-            position: 'relative'
+            display: 'flex',
+            gap: 16
           }}>
-            {/* Action Buttons - Top Right */}
-            <div style={{ position: 'absolute', top: 16, right: 16, display: 'flex', alignItems: 'center', gap: 12 }} onClick={e => e.stopPropagation()}>
-              {/* Go to Community Link */}
-              <span 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  localStorage.setItem('pendingCommunityCreator', JSON.stringify({
-                    id: `creator-${creator.id}`,
-                    name: creator.name
-                  }));
-                  if (onMenuChange) onMenuChange('My Community');
+            {/* Left Box - Profile Card */}
+            <div style={{
+              background: isDarkMode ? '#16181c' : '#f8fafc',
+              borderRadius: 12,
+              padding: '16px',
+              width: 140,
+              flexShrink: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+              border: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0'
+            }} onClick={e => e.stopPropagation()}>
+              <img
+                src={creator.avatar}
+                alt={creator.name}
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  marginBottom: 10,
+                  border: '2px solid #1d9bf0'
                 }}
-                style={{ 
-                  color: '#fff',
-                  fontWeight: 500, 
-                  fontSize: 14, 
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'opacity 0.15s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.opacity = '0.7';
-                  e.currentTarget.style.textDecoration = 'underline';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.opacity = '1';
-                  e.currentTarget.style.textDecoration = 'none';
-                }}
-              >
-                Go to Community
-              </span>
-              
-              {/* Follow Button with Dropdown */}
-              <div className="creator-follow-dropdown-wrapper" style={{ position: 'relative' }}>
-                <button 
-                  className={`follow-btn ${hasAnyCreatorCourseFollowed(creator.id) ? 'following' : ''}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenCreatorFollowDropdown(openCreatorFollowDropdown === creator.id ? null : creator.id);
-                  }}
-                  disabled={isFollowingLoading}
-                  style={{ 
-                    background: hasAnyCreatorCourseFollowed(creator.id) ? (isDarkMode ? '#2f3336' : '#e2e8f0') : '#1d9bf0',
-                    color: hasAnyCreatorCourseFollowed(creator.id) ? (isDarkMode ? '#94a3b8' : '#64748b') : '#fff',
-                    border: 'none', 
-                    padding: '8px 16px', 
-                    borderRadius: 20, 
-                    fontWeight: 600, 
-                    fontSize: 14, 
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6
-                  }}
-                >
-                  {hasAnyCreatorCourseFollowed(creator.id) ? '✓ Following' : 'Follow'}
-                  <span style={{ fontSize: 10, marginLeft: 2 }}>▼</span>
-                </button>
-                    
-                    {/* Follow Dropdown - Minimalist */}
+              />
+              <div style={{
+                fontWeight: 700,
+                fontSize: 14,
+                color: isDarkMode ? '#e7e9ea' : '#0f1419',
+                marginBottom: 2,
+                lineHeight: 1.2
+              }}>
+                {creator.name}
+              </div>
+              <div style={{
+                color: isDarkMode ? '#71767b' : '#536471',
+                fontSize: 11,
+                marginBottom: 12,
+                lineHeight: 1.3
+              }}>
+                {creator.title?.split(' ').slice(0, 4).join(' ')}
+              </div>
+
+              {/* Follow Button */}
+              {(() => {
+                const creatorData = getInstructorWithCourses(creator.id);
+                const courses = creatorData?.courses || [];
+                const purchasedCreatorCourses = courses.filter(course => isCoursePurchased(course.id));
+                const hasPurchasedCourses = purchasedCreatorCourses.length > 0;
+                const isFollowing = hasAnyCreatorCourseFollowed(creator.id);
+
+                if (!hasPurchasedCourses) {
+                  return (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFollowInstructor(creator.id);
+                      }}
+                      disabled={isFollowingLoading}
+                      style={{
+                        background: isFollowing ? 'transparent' : '#1d9bf0',
+                        color: isFollowing ? '#1d9bf0' : '#fff',
+                        border: isFollowing ? '1px solid #1d9bf0' : 'none',
+                        padding: '6px 16px',
+                        borderRadius: 20,
+                        fontWeight: 600,
+                        fontSize: 12,
+                        cursor: 'pointer',
+                        width: '100%'
+                      }}
+                    >
+                      {isFollowing ? '✓ Following' : 'Follow'}
+                    </button>
+                  );
+                }
+
+                return (
+                  <div className="creator-follow-dropdown-wrapper" style={{ position: 'relative', width: '100%' }}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenCreatorFollowDropdown(openCreatorFollowDropdown === creator.id ? null : creator.id);
+                      }}
+                      disabled={isFollowingLoading}
+                      style={{
+                        background: isFollowing ? 'transparent' : '#1d9bf0',
+                        color: isFollowing ? '#1d9bf0' : '#fff',
+                        border: isFollowing ? '1px solid #1d9bf0' : 'none',
+                        padding: '6px 12px',
+                        borderRadius: 20,
+                        fontWeight: 600,
+                        fontSize: 12,
+                        cursor: 'pointer',
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 4
+                      }}
+                    >
+                      {isFollowing ? '✓ Following' : 'Follow'}
+                      <span style={{ fontSize: 8 }}>▼</span>
+                    </button>
                     {openCreatorFollowDropdown === creator.id && (
                       <div style={{
                         position: 'absolute',
                         top: '100%',
-                        right: 0,
+                        left: 0,
                         marginTop: 4,
                         background: isDarkMode ? '#16181c' : '#fff',
                         border: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0',
                         borderRadius: 8,
-                        boxShadow: isDarkMode ? '0 2px 12px rgba(0,0,0,0.4)' : '0 2px 12px rgba(0,0,0,0.1)',
+                        boxShadow: '0 2px 12px rgba(0,0,0,0.3)',
                         zIndex: 1000,
-                        minWidth: 200,
-                        maxWidth: 280,
+                        minWidth: 160,
                         padding: '4px 0'
                       }}>
-                        {/* Follow/Unfollow All Option */}
-                        <button 
+                        <button
                           type="button"
-                          style={{ 
+                          style={{
                             padding: '8px 12px',
                             cursor: 'pointer',
-                            fontSize: 13,
-                            color: hasAnyCreatorCourseFollowed(creator.id) ? '#dc2626' : '#1d9bf0',
+                            fontSize: 12,
+                            color: isFollowing ? '#dc2626' : '#1d9bf0',
                             fontWeight: 500,
-                            borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #f1f5f9',
                             background: 'transparent',
                             border: 'none',
                             width: '100%',
-                            textAlign: 'left',
-                            display: 'block'
+                            textAlign: 'left'
                           }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          handleFollowInstructor(creator.id);
-                          setOpenCreatorFollowDropdown(null);
-                        }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = isDarkMode ? '#2f3336' : '#f8fafc'}
-                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleFollowInstructor(creator.id);
+                            setOpenCreatorFollowDropdown(null);
+                          }}
                         >
-                          {hasAnyCreatorCourseFollowed(creator.id) ? 'Unfollow All' : 'Follow All'}
+                          {isFollowing ? 'Unfollow Creator' : 'Follow Creator'}
                         </button>
-                        
-                        {/* Individual Courses */}
-                        <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                          {(() => {
-                            const creatorData = getInstructorWithCourses(creator.id);
-                            const courses = creatorData?.courses || [];
-                            return courses.map(course => {
-                              const isFollowed = isCourseFollowed(course.id);
-                              return (
-                                <div 
-                                  key={course.id}
-                                  style={{ 
-                                    padding: '8px 12px',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    gap: 8,
-                                    fontSize: 13,
-                                    color: isFollowed ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#475569'),
-                                    fontWeight: isFollowed ? 500 : 400
-                                  }}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleFollowCourse(course.id);
-                                  }}
-                                  onMouseEnter={(e) => e.currentTarget.style.background = isDarkMode ? '#2f3336' : '#f8fafc'}
-                                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                                >
-                                  <span style={{ 
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis'
-                                  }}>
-                                    {course.title}
-                                  </span>
-                                  {isFollowed && <span>✓</span>}
-                                </div>
-                              );
-                            });
-                          })()}
+                        <div style={{ borderTop: isDarkMode ? '1px solid #2f3336' : '1px solid #f1f5f9' }}>
+                          {purchasedCreatorCourses.map(course => {
+                            const isFollowed = isCourseFollowed(course.id);
+                            return (
+                              <div
+                                key={course.id}
+                                style={{
+                                  padding: '8px 12px',
+                                  cursor: 'pointer',
+                                  fontSize: 11,
+                                  color: isFollowed ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#475569'),
+                                  display: 'flex',
+                                  justifyContent: 'space-between'
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleFollowCourse(course.id);
+                                }}
+                              >
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{course.title}</span>
+                                {isFollowed && <span>✓</span>}
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
-              </div>
+                  </div>
+                );
+              })()}
             </div>
 
-            {/* Creator Content */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, paddingRight: 100 }}>
-              <img 
-                src={creator.avatar}
-                alt={creator.name}
-                style={{ 
-                  width: 48, 
-                  height: 48, 
-                  borderRadius: '50%', 
-                  objectFit: 'cover',
-                  flexShrink: 0
-                }}
-              />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: 16, color: isDarkMode ? '#e7e9ea' : '#0f1419', marginBottom: 2 }}>
-                  {creator.name}
+            {/* Right Side - About the Creator */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {/* Header Row */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: isDarkMode ? '#e7e9ea' : '#0f1419', marginBottom: 2 }}>
+                    About the Creator
+                  </div>
+                  <div style={{ fontSize: 12, color: isDarkMode ? '#71767b' : '#536471' }}>
+                    {creator.title}
+                  </div>
                 </div>
-                <div style={{ color: isDarkMode ? '#71767b' : '#536471', fontSize: 14, marginBottom: 6 }}>
-                  {creator.title}
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    localStorage.setItem('pendingCommunityCreator', JSON.stringify({
+                      id: `creator-${creator.id}`,
+                      name: creator.name
+                    }));
+                    if (onMenuChange) onMenuChange('My Community');
+                  }}
+                  style={{
+                    color: '#1d9bf0',
+                    fontWeight: 500,
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  Go to Community
+                </span>
+              </div>
+
+              {/* Bio */}
+              <div style={{
+                color: isDarkMode ? '#9ca3af' : '#4b5563',
+                fontSize: 13,
+                lineHeight: 1.5,
+                marginBottom: 12,
+                fontStyle: 'italic'
+              }}>
+                "{creator.bio}"
+              </div>
+
+              {/* Tags */}
+              {creator.expertise && creator.expertise.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+                  {creator.expertise.slice(0, 4).map((tag, idx) => (
+                    <span key={idx} style={{
+                      background: isDarkMode ? '#2f3336' : '#e5e7eb',
+                      color: isDarkMode ? '#9ca3af' : '#4b5563',
+                      padding: '4px 10px',
+                      borderRadius: 12,
+                      fontSize: 11,
+                      fontWeight: 500
+                    }}>
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-                <div style={{ color: isDarkMode ? '#e7e9ea' : '#0f1419', fontSize: 14, lineHeight: 1.5, marginBottom: 10 }}>
-                  {creator.bio}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 13, color: isDarkMode ? '#71767b' : '#536471' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><AiOutlineTeam /> {creator.stats?.studentsTaught?.toLocaleString() || 0} students</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><AiOutlineStar /> {creator.stats?.averageRating || 0}</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><FaBook style={{ fontSize: 12 }} /> {creator.stats?.coursesCreated || 0} courses</span>
-                </div>
+              )}
+
+              {/* Stats */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 12, color: isDarkMode ? '#71767b' : '#536471' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <AiOutlineTeam style={{ fontSize: 14 }} />
+                  {(creator.stats?.studentsTaught || 0).toLocaleString()}
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <AiOutlineStar style={{ fontSize: 14 }} />
+                  {creator.stats?.averageRating || 0}
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <FaBook style={{ fontSize: 11 }} />
+                  {creator.stats?.coursesCreated || 0} courses
+                </span>
               </div>
             </div>
           </div>
@@ -1962,6 +2150,8 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                   }}
                   onComplete={(booking) => {
                     console.log('Booking complete:', booking);
+                    // Add course to purchased courses and auto-follow creator
+                    handleCoursePurchase(enrollingCourse.id);
                     setShowEnrollmentFlow(false);
                     setEnrollingCourse(null);
                     // Navigate to dashboard after successful booking
@@ -1977,6 +2167,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                       isDarkMode={isDarkMode}
                       followedCommunities={followedCommunities}
                       setFollowedCommunities={setFollowedCommunities}
+                      isCoursePurchased={isCoursePurchased(selectedCourse.id)}
                       onViewInstructor={(instructorId) => {
                         const instructor = getInstructorById(instructorId);
                         if (instructor) {
@@ -2001,7 +2192,6 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                         ).map(course => {
                           const instructorData = getInstructorById(course.instructorId);
                           const isFollowed = isCourseFollowed(course.id);
-                          const isViaCreator = isCourseFollowedViaCreator(course.id);
                           return (
                             <div 
                               key={course.id} 
@@ -2275,7 +2465,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                                         instructorId: instructorData?.id,
                                         instructorName: instructorData?.name,
                                         courseIds: courseIds,
-                                        followedCourseIds: courseIds,
+                                        followedCourseIds: [], // Empty until courses are purchased
                                         description: instructorData?.bio,
                                         avatar: instructorData?.avatar
                                       }]);
@@ -2320,6 +2510,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                       isDarkMode={isDarkMode}
                       followedCommunities={followedCommunities}
                       setFollowedCommunities={setFollowedCommunities}
+                      isCoursePurchased={isCoursePurchased(selectedCourse.id)}
                       onViewInstructor={(instructorId) => {
                         const instructor = getInstructorById(instructorId);
                         if (instructor) {
@@ -2398,6 +2589,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
           isDarkMode={isDarkMode}
           followedCommunities={followedCommunities}
           setFollowedCommunities={setFollowedCommunities}
+          isCoursePurchased={isCoursePurchased(viewingCourseFromCommunity?.id)}
           onEnroll={(course) => {
             setEnrollingCourse(course);
             setShowEnrollmentFlow(true);

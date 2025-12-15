@@ -127,11 +127,12 @@ const Login = ({ onLoginSuccess, onDemoLogin }) => {
 
   // Handle onboarding completion
   const handleOnboardingComplete = () => {
-    // Pass new user with no followed courses
+    // Pass new user with selected interests
     const newUser = {
       ...newUserData,
       followedCommunities: [], // No courses followed by default
-      isNewUser: true
+      isNewUser: true,
+      interests: selectedInterests // Pass selected interests
     };
     onDemoLogin(newUser);
   };
