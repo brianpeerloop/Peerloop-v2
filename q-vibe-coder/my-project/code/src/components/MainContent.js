@@ -126,6 +126,12 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
     onMenuChange(previousPage);
   };
   const [followedCommunities, setFollowedCommunities] = useState(() => {
+    // Check if this is a new user - they should start with no followed communities
+    if (currentUser?.isNewUser) {
+      localStorage.removeItem('followedCommunities');
+      return [];
+    }
+
     // Load existing follow states from localStorage
     try {
       const stored = localStorage.getItem('followedCommunities');
@@ -273,6 +279,14 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
       initializeIndexes();
     }, []);
 
+  // When user changes to a new user, clear their followed communities
+  useEffect(() => {
+    if (currentUser?.isNewUser) {
+      localStorage.removeItem('followedCommunities');
+      setFollowedCommunities([]);
+    }
+  }, [currentUser?.isNewUser, currentUser?.id]);
+
       // When followedCommunities changes, save to localStorage
   useEffect(() => {
     const saveFollowedCommunities = () => {
@@ -288,7 +302,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
         }
       }
     };
-    
+
     saveFollowedCommunities();
   }, [followedCommunities]);
 

@@ -74,6 +74,11 @@ function App() {
 
   // Handle demo login (skip auth, use mock user)
   const handleDemoLogin = (demoUser) => {
+    // If this is a new user, clear their followed communities from localStorage
+    if (demoUser.isNewUser) {
+      localStorage.removeItem('followedCommunities');
+    }
+
     setCurrentUser({
       id: demoUser.id,
       name: demoUser.name,
@@ -84,7 +89,8 @@ function App() {
       userType: demoUser.userType,
       location: demoUser.location,
       stats: demoUser.stats,
-      isDemo: true // Flag to know this is a demo user
+      isDemo: true, // Flag to know this is a demo user
+      isNewUser: demoUser.isNewUser || false // Pass through the new user flag
     });
     // Set a fake session to bypass login screen
     setSession({ user: { id: demoUser.id, email: demoUser.email }, isDemo: true });

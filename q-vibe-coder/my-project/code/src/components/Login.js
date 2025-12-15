@@ -5,6 +5,18 @@ import './Login.css';
 // Demo users for testing different user types
 const demoUsers = [
   {
+    id: 'demo_new',
+    name: 'New User',
+    username: '@newuser',
+    email: 'newuser@demo.com',
+    roles: ['student'],
+    userType: 'new_user',
+    avatar: 'https://i.pravatar.cc/150?img=65',
+    bio: 'Just joined PeerLoop! Excited to start learning.',
+    location: '',
+    stats: { coursesCompleted: 0, coursesTeaching: 0, studentsHelped: 0, avgRating: 0, totalEarnings: 0 }
+  },
+  {
     id: 'demo_alex',
     name: 'Alex Sanders',
     username: '@alexsanders',
@@ -64,10 +76,38 @@ const Login = ({ onLoginSuccess, onDemoLogin }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [showNewUserLogin, setShowNewUserLogin] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [newUserData, setNewUserData] = useState(null);
 
   // Handle demo user login
   const handleDemoLogin = (demoUser) => {
+    // Special handling for New User - show login form first
+    if (demoUser.id === 'demo_new') {
+      setNewUserData(demoUser);
+      setShowNewUserLogin(true);
+      setShowDemoUsers(false);
+      return;
+    }
     onDemoLogin(demoUser);
+  };
+
+  // Handle new user login form submission
+  const handleNewUserLoginSubmit = (e) => {
+    e.preventDefault();
+    setShowNewUserLogin(false);
+    setShowOnboarding(true);
+  };
+
+  // Handle onboarding completion
+  const handleOnboardingComplete = () => {
+    // Pass new user with no followed courses
+    const newUser = {
+      ...newUserData,
+      followedCommunities: [], // No courses followed by default
+      isNewUser: true
+    };
+    onDemoLogin(newUser);
   };
 
   const handleSubmit = async (e) => {
@@ -119,6 +159,84 @@ const Login = ({ onLoginSuccess, onDemoLogin }) => {
     */
   };
 
+  // Onboarding page for new users
+  if (showOnboarding) {
+    return (
+      <div className="login-container">
+        <div className="login-card" style={{ maxWidth: 500 }}>
+          <div className="login-header">
+            <h1>🎓 PeerLoop</h1>
+            <p>Tell us about your interests</p>
+          </div>
+
+          <div style={{ padding: '20px 0', textAlign: 'center' }}>
+            <h2 style={{ fontSize: 24, marginBottom: 16, color: '#e7e9ea' }}>Interests</h2>
+            <p style={{ color: '#71767b', marginBottom: 24 }}>
+              This is where you'll select your learning interests.
+            </p>
+
+            <button
+              onClick={handleOnboardingComplete}
+              className="login-button"
+              style={{ marginTop: 20 }}
+            >
+              Continue to PeerLoop →
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // New User Login Form
+  if (showNewUserLogin) {
+    return (
+      <div className="login-container">
+        <div className="login-card">
+          <div className="login-header">
+            <h1>🎓 PeerLoop</h1>
+            <p>Sign in to your account</p>
+          </div>
+
+          <form onSubmit={handleNewUserLoginSubmit} className="login-form">
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                value="newuser@demo.com"
+                readOnly
+                style={{ background: '#16181c', color: '#e7e9ea' }}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Password</label>
+              <input
+                type="password"
+                value="password123"
+                readOnly
+                style={{ background: '#16181c', color: '#e7e9ea' }}
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="login-button"
+            >
+              Enter
+            </button>
+          </form>
+
+          <div className="login-toggle">
+            <p style={{ marginTop: '12px' }}>
+              <button onClick={() => { setShowNewUserLogin(false); setShowDemoUsers(true); }}>← Back to Demo Mode</button>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="login-container">
       <div className="login-card">
@@ -147,6 +265,7 @@ const Login = ({ onLoginSuccess, onDemoLogin }) => {
                 <div className="demo-user-info">
                   <div className="demo-user-name">{user.name}</div>
                   <div className="demo-user-type">
+                    {user.userType === 'new_user' && '✨ New User'}
                     {user.userType === 'student' && '📚 Student'}
                     {user.userType === 'creator' && '🎬 Creator'}
                     {user.userType === 'student_teacher' && '📚🎓 Student & Teacher'}
