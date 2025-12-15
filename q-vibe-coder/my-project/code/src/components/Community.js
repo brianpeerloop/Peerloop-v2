@@ -999,84 +999,82 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
     <div className="community-content-outer" style={{ background: isDarkMode ? '#000' : '#fff' }}>
       <div className="community-three-column" style={{ background: isDarkMode ? '#000' : '#fff' }}>
         <div className="community-center-column" style={{ background: isDarkMode ? '#000' : '#fff' }}>
-          {/* Single row with Community Hub + Creator names */}
+          {/* Town Hall + Creators buttons with profile pics */}
           <div className="community-top-menu" style={{ display: 'block' }}>
+            {/* Button row */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              width: '100%',
-              overflow: 'hidden',
-              borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
-              padding: '8px 0'
+              gap: 8,
+              padding: '6px 12px',
+              borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4'
             }}>
-              {/* Community Hub - Fixed/Stationary */}
-              <div 
-                style={{ 
-                  position: 'relative', 
-                  display: 'flex', 
+              {/* Town Hall Button */}
+              <button
+                onClick={() => {
+                  setCommunityMode('hub');
+                  setSelectedCreatorId(null);
+                  setPostAudience('everyone');
+                }}
+                style={{
+                  display: 'flex',
                   alignItems: 'center',
-                  borderBottom: communityMode === 'hub' 
-                    ? '4px solid #1d9bf0' 
-                    : '4px solid transparent',
-                  marginBottom: -1,
-                  flexShrink: 0
+                  gap: 6,
+                  background: communityMode === 'hub' ? '#1d9bf0' : (isDarkMode ? '#2f3336' : '#eff3f4'),
+                  border: 'none',
+                  borderRadius: 20,
+                  padding: '6px 14px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: communityMode === 'hub' ? '#fff' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
                 }}
               >
-                <button
-                  onClick={() => {
-                    setCommunityMode('hub');
-                    setSelectedCreatorId(null);
-                    setPostAudience('everyone');
-                  }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    padding: '8px 16px',
-                    fontSize: 15,
-                    fontWeight: communityMode === 'hub' ? 700 : 400,
-                    color: isDarkMode ? '#fff' : '#0f1419',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  <span className="hide-on-mobile">Community Hub</span>
-                  <span className="show-on-mobile">Hub</span>
-                </button>
-              </div>
+                <FaHome style={{ fontSize: 14 }} />
+                Town Hall
+              </button>
 
-              <button 
+              {/* Creators Button */}
+              <button
                 onClick={() => {
-                  if (tabsContainerRef.current) {
-                    tabsContainerRef.current.scrollBy({ left: -150, behavior: 'smooth' });
+                  setCommunityMode('creators');
+                  // Select first creator if none selected
+                  if (!selectedCreatorId && groupedByCreator.length > 0) {
+                    setSelectedCreatorId(groupedByCreator[0].id);
+                    setPostAudience(groupedByCreator[0].id);
                   }
                 }}
                 style={{
-                  background: 'transparent',
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  boxShadow: 'none',
-                  color: isDarkMode ? '#e7e9ea' : '#0f1419',
-                  cursor: 'pointer',
-                  padding: 8,
-                  flexShrink: 0,
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  gap: 6,
+                  background: communityMode === 'creators' ? '#1d9bf0' : (isDarkMode ? '#2f3336' : '#eff3f4'),
+                  border: 'none',
+                  borderRadius: 20,
+                  padding: '6px 14px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: communityMode === 'creators' ? '#fff' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
                 }}
               >
-                <FaChevronLeft style={{ fontSize: 16 }} />
+                <FaUsers style={{ fontSize: 14 }} />
+                Creator Communities
               </button>
-              
-              <div 
+            </div>
+
+            {/* Creator profile pics row - only show when Creators mode is active */}
+            {communityMode === 'creators' && (
+              <div
                 ref={tabsContainerRef}
                 style={{
                   display: 'flex',
-                  gap: 8,
+                  alignItems: 'flex-start',
+                  gap: 16,
+                  padding: '8px 12px',
                   overflowX: 'auto',
-                  flex: 1,
-                  minWidth: 0,
                   scrollbarWidth: 'none',
                   msOverflowStyle: 'none',
                   cursor: isDragging ? 'grabbing' : 'grab',
@@ -1091,119 +1089,176 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                   if (!isDragging) return;
                   e.preventDefault();
                   const x = e.pageX - tabsContainerRef.current.offsetLeft;
-                  const walk = (x - dragStartX) * 1.5; // Scroll speed multiplier
+                  const walk = (x - dragStartX) * 1.5;
                   tabsContainerRef.current.scrollLeft = dragScrollLeft - walk;
                 }}
                 onMouseUp={() => setIsDragging(false)}
                 onMouseLeave={() => setIsDragging(false)}
               >
-                {/* Creator tabs */}
-                {groupedByCreator.map(creator => (
-                  <div 
-                    key={creator.id} 
-                    style={{ 
-                      position: 'relative', 
-                      display: 'flex', 
-                      alignItems: 'center',
-                      borderBottom: communityMode === 'creators' && selectedCreatorId === creator.id 
-                        ? '4px solid #1d9bf0' 
-                        : '4px solid transparent',
-                      marginBottom: -1
-                    }}
-                    data-creator-id={creator.id}
-                  >
-                    <button
+                {groupedByCreator.map(creator => {
+                  const instructor = getInstructorById(creator.instructorId);
+                  const isSelected = selectedCreatorId === creator.id;
+                  return (
+                    <div
+                      key={creator.id}
+                      data-creator-id={creator.id}
                       onClick={() => {
-                        setCommunityMode('creators');
                         setSelectedCreatorId(creator.id);
                         setPostAudience(creator.id);
                         setSelectedCourseFilters([]);
                         setShowPostingCourseDropdown(false);
                       }}
                       style={{
-                        background: 'none',
-                        border: 'none',
-                        padding: '8px 16px',
-                        fontSize: 15,
-                        fontWeight: communityMode === 'creators' && selectedCreatorId === creator.id ? 700 : 400,
-                        color: isDarkMode ? '#fff' : '#0f1419',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
                         cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        transition: 'all 0.2s'
+                        minWidth: 60,
+                        maxWidth: 70
                       }}
                     >
-                      {creator.name}
-                    </button>
-                  </div>
-                ))}
-                
-                {/* Show pending creator tab if they're not in the followed list */}
+                      {/* Profile pic */}
+                      <div style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: '50%',
+                        border: isSelected ? '2px solid #1d9bf0' : '2px solid transparent',
+                        padding: 2,
+                        marginBottom: 4
+                      }}>
+                        {instructor?.avatar ? (
+                          <img
+                            src={instructor.avatar}
+                            alt={creator.name}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              borderRadius: '50%',
+                              objectFit: 'cover'
+                            }}
+                          />
+                        ) : (
+                          <div style={{
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: '50%',
+                            background: '#1d9bf0',
+                            color: '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 14,
+                            fontWeight: 700
+                          }}>
+                            {creator.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                          </div>
+                        )}
+                      </div>
+                      {/* Full name */}
+                      <div style={{
+                        fontSize: 11,
+                        fontWeight: isSelected ? 600 : 400,
+                        color: isSelected ? '#1d9bf0' : (isDarkMode ? '#e7e9ea' : '#0f1419'),
+                        textAlign: 'center',
+                        lineHeight: 1.2,
+                        wordBreak: 'break-word'
+                      }}>
+                        {creator.name}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Show pending creator if not in followed list */}
                 {selectedCreatorId && pendingCreatorName && !groupedByCreator.find(c => c.id === selectedCreatorId) && (
-                  <div 
-                    style={{ 
-                      position: 'relative', 
-                      display: 'flex', 
-                      alignItems: 'center',
-                      borderBottom: '4px solid #1d9bf0',
-                      marginBottom: -1
-                    }}
+                  <div
                     data-creator-id={selectedCreatorId}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      minWidth: 60,
+                      maxWidth: 70,
+                      opacity: 0.7
+                    }}
                   >
-                    <button
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        padding: '8px 16px',
-                        fontSize: 15,
-                        fontWeight: 700,
-                        color: isDarkMode ? '#fff' : '#0f1419',
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        transition: 'all 0.2s',
-                        opacity: 0.7
-                      }}
-                    >
+                    <div style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: '50%',
+                      border: '2px solid #1d9bf0',
+                      padding: 2,
+                      marginBottom: 4
+                    }}>
+                      <div style={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: '50%',
+                        background: '#1d9bf0',
+                        color: '#fff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 14,
+                        fontWeight: 700
+                      }}>
+                        {pendingCreatorName.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                      </div>
+                    </div>
+                    <div style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: '#1d9bf0',
+                      textAlign: 'center',
+                      lineHeight: 1.2,
+                      wordBreak: 'break-word'
+                    }}>
                       {pendingCreatorName}
-                    </button>
+                    </div>
                   </div>
                 )}
-              </div>
-              
-              <button 
-                onClick={() => {
-                  if (tabsContainerRef.current) {
-                    tabsContainerRef.current.scrollBy({ left: 150, behavior: 'smooth' });
-                  }
-                }}
-                style={{
-                  background: 'transparent',
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  boxShadow: 'none',
-                  color: isDarkMode ? '#e7e9ea' : '#0f1419',
-                  cursor: 'pointer',
-                  padding: 8,
-                  flexShrink: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <FaChevronRight style={{ fontSize: 16 }} />
-              </button>
-            </div>
-            
-            {/* Hidden old tabs for reference - keeping the structure */}
-            <div style={{ display: 'none' }}>
-              <div className="community-tabs-wrapper">
-                {groupedByCreator.map(creator => (
-                  <div key={creator.id} className="community-tab-wrapper">
-                    <span>{creator.name}</span>
+
+                {/* Find/Add button */}
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    minWidth: 60,
+                    maxWidth: 70
+                  }}
+                  onClick={() => {
+                    if (onMenuChange) {
+                      localStorage.setItem('browseActiveTopMenu', 'creators');
+                      onMenuChange('Browse');
+                    }
+                  }}
+                >
+                  <div style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: '50%',
+                    border: isDarkMode ? '2px dashed #2f3336' : '2px dashed #cfd9de',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 4
+                  }}>
+                    <span style={{ fontSize: 20, color: isDarkMode ? '#71767b' : '#536471' }}>+</span>
                   </div>
-                ))}
+                  <div style={{
+                    fontSize: 11,
+                    fontWeight: 400,
+                    color: isDarkMode ? '#71767b' : '#536471',
+                    textAlign: 'center'
+                  }}>
+                    Find
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Community Hub Welcome Section - Floating Card */}
