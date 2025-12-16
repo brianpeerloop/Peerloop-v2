@@ -1751,21 +1751,21 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
           }} style={{
             background: isDarkMode ? '#000' : '#fff',
             borderRadius: 0,
-            padding: '16px',
+            padding: '14px 16px',
             marginBottom: 0,
             border: 'none',
             borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
             display: 'flex',
-            gap: 16
+            gap: 12
           }}>
             {/* Left Box - Profile Card */}
             <div style={{
               background: isDarkMode ? '#16181c' : '#f8fafc',
               borderRadius: 12,
-              padding: '16px',
-              width: 140,
+              padding: '12px',
+              width: 135,
               flexShrink: 0,
               display: 'flex',
               flexDirection: 'column',
@@ -1777,27 +1777,27 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                 src={creator.avatar}
                 alt={creator.name}
                 style={{
-                  width: 64,
-                  height: 64,
+                  width: 56,
+                  height: 56,
                   borderRadius: '50%',
                   objectFit: 'cover',
-                  marginBottom: 10,
+                  marginBottom: 8,
                   border: '2px solid #1d9bf0'
                 }}
               />
               <div style={{
                 fontWeight: 700,
-                fontSize: 14,
+                fontSize: 13,
                 color: isDarkMode ? '#e7e9ea' : '#0f1419',
-                marginBottom: 2,
+                marginBottom: 1,
                 lineHeight: 1.2
               }}>
                 {creator.name}
               </div>
               <div style={{
-                color: isDarkMode ? '#71767b' : '#536471',
-                fontSize: 11,
-                marginBottom: 12,
+                color: isDarkMode ? '#9ca3af' : '#536471',
+                fontSize: 10,
+                marginBottom: 8,
                 lineHeight: 1.3
               }}>
                 {creator.title?.split(' ').slice(0, 4).join(' ')}
@@ -1934,12 +1934,12 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
             {/* Right Side - About the Creator */}
             <div style={{ flex: 1, minWidth: 0 }}>
               {/* Header Row */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 600, color: isDarkMode ? '#e7e9ea' : '#0f1419', marginBottom: 2 }}>
+                  <div style={{ fontSize: 18, fontWeight: 600, color: isDarkMode ? '#f3f4f6' : '#0f1419', marginBottom: 1 }}>
                     About the Creator
                   </div>
-                  <div style={{ fontSize: 12, color: isDarkMode ? '#71767b' : '#536471' }}>
+                  <div style={{ fontSize: 15, color: isDarkMode ? '#d1d5db' : '#536471' }}>
                     {creator.title}
                   </div>
                 </div>
@@ -1966,10 +1966,10 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
 
               {/* Bio */}
               <div style={{
-                color: isDarkMode ? '#9ca3af' : '#4b5563',
-                fontSize: 13,
-                lineHeight: 1.5,
-                marginBottom: 12,
+                color: isDarkMode ? '#e5e7eb' : '#4b5563',
+                fontSize: 16,
+                lineHeight: 1.4,
+                marginBottom: 8,
                 fontStyle: 'italic'
               }}>
                 "{creator.bio}"
@@ -1977,14 +1977,14 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
 
               {/* Tags */}
               {creator.expertise && creator.expertise.length > 0 && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
                   {creator.expertise.slice(0, 4).map((tag, idx) => (
                     <span key={idx} style={{
                       background: isDarkMode ? '#2f3336' : '#e5e7eb',
-                      color: isDarkMode ? '#9ca3af' : '#4b5563',
-                      padding: '4px 10px',
+                      color: isDarkMode ? '#d1d5db' : '#4b5563',
+                      padding: '3px 8px',
                       borderRadius: 12,
-                      fontSize: 11,
+                      fontSize: 13,
                       fontWeight: 500
                     }}>
                       {tag}
@@ -1994,7 +1994,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
               )}
 
               {/* Stats */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 12, color: isDarkMode ? '#71767b' : '#536471' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 14, color: isDarkMode ? '#d1d5db' : '#536471' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <AiOutlineTeam style={{ fontSize: 14 }} />
                   {(creator.stats?.studentsTaught || 0).toLocaleString()}
@@ -2203,7 +2203,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                                 borderRadius: 16,
                                 border: isDarkMode ? '1px solid #2f3336' : '1px solid #e5e7eb',
                                 padding: 0,
-                                marginBottom: 16,
+                                marginBottom: 0,
                                 cursor: 'pointer',
                                 overflow: 'hidden',
                                 display: 'flex',
@@ -2211,7 +2211,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                               }}
                             >
                               {/* Left Column - Course Info */}
-                              <div style={{ flex: 1, padding: 24, minWidth: 0 }}>
+                              <div style={{ flex: 1, padding: 16, minWidth: 0 }}>
                                 {/* Badge */}
                                 {course.badge && (
                                   <span style={{
@@ -2230,7 +2230,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                                     fontWeight: 700,
                                     textTransform: 'uppercase',
                                     letterSpacing: '0.5px',
-                                    marginBottom: 12
+                                    marginBottom: 8
                                   }}>
                                     {course.badge}
                                   </span>
@@ -2238,10 +2238,10 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                                 
                                 {/* Title */}
                                 <h3 style={{ 
-                                  fontSize: 22, 
+                                  fontSize: 18, 
                                   fontWeight: 700, 
                                   color: isDarkMode ? '#e7e9ea' : '#111827',
-                                  margin: '0 0 8px 0',
+                                  margin: '0 0 4px 0',
                                   lineHeight: 1.3
                                 }}>
                                   {course.title}
@@ -2254,7 +2254,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                                   gap: 8,
                                   fontSize: 14,
                                   color: isDarkMode ? '#9ca3af' : '#6b7280',
-                                  marginBottom: 12
+                                  marginBottom: 8
                                 }}>
                                   <span 
                                     onClick={e => { 
@@ -2302,7 +2302,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                                   fontSize: 15, 
                                   lineHeight: 1.6,
                                   color: isDarkMode ? '#d1d5db' : '#374151',
-                                  margin: '0 0 16px 0',
+                                  margin: '0 0 10px 0',
                                   display: '-webkit-box',
                                   WebkitLineClamp: 3,
                                   WebkitBoxOrient: 'vertical',
@@ -2365,9 +2365,9 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
                               </div>
                               
                               {/* Right Column - About the Creator (hidden on small screens) */}
-                              <div 
+                              <div
                                 className="course-card-creator-sidebar"
-                                style={{ 
+                                style={{
                                   width: 280,
                                   flexShrink: 0,
                                   padding: 24,

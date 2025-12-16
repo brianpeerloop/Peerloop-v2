@@ -143,16 +143,21 @@ const CourseDetailView = ({ course, onBack, isDarkMode, followedCommunities = []
         <button
           onClick={onBack}
           style={{
-            background: 'none',
+            background: isDarkMode ? '#000' : '#fff',
             border: 'none',
             color: isDarkMode ? '#e7e9ea' : '#0f1419',
             fontSize: 18,
             cursor: 'pointer',
-            padding: '8px 0',
-            marginBottom: 16,
+            padding: '12px 16px',
+            margin: '-24px -24px 16px -24px',
             display: 'flex',
             alignItems: 'center',
-            gap: 8
+            gap: 8,
+            position: 'sticky',
+            top: 0,
+            zIndex: 100,
+            borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
+            width: 'calc(100% + 48px)'
           }}
         >
           ← Back
@@ -223,22 +228,24 @@ const CourseDetailView = ({ course, onBack, isDarkMode, followedCommunities = []
 
           {/* Action Buttons */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flexShrink: 0 }}>
-            <button 
-              onClick={() => onEnroll && onEnroll(course)}
-              style={{
-                background: '#f97316',
-                color: '#fff',
-                border: 'none',
-                padding: '12px 28px',
-                borderRadius: 8,
-                fontSize: 15,
-                fontWeight: 600,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Enroll for ${course.price}
-            </button>
+            {!isCoursePurchased && (
+              <button 
+                onClick={() => onEnroll && onEnroll(course)}
+                style={{
+                  background: '#f97316',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '12px 28px',
+                  borderRadius: 8,
+                  fontSize: 15,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                Enroll for ${course.price}
+              </button>
+            )}
             {/* Follow button only shows for purchased courses */}
             {isCoursePurchased && (
               <button
@@ -485,6 +492,50 @@ const CourseDetailView = ({ course, onBack, isDarkMode, followedCommunities = []
 
           {activeTab === 'feed' && (
             <div>
+              {/* Enrollment Required Message - Show when not enrolled */}
+              {!isCoursePurchased ? (
+                <div style={{
+                  background: isDarkMode ? 'rgba(29, 155, 240, 0.1)' : 'rgba(29, 155, 240, 0.05)',
+                  border: isDarkMode ? '1px solid rgba(29, 155, 240, 0.3)' : '1px solid rgba(29, 155, 240, 0.2)',
+                  borderRadius: 12,
+                  padding: '24px',
+                  margin: '16px',
+                  textAlign: 'center'
+                }}>
+                  <span style={{ fontSize: 48, display: 'block', marginBottom: 16 }}>🔒</span>
+                  <div style={{
+                    fontWeight: 600,
+                    fontSize: 18,
+                    color: isDarkMode ? '#e7e9ea' : '#0f1419',
+                    marginBottom: 8
+                  }}>
+                    Enrollment Required
+                  </div>
+                  <div style={{
+                    fontSize: 15,
+                    color: isDarkMode ? '#9ca3af' : '#536471',
+                    marginBottom: 16
+                  }}>
+                    Access to this course feed is only available to enrolled students.
+                  </div>
+                  <button
+                    onClick={() => onEnroll && onEnroll(course)}
+                    style={{
+                      background: '#f97316',
+                      color: '#fff',
+                      border: 'none',
+                      padding: '12px 28px',
+                      borderRadius: 8,
+                      fontSize: 15,
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Enroll for ${course.price}
+                  </button>
+                </div>
+              ) : (
+              <>
               {/* Post Box */}
               <div
                 style={{
@@ -782,6 +833,8 @@ const CourseDetailView = ({ course, onBack, isDarkMode, followedCommunities = []
                   </div>
                 </div>
               ))}
+              </>
+              )}
             </div>
           )}
         </div>

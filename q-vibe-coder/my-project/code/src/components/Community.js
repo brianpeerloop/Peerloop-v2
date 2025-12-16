@@ -2078,7 +2078,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
               position: 'relative',
               zIndex: 1,
               border: isDarkMode ? '1px solid #374151' : '1px solid #e5e7eb',
-                boxShadow: isDarkMode ? '0 0 30px 12px #555' : 'none'
+                boxShadow: isDarkMode ? '0 4px 25px 10px rgba(80, 80, 80, 0.8)' : 'none'
             }}>
               {/* Town Hall Info Row */}
               <div style={{
@@ -2147,7 +2147,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                 position: 'relative',
                 zIndex: 1,
                 border: isDarkMode ? '1px solid #374151' : '1px solid #e5e7eb',
-                boxShadow: isDarkMode ? '0 0 30px 12px #555' : 'none'
+                boxShadow: isDarkMode ? '0 4px 25px 10px rgba(80, 80, 80, 0.8)' : 'none'
               }}>
                 {/* Creator Info Row */}
                 <div style={{
@@ -2232,17 +2232,27 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                     </div>
                     <div style={{
                       fontSize: 13,
-                      color: isDarkMode ? '#71767b' : '#536471'
+                      color: isDarkMode ? '#9ca3af' : '#536471'
                     }}>
                       {instructor.title}
                     </div>
                     <div style={{
                       fontSize: 12,
-                      color: isDarkMode ? '#71767b' : '#536471',
+                      color: isDarkMode ? '#9ca3af' : '#536471',
                       marginTop: 2
                     }}>
                       {instructor.courses?.length || 0} Courses · {(instructor.stats?.studentsTaught || 0).toLocaleString()} Students · {Math.floor(Math.random() * 200) + 20} Posts
                     </div>
+                    {instructor.bio && (
+                      <div style={{
+                        fontSize: 13,
+                        color: isDarkMode ? '#d1d5db' : '#374151',
+                        marginTop: 8,
+                        lineHeight: 1.4
+                      }}>
+                        {instructor.bio.length > 150 ? instructor.bio.substring(0, 150) + '...' : instructor.bio}
+                      </div>
+                    )}
                   </div>
                 </div>
 

@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeerLoop - Enrollment & Scheduling Flow Wireframes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f0f1a;
+            color: #eaeaea;
+            line-height: 1.6;
+            padding: 40px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #00d4aa;
+            font-weight: 300;
+            letter-spacing: -1px;
+        }
+        
+        .subtitle {
+            color: #888;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .flow-overview {
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .flow-overview h2 {
+            color: #00d4aa;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        
+        .flow-steps {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .flow-step {
+            background: #2a2a4e;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #ccc;
+        }
+        
+        .flow-step.active {
+            background: #00d4aa;
+            color: #000;
+            font-weight: 600;
+        }
+        
+        .flow-arrow {
+            color: #555;
+            font-size: 1.2rem;
+        }
+        
+        /* Screen container */
+        .screen-section {
+            margin-bottom: 80px;
+        }
+        
+        .screen-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .screen-number {
+            background: #00d4aa;
+            color: #000;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        
+        .screen-title {
+            flex: 1;
+        }
+        
+        .screen-title h2 {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        
+        .screen-title p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        /* Wireframe phone/desktop frames */
+        .wireframe {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            color: #333;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+        
+        .wireframe.modal {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        
+        .wireframe.fullpage {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Browser chrome */
+        .browser-bar {
+            background: #f5f5f5;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .browser-dots {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .browser-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+        }
+        
+        .browser-dot.red { background: #ff5f56; }
+        .browser-dot.yellow { background: #ffbd2e; }
+        .browser-dot.green { background: #27ca40; }
+        
+        .browser-url {
+            flex: 1;
+            background: #fff;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #666;
+            border: 1px solid #e0e0e0;
+        }
+        
+        /* Screen content */
+        .screen-content {
+            padding: 0;
+        }
+        
+        /* Progress stepper */
+        .progress-stepper {
+            display: flex;
+            justify-content: center;
+            padding: 24px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .step-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #888;
+        }
+        
+        .step-circle.active {
+            background: #00d4aa;
+            color: #000;
+        }
+        
+        .step-circle.completed {
+            background: #00d4aa;
+            color: #000;
+        }
+        
+        .step-label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-right: 16px;
+        }
+        
+        .step-label.active {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .step-line {
+            width: 40px;
+            height: 2px;
+            background: #e0e0e0;
+            margin: 0 8px;
+        }
+        
+        .step-line.completed {
+            background: #00d4aa;
+        }
+        
+        /* Stripe checkout mock */
+        .stripe-checkout {
+            padding: 40px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .stripe-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .stripe-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #635bff;
+            margin-bottom: 8px;
+        }
+        
+        .stripe-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        
+        .stripe-course {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: #fff;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: #635bff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .btn-peerloop {
+            background: #00d4aa;
+            color: #000;
+        }
+        
+        .secure-note {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        /* Success screen */
+        .success-screen {
+            padding: 60px 40px;
+            text-align: center;
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #00d4aa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 24px;
+        }
+        
+        .success-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 12px;
+        }
+        
+        .success-message {
+            color: #666;
+            margin-bottom: 32px;
+            font-size: 1rem;
+        }
+        
+        /* Calendar view */
+        .scheduling-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 30px;
+        }
+        
+        .scheduling-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .scheduling-header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        
+        .calendar-section {
+            padding: 24px;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-nav h3 {
+            font-size: 1.2rem;
+            color: #333;
+        }
+        
+        .calendar-nav-btns {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .nav-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 24px;
+        }
+        
+        .calendar-day-header {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #888;
+            padding: 8px;
+            font-weight: 600;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .calendar-day:hover {
+            background: #e9ecef;
+        }
+        
+        .calendar-day.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+            background: transparent;
+        }
+        
+        .calendar-day.available {
+            background: #e8fff8;
+            color: #00a67d;
+            font-weight: 600;
+        }
+        
+        .calendar-day.available:hover {
+            background: #00d4aa;
+            color: #000;
+        }
+        
+        .calendar-day.selected {
+            background: #00d4aa;
+            color: #000;
+            font-weight: 700;
+        }
+        
+        .calendar-legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+        }
+        
+        .legend-dot.available {
+            background: #e8fff8;
+            border: 1px solid #00d4aa;
+        }
+        
+        .legend-dot.selected {
+            background: #00d4aa;
+        }
+        
+        /* Teacher slots */
+        .teachers-section {
+            padding: 24px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .teachers-section h3 {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .teachers-section .subtitle {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .teacher-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .teacher-card:hover {
+            border-color: #00d4aa;
+        }
+        
+        .teacher-card.selected {
+            border-color: #00d4aa;
+            background: #f0fffc;
+        }
+        
+        .teacher-header {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        
+        .teacher-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .teacher-info h4 {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .teacher-stats {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .teacher-bio {
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+        
+        .time-slots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .time-slot {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.15s;
+        }
+        
+        .time-slot:hover {
+            background: #e0e0e0;
+        }
+        
+        .time-slot.selected {
+            background: #00d4aa;
+            color: #000;
+            font-weight: 600;
+            border-color: #00a67d;
+        }
+        
+        /* Confirmation screen */
+        .confirm-section {
+            padding: 24px;
+        }
+        
+        .confirm-section h3 {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .confirm-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .confirm-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .confirm-row:last-child {
+            border-bottom: none;
+        }
+        
+        .confirm-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .confirm-value {
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .notification-options {
+            margin-bottom: 24px;
+        }
+        
+        .notification-options h4 {
+            font-size: 0.9rem;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .checkbox-row input {
+            width: 18px;
+            height: 18px;
+        }
+        
+        /* Final confirmation */
+        .booking-confirmed {
+            padding: 50px 40px;
+            text-align: center;
+        }
+        
+        .booking-confirmed .success-icon {
+            background: #00d4aa;
+        }
+        
+        .session-details-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .session-details-card h4 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .detail-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            font-size: 0.95rem;
+        }
+        
+        .detail-icon {
+            width: 36px;
+            height: 36px;
+            background: #e8fff8;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .detail-text strong {
+            display: block;
+            color: #333;
+        }
+        
+        .detail-text span {
+            color: #666;
+            font-size: 0.85rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+        
+        .btn-secondary {
+            padding: 14px 28px;
+            background: #fff;
+            color: #333;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .btn-small {
+            padding: 12px 24px;
+            font-size: 0.9rem;
+        }
+        
+        /* Annotations */
+        .annotation {
+            background: #2a2a4e;
+            border-left: 4px solid #00d4aa;
+            padding: 16px 20px;
+            margin-top: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+        }
+        
+        .annotation strong {
+            color: #00d4aa;
+        }
+        
+        .annotation ul {
+            margin-top: 10px;
+            margin-left: 20px;
+        }
+        
+        .annotation li {
+            margin-bottom: 6px;
+            color: #ccc;
+        }
+        
+        /* Divider */
+        .screen-divider {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .screen-divider::after {
+            content: '↓';
+            font-size: 2rem;
+            color: #333;
+            background: #1a1a2e;
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enrollment & Scheduling Flow</h1>
+        <p class="subtitle">Complete user journey from "Enroll Now" to confirmed session</p>
+        
+        <!-- Flow Overview -->
+        <div class="flow-overview">
+            <h2>📋 Flow Overview</h2>
+            <div class="flow-steps">
+                <span class="flow-step active">1. Enroll Now</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">2. Payment (Stripe)</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">3. Payment Success</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">4. Pick a Date</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">5. Choose Teacher & Time</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">6. Confirm Booking</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">7. Done!</span>
+            </div>
+        </div>
+        
+        <!-- ==================== -->
+        <!-- SCREEN 1: ENROLL NOW -->
+        <!-- ==================== -->
+        
+        <div class="screen-section">
+            <div class="screen-header">
+                <div class="screen-number">1</div>
+                <div class="screen-title">
+                    <h2>Click "Enroll Now"</h2>
+                    <p>User is on Course Detail page, ready to purchase</p>
+                </div>
+            </div>
+            
+            <div class="wireframe modal">
+                <div class="browser-bar">
+                    <div class="browser-dots">
+                        <span class="browser-dot red"></span>
+                        <span class="browser-dot yellow"></span>
+                        <span class="browser-dot green"></span>
+                    </div>
+                    <div class="browser-url">peerloop.com/courses/ai-prompting-mastery</div>
+                </div>
+                <div class="screen-content" style="padding: 30px; text-align: center;">
+                    <div style="background: #f8f9fa; border-radius: 12px; padding: 28px; border: 2px solid #e9ecef;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #1a1a2e; margin-bottom: 8px;">$399</div>
+                        <div style="color: #666; font-size: 0.85rem; margin-bottom: 20px;">One-time payment • Full access</div>
+                        <button class="btn-primary btn-peerloop" style="width: 100%; font-size: 1.1rem;">Enroll Now</button>
+                        <ul style="list-style: none; text-align: left; font-size: 0.85rem; color: #555; margin-top: 20px;">
+                            <li style="padding: 8px 0; border-bottom: 1px solid #e9ecef;">📹 1-on-1 live video sessions</li>
+                            <li style="padding: 8px 0; border-bottom: 1px solid #e9ecef;">📚 All course materials included</li>
+                            <li style="padding: 8px 0; border-bottom: 1px solid #e9ecef;">🎓 Certificate upon completion</li>
+                            <li style="padding: 8px 0;">👥 Choose your Student-Teacher</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="annotation">
+                <strong>User Action:</strong> Click "Enroll Now" button
+                <ul>
+                    <li>Redirects to Stripe Checkout (next screen)</li>
+                    <li>No login required yet (can create account during checkout)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="screen-divider"></div>
+        
+        <!-- ==================== -->
+        <!-- SCREEN 2: STRIPE CHECKOUT -->
+        <!-- ==================== -->
+        
+        <div class="screen-section">
+            <div class="screen-header">
+                <div class="screen-number">2</div>
+                <div class="screen-title">
+                    <h2>Stripe Checkout</h2>
+                    <p>Secure payment processing via Stripe</p>
+                </div>
+            </div>
+            
+            <div class="wireframe modal">
+                <div class="browser-bar">
+                    <div class="browser-dots">
+                        <span class="browser-dot red"></span>
+                        <span class="browser-dot yellow"></span>
+                        <span class="browser-dot green"></span>
+                    </div>
+                    <div class="browser-url">checkout.stripe.com/c/pay/cs_live_...</div>
+                </div>
+                <div class="screen-content">
+                    <div class="progress-stepper">
+                        <div class="step">
+                            <div class="step-circle active">1</div>
+                            <span class="step-label active">Payment</span>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step">
+                            <div class="step-circle">2</div>
+                            <span class="step-label">Schedule</span>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step">
+                            <div class="step-circle">3</div>
+                            <span class="step-label">Done</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stripe-checkout">
+                        <div class="stripe-header">
+                            <div class="stripe-logo">stripe</div>
+                            <div class="stripe-amount">$399.00</div>
+                            <div class="stripe-course">AI Prompting Mastery</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" placeholder="you@example.com" value="sarah@example.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Card number</label>
+                            <input type="text" class="form-input" placeholder="1234 5678 9012 3456">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Expiry</label>
+                                <input type="text" class="form-input" placeholder="MM / YY">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">CVC</label>
+                                <input type="text" class="form-input" placeholder="123">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Name on card</label>
+                            <input type="text" class="form-input" placeholder="Full name" value="Sarah Johnson">
+                        </div>
+                        
+                        <button class="btn-primary">Pay $399.00</button>
+                        
+                        <p class="secure-note">🔒 Secured by Stripe</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="annotation">
+                <strong>Technical Notes:</strong>
+                <ul>
+                    <li>Uses Stripe Checkout (hosted payment page)</li>
+                    <li>Money held in escrow until course completion</li>
+                    <li>Account created with email if new user</li>
+                    <li>On success → redirect to PeerLoop scheduling page</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="screen-divider"></div>
+        
+        <!-- ==================== -->
+        <!-- SCREEN 3: PAYMENT SUCCESS -->
+        <!-- ==================== -->
+        
+        <div class="screen-section">
+            <div class="screen-header">
+                <div class="screen-number">3</div>
+                <div class="screen-title">
+                    <h2>Payment Success</h2>
+                    <p>Confirmation with immediate CTA to schedule</p>
+                </div>
+            </div>
+            
+            <div class="wireframe modal">
+                <div class="browser-bar">
+                    <div class="browser-dots">
+                        <span class="browser-dot red"></span>
+                        <span class="browser-dot yellow"></span>
+                        <span class="browser-dot green"></span>
+                    </div>
+                    <div class="browser-url">peerloop.com/enroll/success?session_id=...</div>
+                </div>
+                <div class="screen-content">
+                    <div class="progress-stepper">
+                        <div class="step">
+                            <div class="step-circle completed">✓</div>
+                            <span class="step-label">Payment</span>
+                        </div>
+                        <div class="step-line completed"></div>
+                        <div class="step">
+                            <div class="step-circle active">2</div>
+                            <span class="step-label active">Schedule</span>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step">
+                            <div class="step-circle">3</div>
+                            <span class="step-label">Done</span>
+                        </div>
+                    </div>
+                    
+                    <div class="success-screen">
+                        <div class="success-icon">✓</div>
+                        <h2 class="success-title">You're Enrolled!</h2>
+                        <p class="success-message">Welcome to <strong>AI Prompting Mastery</strong>.<br>Now let's schedule your first session with a Student-Teacher.</p>
+                        <button class="btn-primary btn-peerloop btn-small" onclick="window.location='#screen-4'">Schedule First Session →</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="annotation">
+                <strong>UX Notes:</strong>
+                <ul>
+                    <li>Auto-redirect from Stripe success URL</li>
+                    <li>Clear next step: schedule immediately</li>
+                    <li>Don't let user leave without booking first session!</li>
+                    <li>Receipt email sent in background</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="screen-divider"></div>
+        
+        <!-- ==================== -->
+        <!-- SCREEN 4: PICK A DATE -->
+        <!-- ==================== -->
+        
+        <div class="screen-section" id="screen-4">
+            <div class="screen-header">
+                <div class="screen-number">4</div>
+                <div class="screen-title">
+                    <h2>Pick a Date</h2>
+                    <p>Calendar view showing days with available Student-Teachers</p>
+                </div>
+            </div>
+            
+            <div class="wireframe fullpage">
+                <div class="browser-bar">
+                    <div class="browser-dots">
+                        <span class="browser-dot red"></span>
+                        <span class="browser-dot yellow"></span>
+                        <span class="browser-dot green"></span>
+                    </div>
+                    <div class="browser-url">peerloop.com/schedule/ai-prompting-mastery</div>
+                </div>
+                <div class="screen-content">
+                    <div class="progress-stepper">
+                        <div class="step">
+                            <div class="step-circle completed">✓</div>
+                            <span class="step-label">Payment</span>
+                        </div>
+                        <div class="step-line completed"></div>
+                        <div class="step">
+                            <div class="step-circle active">2</div>
+                            <span class="step-label active">Schedule</span>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step">
+                            <div class="step-circle">3</div>
+                            <span class="step-label">Done</span>
+                        </div>
+                    </div>
+                    
+                    <div class="scheduling-header">
+                        <h2>📅 Schedule Your First Session</h2>
+                        <p>Choose a day that works for you. Green dates have Student-Teachers available.</p>
+                    </div>
+                    
+                    <div class="calendar-section">
+                        <div class="calendar-nav">
+                            <h3>December 2025</h3>
+                            <div class="calendar-nav-btns">
+                                <button class="nav-btn">←</button>
+                                <button class="nav-btn">→</button>
+                            </div>
+                        </div>
+                        
+                        <div class="calendar-grid">
+                            <div class="calendar-day-header">SUN</div>
+                            <div class="calendar-day-header">MON</div>
+                            <div class="calendar-day-header">TUE</div>
+                            <div class="calendar-day-header">WED</div>
+                            <div class="calendar-day-header">THU</div>
+                            <div class="calendar-day-header">FRI</div>
+                            <div class="calendar-day-header">SAT</div>
+                            
+                            <div class="calendar-day disabled"></div>
+                            <div class="calendar-day disabled">1</div>
+                            <div class="calendar-day disabled">2</div>
+                            <div class="calendar-day disabled">3</div>
+                            <div class="calendar-day disabled">4</div>
+                            <div class="calendar-day disabled">5</div>
+                            <div class="calendar-day disabled">6</div>
+                            
+                            <div class="calendar-day disabled">7</div>
+                            <div class="calendar-day disabled">8</div>
+                            <div class="calendar-day disabled">9</div>
+                            <div class="calendar-day disabled">10</div>
+                            <div class="calendar-day disabled">11</div>
+                            <div class="calendar-day disabled">12</div>
+                            <div class="calendar-day disabled">13</div>
+                            
+                            <div class="calendar-day disabled">14</div>
+                            <div class="calendar-day available">15</div>
+                            <div class="calendar-day available">16</div>
+                            <div class="calendar-day available selected">17</div>
+                            <div class="calendar-day available">18</div>
+                            <div class="calendar-day available">19</div>
+                            <div class="calendar-day">20</div>
+                            
+                            <div class="calendar-day">21</div>
+                            <div class="calendar-day available">22</div>
+                            <div class="calendar-day available">23</div>
+                            <div class="calendar-day">24</div>
+                            <div class="calendar-day">25</div>
+                            <div class="calendar-day available">26</div>
+                            <div class="calendar-day">27</div>
+                            
+                            <div class="calendar-day">28</div>
+                            <div class="calendar-day available">29</div>
+                            <div class="calendar-day available">30</div>
+                            <div class="calendar-day available">31</div>
+                            <div class="calendar-day disabled"></div>
+                            <div class="calendar-day disabled"></div>
+                            <div class="calendar-day disabled"></div>
+                        </div>
+                        
+                        <div class="calendar-legend">
+                            <div class="legend-item">
+                                <div class="legend-dot available"></div>
+                                <span>Available</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot selected"></div>
+                                <span>Selected</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="annotation">
+                <strong>Calendar Logic:</strong>
+                <ul>
+                    <li>Green = at least 1 Student-Teacher has availability</li>
+                    <li>Past dates disabled</li>
+                    <li>Click date → scroll to teacher list (Screen 5)</li>
+                    <li>Timezone shown based on user's browser</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="screen-divider"></div>
+        
+        <!-- ==================== -->
+        <!-- SCREEN 5: CHOOSE TEACHER & TIME -->
+        <!-- ==================== -->
+        
+        <div class="screen-section">
+            <div class="screen-header">
+                <div class="screen-number">5</div>
+                <div class="screen-title">
+                    <h2>Choose Student-Teacher & Time</h2>
+                    <p>See available teachers for selected date, pick a time slot</p>
+                </div>
+            </div>
+            
+            <div class="wireframe fullpage">
+                <div class="browser-bar">
+                    <div class="browser-dots">
+                        <span class="browser-dot red"></span>
+                        <span class="browser-dot yellow"></span>
+                        <span class="browser-dot green"></span>
+                    </div>
+                    <div class="browser-url">peerloop.com/schedule/ai-prompting-mastery?date=2025-12-17</div>
+                </div>
+                <div class="screen-content">
+                    <div class="scheduling-header" style="padding: 20px 30px;">
+                        <h2 style="font-size: 1.2rem; margin-bottom: 4px;">📅 Wednesday, December 17, 2025</h2>
+                        <p style="font-size: 0.9rem;"><a href="#" style="color: #fff; text-decoration: underline;">← Change date</a></p>
+                    </div>
+                    
+                    <div class="teachers-section">
+                        <h3>Available Student-Teachers</h3>
+                        <p class="subtitle">Select a teacher and time slot for your session</p>
+                        
+                        <!-- Teacher 1 - Selected -->
+                        <div class="teacher-card selected">
+                            <div class="teacher-header">
+                                <div class="teacher-avatar">MC</div>
+                                <div class="teacher-info">
+                                    <h4>Marcus Chen</h4>
+                                    <div class="teacher-stats">⭐ 4.9 rating • 12 students taught</div>
+                                </div>
+                            </div>
+                            <p class="teacher-bio">"I love helping people unlock AI's potential. Former marketing manager, now full-time AI enthusiast."</p>
+                            <div class="time-slots">
+                                <div class="time-slot">9:00 AM</div>
+                                <div class="time-slot">11:00 AM</div>
+                                <div class="time-slot selected">2:00 PM</div>
+                                <div class="time-slot">4:00 PM</div>
+                                <div class="time-slot">7:00 PM</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Teacher 2 -->
+                        <div class="teacher-card">
+                            <div class="teacher-header">
+                                <div class="teacher-avatar">JT</div>
+                                <div class="teacher-info">
+                                    <h4>Jessica Torres</h4>
+                                    <div class="teacher-stats">⭐ 4.8 rating • 8 students taught</div>
+                                </div>
+                            </div>
+                            <p class="teacher-bio">"Teaching AI prompting is my passion. I make complex concepts simple and actionable."</p>
+                            <div class="time-slots">
+                                <div class="time-slot">10:00 AM</div>
+                                <div class="time-slot">1:00 PM</div>
+                                <div class="time-slot">5:00 PM</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Teacher 3 -->
+                        <div class="teacher-card">
+                            <div class="teacher-header">
+                                <div class="teacher-avatar">DK</div>
+                                <div class="teacher-info">
+                                    <h4>David Kim</h4>
+                                    <div class="teacher-stats">⭐ 5.0 rating • 5 students taught</div>
+                                </div>
+                            </div>
+                            <p class="teacher-bio">"New to teaching but deeply knowledgeable. Patient approach, great for beginners."</p>
+                            <div class="time-slots">
+                                <div class="time-slot">3:00 PM</div>
+                                <div class="time-slot">6:00 PM</div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-primary btn-peerloop" style="width: 100%; margin-top: 16px;">Continue with Marcus at 2:00 PM →</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="annotation">
+                <strong>Interaction Details:</strong>
+                <ul>
+                    <li>Click teacher card → expands/highlights</li>
+                    <li>Click time slot → selects that slot</li>
+                    <li>Button text updates dynamically: "Continue with [Name] at [Time]"</li>
+                    <li>Times shown in user's local timezone</li>
+                    <li>Teacher bio helps student choose (peer connection)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="screen-divider"></div>
+        
+        <!-- ==================== -->
+        <!-- SCREEN 6: CONFIRM BOOKING -->
+        <!-- ==================== -->
+        
+        <div class="screen-section">
+            <div class="screen-header">
+                <div class="screen-number">6</div>
+                <div class="screen-title">
+                    <h2>Confirm Booking</h2>
+                    <p>Review details and notification preferences</p>
+                </div>
+            </div>
+            
+            <div class="wireframe modal">
+                <div class="browser-bar">
+                    <div class="browser-dots">
+                        <span class="browser-dot red"></span>
+                        <span class="browser-dot yellow"></span>
+                        <span class="browser-dot green"></span>
+                    </div>
+                    <div class="browser-url">peerloop.com/schedule/confirm</div>
+                </div>
+                <div class="screen-content">
+                    <div class="progress-stepper">
+                        <div class="step">
+                            <div class="step-circle completed">✓</div>
+                            <span class="step-label">Payment</span>
+                        </div>
+                        <div class="step-line completed"></div>
+                        <div class="step">
+                            <div class="step-circle active">2</div>
+                            <span class="step-label active">Schedule</span>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step">
+                            <div class="step-circle">3</div>
+                            <span class="step-label">Done</span>
+                        </div>
+                    </div>
+                    
+                    <div class="confirm-section">
+                        <h3>📋 Confirm Your Session</h3>
+                        
+                        <div class="confirm-card">
+                            <div class="confirm-row">
+                                <span class="confirm-label">Course</span>
+                                <span class="confirm-value">AI Prompting Mastery</span>
+                            </div>
+                            <div class="confirm-row">
+                                <span class="confirm-label">Student-Teacher</span>
+                                <span class="confirm-value">Marcus Chen</span>
+                            </div>
+                            <div class="confirm-row">
+                                <span class="confirm-label">Date</span>
+                                <span class="confirm-value">Wednesday, Dec 17, 2025</span>
+                            </div>
+                            <div class="confirm-row">
+                                <span class="confirm-label">Time</span>
+                                <span class="confirm-value">2:00 PM (EST)</span>
+                            </div>
+                            <div class="confirm-row">
+                                <span class="confirm-label">Duration</span>
+                                <span class="confirm-value">60 minutes</span>
+                            </div>
+                            <div class="confirm-row">
+                                <span class="confirm-label">Location</span>
+                                <span class="confirm-value">BigBlueButton Video Call</span>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-options">
+                            <h4>📬 Notification Preferences</h4>
+                            <div class="checkbox-row">
+                                <input type="checkbox" checked>
+                                <span>Email me confirmation & reminder</span>
+                            </div>
+                            <div class="checkbox-row">
+                                <input type="checkbox" checked>
+                                <span>Add to my calendar (.ics download)</span>
+                            </div>
+                            <div class="checkbox-row">
+                                <input type="checkbox" checked>
+                                <span>Send me a reminder 1 hour before</span>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-primary btn-peerloop" style="width: 100%;">Confirm Booking</button>
+                        
+                        <p style="text-align: center; margin-top: 16px;">
+                            <a href="#" style="color: #666; font-size: 0.9rem;">← Go back and change</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="annotation">
+                <strong>System Actions on Confirm:</strong>
+                <ul>
+                    <li>Create session in database</li>
+                    <li>Generate unique BBB room link</li>
+                    <li>Send email to Student (with .ics attachment)</li>
+                    <li>Send email to Student-Teacher</li>
+                    <li>Create in-app notifications for both</li>
+                    <li>Block this time slot for this Student-Teacher</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="screen-divider"></div>
+        
+        <!-- ==================== -->
+        <!-- SCREEN 7: BOOKING CONFIRMED -->
+        <!-- ==================== -->
+        
+        <div class="screen-section">
+            <div class="screen-header">
+                <div class="screen-number">7</div>
+                <div class="screen-title">
+                    <h2>Booking Confirmed!</h2>
+                    <p>Success state with session details and next steps</p>
+                </div>
+            </div>
+            
+            <div class="wireframe modal" style="max-width: 540px;">
+                <div class="browser-bar">
+                    <div class="browser-dots">
+                        <span class="browser-dot red"></span>
+                        <span class="browser-dot yellow"></span>
+                        <span class="browser-dot green"></span>
+                    </div>
+                    <div class="browser-url">peerloop.com/schedule/confirmed</div>
+                </div>
+                <div class="screen-content">
+                    <div class="progress-stepper">
+                        <div class="step">
+                            <div class="step-circle completed">✓</div>
+                            <span class="step-label">Payment</span>
+                        </div>
+                        <div class="step-line completed"></div>
+                        <div class="step">
+                            <div class="step-circle completed">✓</div>
+                            <span class="step-label">Schedule</span>
+                        </div>
+                        <div class="step-line completed"></div>
+                        <div class="step">
+                            <div class="step-circle completed">✓</div>
+                            <span class="step-label active">Done</span>
+                        </div>
+                    </div>
+                    
+                    <div class="booking-confirmed">
+                        <div class="success-icon">🎉</div>
+                        <h2 class="success-title">You're All Set!</h2>
+                        <p class="success-message">Your first session is booked. Check your email for details.</p>
+                        
+                        <div class="session-details-card">
+                            <h4>Your Upcoming Session</h4>
+                            <div class="detail-row">
+                                <div class="detail-icon">📅</div>
+                                <div class="detail-text">
+                                    <strong>Wednesday, December 17, 2025</strong>
+                                    <span>2:00 PM - 3:00 PM (EST)</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-icon">👤</div>
+                                <div class="detail-text">
+                                    <strong>Marcus Chen</strong>
+                                    <span>Your Student-Teacher</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-icon">📹</div>
+                                <div class="detail-text">
+                                    <strong>BigBlueButton Video Call</strong>
+                                    <span>Link will be in your email & dashboard</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn-secondary btn-small">📅 Add to Calendar</button>
+                            <button class="btn-primary btn-peerloop btn-small">Go to My Dashboard →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="annotation">
+                <strong>What Happens Now:</strong>
+                <ul>
+                    <li>Student can access course materials immediately</li>
+                    <li>Dashboard shows upcoming session</li>
+                    <li>Reminder email 24hr and 1hr before session</li>
+                    <li>On session day: join via link in email or dashboard</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Summary -->
+        <div class="flow-overview" style="margin-top: 60px;">
+            <h2>📊 Flow Summary</h2>
+            <p style="color: #ccc; margin-bottom: 20px;">Total steps: 7 screens (can be completed in under 2 minutes)</p>
+            
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                <tr style="border-bottom: 1px solid #333;">
+                    <td style="padding: 12px 0; color: #00d4aa; font-weight: 600;">Screen</td>
+                    <td style="padding: 12px 0; color: #00d4aa; font-weight: 600;">Purpose</td>
+                    <td style="padding: 12px 0; color: #00d4aa; font-weight: 600;">User Action</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #222;">
+                    <td style="padding: 12px 0; color: #fff;">1. Enroll Now</td>
+                    <td style="padding: 12px 0; color: #888;">CTA on course page</td>
+                    <td style="padding: 12px 0; color: #888;">Click button</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #222;">
+                    <td style="padding: 12px 0; color: #fff;">2. Stripe Checkout</td>
+                    <td style="padding: 12px 0; color: #888;">Collect payment</td>
+                    <td style="padding: 12px 0; color: #888;">Enter card, pay</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #222;">
+                    <td style="padding: 12px 0; color: #fff;">3. Payment Success</td>
+                    <td style="padding: 12px 0; color: #888;">Confirm + redirect</td>
+                    <td style="padding: 12px 0; color: #888;">Click to schedule</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #222;">
+                    <td style="padding: 12px 0; color: #fff;">4. Pick a Date</td>
+                    <td style="padding: 12px 0; color: #888;">Calendar view</td>
+                    <td style="padding: 12px 0; color: #888;">Click available day</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #222;">
+                    <td style="padding: 12px 0; color: #fff;">5. Choose Teacher & Time</td>
+                    <td style="padding: 12px 0; color: #888;">Teacher selection</td>
+                    <td style="padding: 12px 0; color: #888;">Pick teacher + slot</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #222;">
+                    <td style="padding: 12px 0; color: #fff;">6. Confirm Booking</td>
+                    <td style="padding: 12px 0; color: #888;">Review & preferences</td>
+                    <td style="padding: 12px 0; color: #888;">Click confirm</td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px 0; color: #fff;">7. Done!</td>
+                    <td style="padding: 12px 0; color: #888;">Success state</td>
+                    <td style="padding: 12px 0; color: #888;">Go to dashboard</td>
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</body>
+</html>
+
+
+
