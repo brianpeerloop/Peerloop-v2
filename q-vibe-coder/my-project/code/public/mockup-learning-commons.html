@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PeerLoop - The Learning Commons</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #a5b4fc;
+      --secondary: #10b981;
+      --secondary-light: #34d399;
+      --accent: #f59e0b;
+      --accent-light: #fbbf24;
+      --danger: #ef4444;
+
+      --bg-base: #0a0a0f;
+      --bg-surface: #12121a;
+      --bg-elevated: #1a1a24;
+      --bg-hover: #22222e;
+      --bg-active: #2a2a38;
+
+      --text-primary: #f5f5f7;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --text-inverse: #0a0a0f;
+
+      --border: #27272a;
+      --border-light: #3f3f46;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+
+      --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.15);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* Main Layout */
+    .app {
+      display: grid;
+      grid-template-columns: 240px 1fr 300px;
+      grid-template-rows: 64px 1fr;
+      min-height: 100vh;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      grid-column: 1 / -1;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 32px;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .search-bar {
+      flex: 1;
+      max-width: 480px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      transition: all 0.2s;
+    }
+
+    .search-bar:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .search-bar input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+
+    .search-bar input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-icon {
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    .search-shortcut {
+      padding: 4px 8px;
+      background: var(--bg-active);
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .top-bar-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 20px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .top-bar-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .notification-dot {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 8px;
+      height: 8px;
+      background: var(--danger);
+      border-radius: 50%;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+
+    /* Left Sidebar */
+    .left-sidebar {
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      overflow-y: auto;
+    }
+
+    .nav-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0 12px;
+      margin-bottom: 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.05) 100%);
+      color: var(--primary-light);
+    }
+
+    .nav-icon {
+      font-size: 20px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--danger);
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* Your Creators */
+    .creators-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .creator-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .creator-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .creator-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      position: relative;
+    }
+
+    .creator-avatar-wrapper {
+      position: relative;
+    }
+
+    .creator-live-dot {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 12px;
+      height: 12px;
+      background: var(--secondary);
+      border: 2px solid var(--bg-surface);
+      border-radius: 50%;
+    }
+
+    .creator-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .creator-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .creator-course {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .creator-unread {
+      width: 8px;
+      height: 8px;
+      background: var(--primary);
+      border-radius: 50%;
+    }
+
+    .browse-more {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .browse-more:hover {
+      color: var(--primary-light);
+    }
+
+    /* Main Content */
+    .main-content {
+      padding: 24px 32px;
+      overflow-y: auto;
+      background: var(--bg-base);
+    }
+
+    /* Live Now Banner */
+    .live-banner {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--danger);
+      border-radius: var(--radius-xl);
+      font-size: 12px;
+      font-weight: 600;
+      color: white;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .live-content {
+      flex: 1;
+    }
+
+    .live-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .live-meta {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .live-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: var(--radius-xl);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-light);
+    }
+
+    /* Next Session Reminder */
+    .next-session {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 32px;
+    }
+
+    .next-session-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .next-session-info {
+      flex: 1;
+    }
+
+    .next-session-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .next-session-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .next-session-time {
+      text-align: right;
+    }
+
+    .countdown {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary-light);
+    }
+
+    .countdown-label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Section Header */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .section-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-left: 12px;
+    }
+
+    .section-filter {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-surface);
+      padding: 4px;
+      border-radius: var(--radius-md);
+    }
+
+    .filter-btn {
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .filter-btn.active {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+
+    /* Knowledge Cards */
+    .knowledge-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .knowledge-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+
+    .knowledge-card:hover {
+      border-color: var(--border-light);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .card-type-bar {
+      height: 4px;
+    }
+
+    .card-type-bar.tip { background: linear-gradient(90deg, var(--secondary) 0%, var(--secondary-light) 100%); }
+    .card-type-bar.question { background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%); }
+    .card-type-bar.challenge { background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%); }
+    .card-type-bar.win { background: linear-gradient(90deg, #ec4899 0%, #f472b6 100%); }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 20px 0;
+    }
+
+    .card-type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card-type-badge.tip {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--secondary-light);
+    }
+
+    .card-type-badge.question {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--primary-light);
+    }
+
+    .card-type-badge.challenge {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-light);
+    }
+
+    .card-type-badge.win {
+      background: rgba(236, 72, 153, 0.15);
+      color: #f472b6;
+    }
+
+    .card-course {
+      margin-left: auto;
+      padding: 4px 10px;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .card-body {
+      padding: 16px 20px;
+    }
+
+    .card-content {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    .card-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-author-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .card-author-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .card-author-name span {
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .card-action {
+      padding: 10px 16px;
+      border-radius: var(--radius-xl);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-action.primary {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .card-action.primary:hover {
+      filter: brightness(1.1);
+    }
+
+    .card-action.secondary {
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+    }
+
+    .card-action.secondary:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .card-stat {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Question Card Specific */
+    .answer-preview {
+      padding: 12px 16px;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-md);
+      margin-top: 12px;
+    }
+
+    .answer-preview-header {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .answer-preview-content {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Challenge Card Specific */
+    .challenge-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .challenge-stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Caught Up State */
+    .caught-up {
+      text-align: center;
+      padding: 48px 24px;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      margin-top: 24px;
+    }
+
+    .caught-up-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .caught-up-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .caught-up-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .caught-up-link {
+      color: var(--primary-light);
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .caught-up-link:hover {
+      color: var(--primary);
+    }
+
+    /* Right Sidebar */
+    .right-sidebar {
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      overflow-y: auto;
+    }
+
+    /* Journey Card */
+    .journey-card {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.02) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+
+    .journey-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 20px;
+    }
+
+    .journey-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+    }
+
+    .journey-step {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 0;
+      position: relative;
+    }
+
+    .journey-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 44px;
+      bottom: -12px;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .journey-step.completed:not(:last-child)::after {
+      background: var(--secondary);
+    }
+
+    .journey-step-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      background: var(--bg-elevated);
+      position: relative;
+      z-index: 1;
+    }
+
+    .journey-step.completed .journey-step-icon {
+      background: var(--secondary);
+    }
+
+    .journey-step.current .journey-step-icon {
+      background: var(--primary);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+    }
+
+    .journey-step-content {
+      flex: 1;
+    }
+
+    .journey-step-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .journey-step.upcoming .journey-step-label {
+      color: var(--text-muted);
+    }
+
+    .journey-step-status {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Course Progress */
+    .sidebar-section {
+      padding-top: 0;
+    }
+
+    .sidebar-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    .course-progress-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-md);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .course-progress-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .course-progress-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .course-progress-icon.python { background: linear-gradient(135deg, #3776ab 0%, #ffd43b 100%); }
+    .course-progress-icon.data { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .course-progress-icon.web { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+
+    .course-progress-info {
+      flex: 1;
+    }
+
+    .course-progress-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .course-progress-bar {
+      height: 4px;
+      background: var(--bg-active);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .course-progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .course-progress-percent {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* Peers Online */
+    .peers-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .peer-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .peer-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .peer-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .peer-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .peer-status {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .peer-online-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--secondary);
+      border-radius: 50%;
+      margin-left: auto;
+    }
+
+    .peers-more {
+      text-align: center;
+      padding: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Saved Items */
+    .saved-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .saved-summary:hover {
+      background: var(--bg-hover);
+    }
+
+    .saved-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .saved-icon {
+      font-size: 20px;
+    }
+
+    .saved-count {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .saved-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .saved-arrow {
+      color: var(--text-muted);
+    }
+
+    /* Win Card Specific */
+    .win-reactions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .win-reaction {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-xl);
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .win-reaction:hover {
+      background: var(--bg-hover);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="logo">PeerLoop</div>
+
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search knowledge, creators, courses..." />
+        <span class="search-shortcut">⌘K</span>
+      </div>
+
+      <div class="top-bar-right">
+        <button class="top-bar-btn">
+          🔔
+          <span class="notification-dot"></span>
+        </button>
+        <button class="top-bar-btn">💬</button>
+        <div class="user-avatar">AS</div>
+      </div>
+    </header>
+
+    <!-- Left Sidebar -->
+    <aside class="left-sidebar">
+      <nav>
+        <div class="nav-item active">
+          <span class="nav-icon">🏠</span>
+          <span>Commons</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">🔍</span>
+          <span>Explore</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">📚</span>
+          <span>My Courses</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">🎓</span>
+          <span>Teaching</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">📅</span>
+          <span>Sessions</span>
+          <span class="nav-badge">2</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">📌</span>
+          <span>Saved</span>
+        </div>
+      </nav>
+
+      <div>
+        <div class="nav-section-title">Your Creators</div>
+        <div class="creators-list">
+          <div class="creator-item">
+            <div class="creator-avatar-wrapper">
+              <img src="https://i.pravatar.cc/36?img=32" class="creator-avatar" />
+              <div class="creator-live-dot"></div>
+            </div>
+            <div class="creator-info">
+              <div class="creator-name">Jane Doe</div>
+              <div class="creator-course">AI for PMs</div>
+            </div>
+            <div class="creator-unread"></div>
+          </div>
+          <div class="creator-item">
+            <img src="https://i.pravatar.cc/36?img=68" class="creator-avatar" />
+            <div class="creator-info">
+              <div class="creator-name">Einstein</div>
+              <div class="creator-course">Python</div>
+            </div>
+          </div>
+          <div class="creator-item">
+            <img src="https://i.pravatar.cc/36?img=47" class="creator-avatar" />
+            <div class="creator-info">
+              <div class="creator-name">Prof. Maria</div>
+              <div class="creator-course">Data Science</div>
+            </div>
+          </div>
+          <div class="creator-item">
+            <img src="https://i.pravatar.cc/36?img=52" class="creator-avatar" />
+            <div class="creator-info">
+              <div class="creator-name">James Wilson</div>
+              <div class="creator-course">Full-Stack</div>
+            </div>
+          </div>
+          <div class="browse-more">
+            <span>+</span>
+            <span>Browse creators</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Live Now Banner -->
+      <div class="live-banner">
+        <div class="live-indicator">
+          <span class="live-dot"></span>
+          LIVE
+        </div>
+        <div class="live-content">
+          <div class="live-title">Jane Doe is teaching "AI Prompt Patterns"</div>
+          <div class="live-meta">23 watching · Started 12 min ago</div>
+        </div>
+        <div class="live-actions">
+          <button class="btn btn-primary">Join Session</button>
+          <button class="btn btn-secondary">Save for Later</button>
+        </div>
+      </div>
+
+      <!-- Next Session Reminder -->
+      <div class="next-session">
+        <div class="next-session-icon">📅</div>
+        <div class="next-session-info">
+          <div class="next-session-label">Your next session</div>
+          <div class="next-session-title">Python Basics with Einstein · Module 4</div>
+        </div>
+        <div class="next-session-time">
+          <div class="countdown">2h 15m</div>
+          <div class="countdown-label">until start</div>
+        </div>
+      </div>
+
+      <!-- Fresh Knowledge Section -->
+      <div class="section-header">
+        <div style="display: flex; align-items: baseline;">
+          <h2 class="section-title">Fresh Knowledge</h2>
+          <span class="section-subtitle">Since yesterday</span>
+        </div>
+        <div class="section-filter">
+          <button class="filter-btn active">All</button>
+          <button class="filter-btn">Tips</button>
+          <button class="filter-btn">Questions</button>
+          <button class="filter-btn">Challenges</button>
+        </div>
+      </div>
+
+      <div class="knowledge-feed">
+        <!-- Tip Card -->
+        <div class="knowledge-card">
+          <div class="card-type-bar tip"></div>
+          <div class="card-header">
+            <span class="card-type-badge tip">💡 Tip</span>
+            <span class="card-course">Python Basics</span>
+          </div>
+          <div class="card-body">
+            <div class="card-content">
+              <strong>Never use mutable default arguments in Python.</strong><br><br>
+              This is one of the most common Python gotchas. When you write <code>def foo(items=[])</code>, that empty list is created ONCE when the function is defined, not each time it's called. Every call shares the same list!<br><br>
+              Instead, use <code>def foo(items=None): items = items or []</code>
+            </div>
+            <div class="card-author">
+              <img src="https://i.pravatar.cc/32?img=68" class="card-author-avatar" />
+              <span class="card-author-name">@einstein <span>· 3 hours ago</span></span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="card-action primary">✓ Got it</button>
+            <button class="card-action secondary">📌 Save</button>
+            <button class="card-action secondary">💬 Discuss</button>
+            <span class="card-stat">47 saved this</span>
+          </div>
+        </div>
+
+        <!-- Question Card -->
+        <div class="knowledge-card">
+          <div class="card-type-bar question"></div>
+          <div class="card-header">
+            <span class="card-type-badge question">❓ Question</span>
+            <span class="card-course">Python Basics</span>
+          </div>
+          <div class="card-body">
+            <div class="card-content">
+              Is list comprehension always faster than traditional for loops? I've been converting all my loops but wondering if there are cases where it's actually slower.
+            </div>
+            <div class="card-author">
+              <img src="https://i.pravatar.cc/32?img=17" class="card-author-avatar" />
+              <span class="card-author-name">@reactmax <span>· 5 hours ago</span></span>
+            </div>
+            <div class="answer-preview">
+              <div class="answer-preview-header">Top Answer · @einstein</div>
+              <div class="answer-preview-content">"Not always! For simple operations, list comprehension wins. But if you need to break early or have complex conditionals, a regular loop can be faster..."</div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="card-action secondary">Read 8 answers</button>
+            <button class="card-action secondary">✍️ Answer this</button>
+          </div>
+        </div>
+
+        <!-- Challenge Card -->
+        <div class="knowledge-card">
+          <div class="card-type-bar challenge"></div>
+          <div class="card-header">
+            <span class="card-type-badge challenge">🎯 Challenge</span>
+            <span class="card-course">Data Science</span>
+          </div>
+          <div class="card-body">
+            <div class="card-content">
+              <strong>Weekend Data Cleaning Challenge</strong><br><br>
+              I've uploaded a messy real-world dataset with missing values, inconsistent formats, and duplicates. Clean it up and share your approach!<br><br>
+              First 10 people to submit a clean solution get featured in Monday's session.
+            </div>
+            <div class="card-author">
+              <img src="https://i.pravatar.cc/32?img=47" class="card-author-avatar" />
+              <span class="card-author-name">@profmaria <span>· 8 hours ago</span></span>
+            </div>
+            <div class="challenge-meta">
+              <span class="challenge-stat">👥 47 attempting</span>
+              <span class="challenge-stat">⏰ 2 days left</span>
+              <span class="challenge-stat">🏆 3 spots remaining</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="card-action primary">Take Challenge</button>
+            <button class="card-action secondary">📌 Save</button>
+          </div>
+        </div>
+
+        <!-- Win Card -->
+        <div class="knowledge-card">
+          <div class="card-type-bar win"></div>
+          <div class="card-header">
+            <span class="card-type-badge win">🎉 Win</span>
+            <span class="card-course">Full-Stack Web Dev</span>
+          </div>
+          <div class="card-body">
+            <div class="card-content">
+              Just deployed my first full-stack app! 8 weeks ago I couldn't write a line of JavaScript. Today I shipped a working product.<br><br>
+              @jameswilson's course literally changed my career trajectory. The Student-Teacher model works - I'm already helping others with Module 1.
+            </div>
+            <div class="card-author">
+              <img src="https://i.pravatar.cc/32?img=49" class="card-author-avatar" />
+              <span class="card-author-name">@fullstackfiona <span>· 12 hours ago</span></span>
+            </div>
+            <div class="win-reactions">
+              <span class="win-reaction">🎉 234</span>
+              <span class="win-reaction">🔥 89</span>
+              <span class="win-reaction">💪 56</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="card-action secondary">💬 Congratulate</button>
+            <button class="card-action secondary">📌 Save for inspiration</button>
+          </div>
+        </div>
+
+        <!-- Caught Up State -->
+        <div class="caught-up">
+          <div class="caught-up-icon">✨</div>
+          <div class="caught-up-title">You're all caught up!</div>
+          <div class="caught-up-text">
+            No new knowledge since you last visited.<br>
+            Come back later or <span class="caught-up-link">browse the archives →</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Right Sidebar -->
+    <aside class="right-sidebar">
+      <!-- Your Journey -->
+      <div class="journey-card">
+        <div class="journey-title">Your Journey</div>
+        <div class="journey-steps">
+          <div class="journey-step completed">
+            <div class="journey-step-icon">📚</div>
+            <div class="journey-step-content">
+              <div class="journey-step-label">Learn</div>
+              <div class="journey-step-status">2 courses completed</div>
+            </div>
+          </div>
+          <div class="journey-step current">
+            <div class="journey-step-icon">🎯</div>
+            <div class="journey-step-content">
+              <div class="journey-step-label">Certify</div>
+              <div class="journey-step-status">Python exam ready</div>
+            </div>
+          </div>
+          <div class="journey-step upcoming">
+            <div class="journey-step-icon">🎓</div>
+            <div class="journey-step-content">
+              <div class="journey-step-label">Teach</div>
+              <div class="journey-step-status">Unlock after certifying</div>
+            </div>
+          </div>
+          <div class="journey-step upcoming">
+            <div class="journey-step-icon">💰</div>
+            <div class="journey-step-content">
+              <div class="journey-step-label">Earn</div>
+              <div class="journey-step-status">Start earning as a teacher</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Course Progress -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Your Courses</div>
+        <div class="course-progress-item">
+          <div class="course-progress-icon python">🐍</div>
+          <div class="course-progress-info">
+            <div class="course-progress-name">Python Basics</div>
+            <div class="course-progress-bar">
+              <div class="course-progress-fill" style="width: 65%"></div>
+            </div>
+          </div>
+          <div class="course-progress-percent">65%</div>
+        </div>
+        <div class="course-progress-item">
+          <div class="course-progress-icon data">📊</div>
+          <div class="course-progress-info">
+            <div class="course-progress-name">Data Science</div>
+            <div class="course-progress-bar">
+              <div class="course-progress-fill" style="width: 30%"></div>
+            </div>
+          </div>
+          <div class="course-progress-percent">30%</div>
+        </div>
+        <div class="course-progress-item">
+          <div class="course-progress-icon web">🌐</div>
+          <div class="course-progress-info">
+            <div class="course-progress-name">Full-Stack Dev</div>
+            <div class="course-progress-bar">
+              <div class="course-progress-fill" style="width: 100%"></div>
+            </div>
+          </div>
+          <div class="course-progress-percent">✓</div>
+        </div>
+      </div>
+
+      <!-- Peers Online -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Peers in Python</div>
+        <div class="peers-list">
+          <div class="peer-item">
+            <img src="https://i.pravatar.cc/32?img=12" class="peer-avatar" />
+            <div>
+              <div class="peer-name">Mike Chen</div>
+              <div class="peer-status">Module 4</div>
+            </div>
+            <div class="peer-online-dot"></div>
+          </div>
+          <div class="peer-item">
+            <img src="https://i.pravatar.cc/32?img=25" class="peer-avatar" />
+            <div>
+              <div class="peer-name">Sarah Kim</div>
+              <div class="peer-status">Module 6</div>
+            </div>
+            <div class="peer-online-dot"></div>
+          </div>
+          <div class="peer-item">
+            <img src="https://i.pravatar.cc/32?img=33" class="peer-avatar" />
+            <div>
+              <div class="peer-name">Alex Rivera</div>
+              <div class="peer-status">Module 4</div>
+            </div>
+            <div class="peer-online-dot"></div>
+          </div>
+          <div class="peers-more">+ 4 more online</div>
+        </div>
+      </div>
+
+      <!-- Saved Items -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Your Library</div>
+        <div class="saved-summary">
+          <div class="saved-info">
+            <span class="saved-icon">📌</span>
+            <div>
+              <div class="saved-count">12 items saved</div>
+              <div class="saved-label">3 to review this week</div>
+            </div>
+          </div>
+          <span class="saved-arrow">→</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+</body>
+</html>

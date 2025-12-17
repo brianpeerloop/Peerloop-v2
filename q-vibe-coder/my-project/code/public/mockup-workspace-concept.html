@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PeerLoop - Learning Workspace Concept</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #10b981;
+      --accent: #f59e0b;
+      --danger: #ef4444;
+      --bg-dark: #0f0f12;
+      --bg-card: #18181b;
+      --bg-elevated: #1f1f23;
+      --bg-hover: #27272a;
+      --text-primary: #fafafa;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --border: #27272a;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* Main Layout */
+    .app {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Creator Rail - Far Left (Discord-style) */
+    .creator-rail {
+      width: 72px;
+      background: #0a0a0c;
+      padding: 12px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      border-right: 1px solid var(--border);
+    }
+
+    .rail-home {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 8px;
+    }
+
+    .rail-home:hover {
+      border-radius: 12px;
+    }
+
+    .rail-divider {
+      width: 32px;
+      height: 2px;
+      background: var(--border);
+      border-radius: 1px;
+      margin: 4px 0;
+    }
+
+    .rail-creator {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rail-creator:hover {
+      border-radius: 16px;
+    }
+
+    .rail-creator.active {
+      border-radius: 16px;
+    }
+
+    .rail-creator.active::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 40px;
+      background: var(--text-primary);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .rail-creator img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .rail-creator.has-unread::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 12px;
+      height: 12px;
+      background: var(--danger);
+      border: 2px solid #0a0a0c;
+      border-radius: 50%;
+    }
+
+    .rail-add {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: var(--secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .rail-add:hover {
+      background: var(--secondary);
+      color: white;
+      border-radius: 16px;
+    }
+
+    /* Main Workspace */
+    .workspace {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      height: 56px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 32px;
+    }
+
+    .nav-brand {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+    }
+
+    .nav-tab {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-tab:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .nav-tab.active {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+
+    .nav-spacer {
+      flex: 1;
+    }
+
+    .nav-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--bg-elevated);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .nav-search:hover {
+      background: var(--bg-hover);
+    }
+
+    .nav-search kbd {
+      background: var(--bg-card);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-left: 12px;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-action {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .nav-action:hover {
+      background: var(--bg-hover);
+    }
+
+    .nav-action .badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 8px;
+      height: 8px;
+      background: var(--danger);
+      border-radius: 50%;
+    }
+
+    .nav-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Content Area */
+    .content-area {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Main Content */
+    .main-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 32px;
+    }
+
+    /* Welcome Section */
+    .welcome-section {
+      margin-bottom: 32px;
+    }
+
+    .welcome-greeting {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .welcome-greeting span {
+      background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .welcome-subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+
+    /* Journey Progress */
+    .journey-card {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    .journey-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    .journey-steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .journey-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+
+    .journey-step-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+
+    .journey-step.completed .journey-step-icon {
+      background: var(--secondary);
+    }
+
+    .journey-step.current .journey-step-icon {
+      background: var(--primary);
+      animation: pulse 2s infinite;
+    }
+
+    .journey-step.upcoming .journey-step-icon {
+      background: var(--bg-elevated);
+      border: 2px dashed var(--border);
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+      50% { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+    }
+
+    .journey-step-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .journey-step-status {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .journey-connector {
+      flex: 0.5;
+      height: 2px;
+      background: var(--border);
+      margin-bottom: 32px;
+    }
+
+    .journey-connector.completed {
+      background: var(--secondary);
+    }
+
+    /* Section Headers */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .section-link {
+      font-size: 13px;
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .section-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Course Cards - Horizontal Scroll */
+    .course-scroll {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 32px;
+    }
+
+    .course-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .course-scroll::-webkit-scrollbar-track {
+      background: var(--bg-elevated);
+      border-radius: 3px;
+    }
+
+    .course-scroll::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .course-card {
+      min-width: 280px;
+      background: var(--bg-card);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .course-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+    }
+
+    .course-thumb {
+      height: 140px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      position: relative;
+    }
+
+    .course-thumb.ai { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .course-thumb.data { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .course-thumb.web { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+
+    .course-progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .course-progress-fill {
+      height: 100%;
+      background: var(--secondary);
+    }
+
+    .course-body {
+      padding: 16px;
+    }
+
+    .course-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .course-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .course-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .course-creator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .course-creator-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .course-creator-name {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .course-status {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .course-status.in-progress {
+      background: rgba(99, 102, 241, 0.2);
+      color: var(--primary);
+    }
+
+    .course-status.certified {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--secondary);
+    }
+
+    /* Activity Feed */
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .activity-item:hover {
+      background: var(--bg-elevated);
+    }
+
+    .activity-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .activity-content {
+      flex: 1;
+    }
+
+    .activity-text {
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .activity-text strong {
+      color: var(--text-primary);
+    }
+
+    .activity-time {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .activity-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      align-self: flex-start;
+    }
+
+    .activity-badge.session { background: rgba(99, 102, 241, 0.2); color: var(--primary); }
+    .activity-badge.earn { background: rgba(16, 185, 129, 0.2); color: var(--secondary); }
+    .activity-badge.community { background: rgba(245, 158, 11, 0.2); color: var(--accent); }
+
+    /* Right Panel - Context */
+    .context-panel {
+      width: 320px;
+      background: var(--bg-card);
+      border-left: 1px solid var(--border);
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .context-section {
+      margin-bottom: 24px;
+    }
+
+    .context-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    /* Upcoming Sessions */
+    .session-card {
+      padding: 14px;
+      background: var(--bg-elevated);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid var(--primary);
+    }
+
+    .session-card:hover {
+      background: var(--bg-hover);
+    }
+
+    .session-card.teaching {
+      border-left-color: var(--secondary);
+    }
+
+    .session-time {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .session-card.teaching .session-time {
+      color: var(--secondary);
+    }
+
+    .session-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .session-with {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .stat-card {
+      padding: 14px;
+      background: var(--bg-elevated);
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .stat-value.money {
+      color: var(--secondary);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quick-action {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--bg-elevated);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .quick-action:hover {
+      background: var(--bg-hover);
+    }
+
+    .quick-action-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .quick-action-icon.browse { background: rgba(99, 102, 241, 0.2); }
+    .quick-action-icon.schedule { background: rgba(16, 185, 129, 0.2); }
+    .quick-action-icon.message { background: rgba(245, 158, 11, 0.2); }
+
+    .quick-action-text {
+      flex: 1;
+    }
+
+    .quick-action-title {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .quick-action-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Empty State for new users */
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .empty-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .empty-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Creator Space View (when clicking a creator in rail) */
+    .creator-space-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .creator-space-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      object-fit: cover;
+    }
+
+    .creator-space-info {
+      flex: 1;
+    }
+
+    .creator-space-name {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .creator-space-stats {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .creator-space-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-secondary {
+      padding: 8px 16px;
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+      border-color: var(--text-muted);
+    }
+
+    /* Tabs within creator space */
+    .space-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .space-tab {
+      padding: 10px 16px;
+      background: var(--bg-elevated);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .space-tab:hover {
+      background: var(--bg-hover);
+    }
+
+    .space-tab.active {
+      background: var(--primary);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Creator Rail (Far Left) -->
+    <div class="creator-rail">
+      <div class="rail-home" title="Home">🏠</div>
+      <div class="rail-divider"></div>
+
+      <!-- Followed Creators -->
+      <div class="rail-creator active" title="Jane Doe - AI">
+        <img src="https://i.pravatar.cc/48?img=32" />
+      </div>
+      <div class="rail-creator has-unread" title="James Wilson - Web Dev">
+        <img src="https://i.pravatar.cc/48?img=52" />
+      </div>
+      <div class="rail-creator" title="Prof. Maria - Data">
+        <img src="https://i.pravatar.cc/48?img=47" />
+      </div>
+      <div class="rail-creator" title="Einstein - Backend">
+        <img src="https://i.pravatar.cc/48?img=68" />
+      </div>
+
+      <div class="rail-divider"></div>
+      <div class="rail-add" title="Browse Creators">+</div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="workspace">
+      <!-- Top Navigation -->
+      <nav class="top-nav">
+        <div class="nav-brand">PeerLoop</div>
+        <div class="nav-tabs">
+          <div class="nav-tab active">Home</div>
+          <div class="nav-tab">Browse</div>
+          <div class="nav-tab">My Learning</div>
+          <div class="nav-tab">Teaching</div>
+        </div>
+        <div class="nav-spacer"></div>
+        <div class="nav-search">
+          <span>🔍</span>
+          <span>Search courses, creators...</span>
+          <kbd>⌘K</kbd>
+        </div>
+        <div class="nav-actions">
+          <div class="nav-action">
+            <span>🔔</span>
+            <span class="badge"></span>
+          </div>
+          <div class="nav-action">💬</div>
+          <div class="nav-avatar">AS</div>
+        </div>
+      </nav>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Main Panel -->
+        <div class="main-panel">
+          <!-- Welcome -->
+          <div class="welcome-section">
+            <h1 class="welcome-greeting">Good afternoon, <span>Alex</span></h1>
+            <p class="welcome-subtitle">You're 65% through AI for Product Managers. Keep going!</p>
+          </div>
+
+          <!-- Journey Progress -->
+          <div class="journey-card">
+            <div class="journey-title">Your Learning Journey</div>
+            <div class="journey-steps">
+              <div class="journey-step completed">
+                <div class="journey-step-icon">📚</div>
+                <div class="journey-step-label">Learn</div>
+                <div class="journey-step-status">2 courses</div>
+              </div>
+              <div class="journey-connector completed"></div>
+              <div class="journey-step current">
+                <div class="journey-step-icon">🎯</div>
+                <div class="journey-step-label">Certify</div>
+                <div class="journey-step-status">In progress</div>
+              </div>
+              <div class="journey-connector"></div>
+              <div class="journey-step upcoming">
+                <div class="journey-step-icon">🎓</div>
+                <div class="journey-step-label">Teach</div>
+                <div class="journey-step-status">Unlock soon</div>
+              </div>
+              <div class="journey-connector"></div>
+              <div class="journey-step upcoming">
+                <div class="journey-step-icon">💰</div>
+                <div class="journey-step-label">Earn</div>
+                <div class="journey-step-status">Coming up</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Continue Learning -->
+          <div class="section-header">
+            <h2 class="section-title">Continue Learning</h2>
+            <span class="section-link">View all →</span>
+          </div>
+          <div class="course-scroll">
+            <div class="course-card">
+              <div class="course-thumb ai">
+                <div class="course-progress-bar">
+                  <div class="course-progress-fill" style="width: 65%"></div>
+                </div>
+              </div>
+              <div class="course-body">
+                <div class="course-title">AI for Product Managers</div>
+                <div class="course-meta">Module 7 of 10 · 4 hours left</div>
+                <div class="course-footer">
+                  <div class="course-creator">
+                    <img src="https://i.pravatar.cc/24?img=32" class="course-creator-avatar" />
+                    <span class="course-creator-name">Jane Doe</span>
+                  </div>
+                  <span class="course-status in-progress">65%</span>
+                </div>
+              </div>
+            </div>
+            <div class="course-card">
+              <div class="course-thumb data">
+                <div class="course-progress-bar">
+                  <div class="course-progress-fill" style="width: 30%"></div>
+                </div>
+              </div>
+              <div class="course-body">
+                <div class="course-title">Data Science Fundamentals</div>
+                <div class="course-meta">Module 3 of 12 · 8 hours left</div>
+                <div class="course-footer">
+                  <div class="course-creator">
+                    <img src="https://i.pravatar.cc/24?img=47" class="course-creator-avatar" />
+                    <span class="course-creator-name">Prof. Maria</span>
+                  </div>
+                  <span class="course-status in-progress">30%</span>
+                </div>
+              </div>
+            </div>
+            <div class="course-card">
+              <div class="course-thumb web">
+                <div class="course-progress-bar">
+                  <div class="course-progress-fill" style="width: 100%"></div>
+                </div>
+              </div>
+              <div class="course-body">
+                <div class="course-title">Full-Stack Web Development</div>
+                <div class="course-meta">Completed · Ready to certify</div>
+                <div class="course-footer">
+                  <div class="course-creator">
+                    <img src="https://i.pravatar.cc/24?img=52" class="course-creator-avatar" />
+                    <span class="course-creator-name">James Wilson</span>
+                  </div>
+                  <span class="course-status certified">✓ Done</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="section-header">
+            <h2 class="section-title">Recent Activity</h2>
+          </div>
+          <div class="activity-list">
+            <div class="activity-item">
+              <img src="https://i.pravatar.cc/40?img=32" class="activity-avatar" />
+              <div class="activity-content">
+                <div class="activity-text"><strong>Jane Doe</strong> posted in AI for Product Managers community</div>
+                <div class="activity-time">2 hours ago</div>
+              </div>
+              <span class="activity-badge community">Community</span>
+            </div>
+            <div class="activity-item">
+              <img src="https://i.pravatar.cc/40?img=12" class="activity-avatar" />
+              <div class="activity-content">
+                <div class="activity-text">Session with <strong>Mike Chen</strong> completed</div>
+                <div class="activity-time">Yesterday</div>
+              </div>
+              <span class="activity-badge session">Session</span>
+            </div>
+            <div class="activity-item">
+              <img src="https://i.pravatar.cc/40?img=52" class="activity-avatar" />
+              <div class="activity-content">
+                <div class="activity-text"><strong>James Wilson</strong> released new module: Authentication</div>
+                <div class="activity-time">2 days ago</div>
+              </div>
+              <span class="activity-badge community">Update</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Context Panel (Right) -->
+        <div class="context-panel">
+          <!-- Upcoming Sessions -->
+          <div class="context-section">
+            <div class="context-title">Upcoming Sessions</div>
+            <div class="session-card">
+              <div class="session-time">Today · 3:00 PM</div>
+              <div class="session-title">AI for Product Managers</div>
+              <div class="session-with">1-on-1 with Sarah (Student-Teacher)</div>
+            </div>
+            <div class="session-card teaching">
+              <div class="session-time">Tomorrow · 10:00 AM</div>
+              <div class="session-title">Full-Stack Web Dev (Teaching)</div>
+              <div class="session-with">Group session · 3 students</div>
+            </div>
+          </div>
+
+          <!-- Your Stats -->
+          <div class="context-section">
+            <div class="context-title">This Month</div>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Sessions</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value money">$280</div>
+                <div class="stat-label">Earned</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">2</div>
+                <div class="stat-label">Courses</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">1</div>
+                <div class="stat-label">Certified</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="context-section">
+            <div class="context-title">Quick Actions</div>
+            <div class="quick-actions">
+              <div class="quick-action">
+                <div class="quick-action-icon browse">🔍</div>
+                <div class="quick-action-text">
+                  <div class="quick-action-title">Browse Courses</div>
+                  <div class="quick-action-desc">Discover new skills</div>
+                </div>
+              </div>
+              <div class="quick-action">
+                <div class="quick-action-icon schedule">📅</div>
+                <div class="quick-action-text">
+                  <div class="quick-action-title">Schedule Session</div>
+                  <div class="quick-action-desc">Book with a teacher</div>
+                </div>
+              </div>
+              <div class="quick-action">
+                <div class="quick-action-icon message">💬</div>
+                <div class="quick-action-text">
+                  <div class="quick-action-title">Messages</div>
+                  <div class="quick-action-desc">2 unread</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

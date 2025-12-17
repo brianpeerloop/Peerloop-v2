@@ -2060,30 +2060,23 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
     );
   }
 
-  // Show appropriate Dashboard based on user type
-  if (activeMenu === 'Dashboard') {
-    // Creators and Admins see Creator Dashboard
-    if (currentUser?.userType === 'creator' || currentUser?.userType === 'admin' || 
-        currentUser?.roles?.includes('creator') || currentUser?.roles?.includes('instructor')) {
-      return (
-        <div className="main-content">
-          <CreatorDashboard isDarkMode={isDarkMode} currentUser={currentUser} />
-        </div>
-      );
-    }
-    // Students see Learning Dashboard
+  // Show Course when viewing a course (from community or dashboard)
+  if (viewingCourseFromCommunity) {
     return (
       <div className="main-content">
-        <Dashboard isDarkMode={isDarkMode} currentUser={currentUser} />
-      </div>
-    );
-  }
-
-  // Show Student-Teacher Dashboard when Teaching is active
-  if (activeMenu === 'Teaching') {
-    return (
-      <div className="main-content" style={{ padding: 0 }}>
-        <StudentTeacherDashboard isDarkMode={isDarkMode} />
+        <CourseDetailView
+          course={viewingCourseFromCommunity}
+          onBack={handleBackFromCourse}
+          isDarkMode={isDarkMode}
+          followedCommunities={followedCommunities}
+          setFollowedCommunities={setFollowedCommunities}
+          isCoursePurchased={isCoursePurchased(viewingCourseFromCommunity?.id)}
+          currentUser={currentUser}
+          onEnroll={(course) => {
+            setEnrollingCourse(course);
+            setShowEnrollmentFlow(true);
+          }}
+        />
       </div>
     );
   }
@@ -2101,22 +2094,41 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
     );
   }
 
-  // Show Course when viewing a course from community
-  if (viewingCourseFromCommunity) {
+  // Show appropriate Dashboard based on user type
+  if (activeMenu === 'Dashboard') {
+    // Creators and Admins see Creator Dashboard
+    if (currentUser?.userType === 'creator' || currentUser?.userType === 'admin' ||
+        currentUser?.roles?.includes('creator') || currentUser?.roles?.includes('instructor')) {
+      return (
+        <div className="main-content">
+          <CreatorDashboard isDarkMode={isDarkMode} currentUser={currentUser} />
+        </div>
+      );
+    }
+    // Students see Learning Dashboard
     return (
       <div className="main-content">
-        <CourseDetailView
-          course={viewingCourseFromCommunity}
-          onBack={handleBackFromCourse}
+        <Dashboard
           isDarkMode={isDarkMode}
-          followedCommunities={followedCommunities}
-          setFollowedCommunities={setFollowedCommunities}
-          isCoursePurchased={isCoursePurchased(viewingCourseFromCommunity?.id)}
           currentUser={currentUser}
-          onEnroll={(course) => {
-            setEnrollingCourse(course);
-            setShowEnrollmentFlow(true);
-          }}
+          onMenuChange={onMenuChange}
+          purchasedCourses={purchasedCourses}
+          onViewCourse={handleViewCourseFromCommunity}
+        />
+      </div>
+    );
+  }
+
+  // Show Student-Teacher Dashboard when Teaching is active
+  if (activeMenu === 'Teaching') {
+    return (
+      <div className="main-content" style={{ padding: 0 }}>
+        <Dashboard
+          isDarkMode={isDarkMode}
+          currentUser={currentUser}
+          onMenuChange={onMenuChange}
+          purchasedCourses={purchasedCourses}
+          onViewCourse={handleViewCourseFromCommunity}
         />
       </div>
     );
