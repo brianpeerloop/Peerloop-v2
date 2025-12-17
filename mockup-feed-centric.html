@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PeerLoop - Feed-Centric Learning</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #10b981;
+      --accent: #f59e0b;
+      --danger: #ef4444;
+      --bg-dark: #0f0f12;
+      --bg-card: #18181b;
+      --bg-elevated: #1f1f23;
+      --bg-hover: #27272a;
+      --text-primary: #fafafa;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --border: #27272a;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .app {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Left Sidebar - Navigation + Context */
+    .left-sidebar {
+      width: 280px;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Navigation */
+    .nav-section {
+      padding: 16px 12px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 4px;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-elevated);
+    }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.05) 100%);
+    }
+
+    .nav-icon {
+      font-size: 20px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .nav-label {
+      font-size: 15px;
+      font-weight: 500;
+      flex: 1;
+    }
+
+    .nav-item.active .nav-label {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .nav-badge {
+      background: var(--danger);
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .nav-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 8px 14px;
+    }
+
+    /* My Creators Section */
+    .creators-section {
+      padding: 16px 12px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .creators-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0 14px;
+      margin-bottom: 12px;
+    }
+
+    .creator-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 4px;
+    }
+
+    .creator-nav-item:hover {
+      background: var(--bg-elevated);
+    }
+
+    .creator-nav-item.active {
+      background: var(--bg-elevated);
+    }
+
+    .creator-nav-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .creator-nav-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .creator-nav-name {
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .creator-nav-course {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .creator-nav-unread {
+      width: 8px;
+      height: 8px;
+      background: var(--primary);
+      border-radius: 50%;
+    }
+
+    .browse-creators {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-secondary);
+    }
+
+    .browse-creators:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+
+    .browse-creators-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--secondary);
+    }
+
+    /* User Profile at Bottom */
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .user-profile:hover {
+      background: var(--bg-elevated);
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .user-handle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Main Content - Feed */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      max-width: 700px;
+      border-right: 1px solid var(--border);
+    }
+
+    /* Feed Header */
+    .feed-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .feed-title {
+      font-size: 20px;
+      font-weight: 700;
+      flex: 1;
+    }
+
+    .feed-filter {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-elevated);
+      padding: 4px;
+      border-radius: 10px;
+    }
+
+    .filter-btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      background: transparent;
+    }
+
+    .filter-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .filter-btn.active {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    /* Compose */
+    .compose-area {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+    }
+
+    .compose-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .compose-input-wrapper {
+      flex: 1;
+    }
+
+    .compose-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      color: var(--text-primary);
+      resize: none;
+      min-height: 48px;
+      font-family: inherit;
+    }
+
+    .compose-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .compose-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .compose-tools {
+      display: flex;
+      gap: 4px;
+    }
+
+    .compose-tool {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      border: none;
+      color: var(--primary);
+    }
+
+    .compose-tool:hover {
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .compose-post-btn {
+      padding: 10px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .compose-post-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .compose-post-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Feed Content */
+    .feed-content {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* Post Types */
+    .post {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+
+    .post:hover {
+      background: var(--bg-card);
+    }
+
+    .post-header {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .post-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .post-meta {
+      flex: 1;
+    }
+
+    .post-author-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .post-author {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .post-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .post-badge.creator {
+      background: rgba(99, 102, 241, 0.2);
+      color: var(--primary);
+    }
+
+    .post-badge.student-teacher {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--secondary);
+    }
+
+    .post-handle {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .post-context {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .post-context-link {
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .post-context-link:hover {
+      text-decoration: underline;
+    }
+
+    .post-content {
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .post-content .hashtag,
+    .post-content .mention {
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* Learning Content Embed */
+    .learning-embed {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .learning-embed-header {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+
+    .learning-embed-icon {
+      font-size: 16px;
+    }
+
+    .learning-embed-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .learning-embed-body {
+      padding: 16px;
+    }
+
+    .learning-embed-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .learning-embed-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .learning-embed-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--primary);
+      color: white;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .learning-embed-cta:hover {
+      background: var(--primary-dark);
+    }
+
+    /* Video/Media Embed */
+    .media-embed {
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .media-embed img {
+      width: 100%;
+      display: block;
+    }
+
+    .media-play-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 64px;
+      height: 64px;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .media-play-btn:hover {
+      background: var(--primary);
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    .media-duration {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* Poll Embed */
+    .poll-embed {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .poll-question {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .poll-option {
+      padding: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .poll-option:hover {
+      border-color: var(--primary);
+    }
+
+    .poll-option-radio {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+    }
+
+    .poll-option-text {
+      flex: 1;
+      font-size: 14px;
+    }
+
+    .poll-option-percent {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Post Actions */
+    .post-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .post-action {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      border: none;
+    }
+
+    .post-action:hover {
+      background: var(--bg-elevated);
+    }
+
+    .post-action.like:hover { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+    .post-action.comment:hover { color: var(--primary); background: rgba(99, 102, 241, 0.1); }
+    .post-action.share:hover { color: var(--secondary); background: rgba(16, 185, 129, 0.1); }
+    .post-action.bookmark:hover { color: var(--accent); background: rgba(245, 158, 11, 0.1); }
+
+    /* Right Sidebar */
+    .right-sidebar {
+      width: 340px;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .sidebar-section {
+      margin-bottom: 24px;
+    }
+
+    .sidebar-section-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    /* Your Journey Card */
+    .journey-mini {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .journey-mini-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    .journey-mini-steps {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .journey-mini-steps::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 24px;
+      right: 24px;
+      height: 2px;
+      background: var(--border);
+    }
+
+    .journey-mini-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .journey-mini-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      margin-bottom: 8px;
+      background: var(--bg-elevated);
+    }
+
+    .journey-mini-step.completed .journey-mini-icon {
+      background: var(--secondary);
+    }
+
+    .journey-mini-step.current .journey-mini-icon {
+      background: var(--primary);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+    }
+
+    .journey-mini-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .journey-mini-step.completed .journey-mini-label,
+    .journey-mini-step.current .journey-mini-label {
+      color: var(--text-primary);
+    }
+
+    /* Continue Learning */
+    .course-mini {
+      display: flex;
+      gap: 12px;
+      padding: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 12px;
+    }
+
+    .course-mini:hover {
+      border-color: var(--primary);
+    }
+
+    .course-mini-thumb {
+      width: 64px;
+      height: 48px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      flex-shrink: 0;
+    }
+
+    .course-mini-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .course-mini-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .course-mini-progress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .course-mini-bar {
+      flex: 1;
+      height: 4px;
+      background: var(--bg-elevated);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .course-mini-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .course-mini-percent {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Upcoming Sessions */
+    .session-mini {
+      padding: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      border-left: 3px solid var(--primary);
+    }
+
+    .session-mini.teaching {
+      border-left-color: var(--secondary);
+    }
+
+    .session-mini-time {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .session-mini.teaching .session-mini-time {
+      color: var(--secondary);
+    }
+
+    .session-mini-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .session-mini-with {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Trending */
+    .trending-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .trending-item:last-child {
+      border-bottom: none;
+    }
+
+    .trending-category {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .trending-topic {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .trending-posts {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Search */
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      margin-bottom: 24px;
+    }
+
+    .search-box:focus-within {
+      border-color: var(--primary);
+    }
+
+    .search-icon {
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Left Sidebar -->
+    <div class="left-sidebar">
+      <div class="sidebar-header">
+        <div class="logo">PeerLoop</div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-item active">
+          <span class="nav-icon">🏠</span>
+          <span class="nav-label">Home</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">🔍</span>
+          <span class="nav-label">Explore</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">🔔</span>
+          <span class="nav-label">Notifications</span>
+          <span class="nav-badge">3</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">💬</span>
+          <span class="nav-label">Messages</span>
+          <span class="nav-badge">2</span>
+        </div>
+        <div class="nav-divider"></div>
+        <div class="nav-item">
+          <span class="nav-icon">📚</span>
+          <span class="nav-label">My Learning</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">🎓</span>
+          <span class="nav-label">Teaching</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">📅</span>
+          <span class="nav-label">Schedule</span>
+        </div>
+      </div>
+
+      <div class="creators-section">
+        <div class="creators-title">My Creators</div>
+        <div class="creator-nav-item active">
+          <img src="https://i.pravatar.cc/36?img=32" class="creator-nav-avatar" />
+          <div class="creator-nav-info">
+            <div class="creator-nav-name">Jane Doe</div>
+            <div class="creator-nav-course">AI for Product Managers</div>
+          </div>
+          <div class="creator-nav-unread"></div>
+        </div>
+        <div class="creator-nav-item">
+          <img src="https://i.pravatar.cc/36?img=52" class="creator-nav-avatar" />
+          <div class="creator-nav-info">
+            <div class="creator-nav-name">James Wilson</div>
+            <div class="creator-nav-course">Full-Stack Web Dev</div>
+          </div>
+        </div>
+        <div class="creator-nav-item">
+          <img src="https://i.pravatar.cc/36?img=47" class="creator-nav-avatar" />
+          <div class="creator-nav-info">
+            <div class="creator-nav-name">Prof. Maria</div>
+            <div class="creator-nav-course">Data Science</div>
+          </div>
+        </div>
+        <div class="creator-nav-item">
+          <img src="https://i.pravatar.cc/36?img=68" class="creator-nav-avatar" />
+          <div class="creator-nav-info">
+            <div class="creator-nav-name">Einstein</div>
+            <div class="creator-nav-course">Cloud Architecture</div>
+          </div>
+        </div>
+        <div class="browse-creators">
+          <div class="browse-creators-icon">+</div>
+          <span>Browse Creators</span>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="user-avatar">AS</div>
+          <div class="user-info">
+            <div class="user-name">Alex Sanders</div>
+            <div class="user-handle">@alexsanders</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content - Feed -->
+    <div class="main-content">
+      <div class="feed-header">
+        <div class="feed-title">Home</div>
+        <div class="feed-filter">
+          <button class="filter-btn active">For You</button>
+          <button class="filter-btn">Following</button>
+          <button class="filter-btn">Latest</button>
+        </div>
+      </div>
+
+      <div class="compose-area">
+        <div class="compose-avatar">AS</div>
+        <div class="compose-input-wrapper">
+          <textarea class="compose-input" placeholder="Share what you're learning..." rows="2"></textarea>
+          <div class="compose-actions">
+            <div class="compose-tools">
+              <button class="compose-tool">📷</button>
+              <button class="compose-tool">🎬</button>
+              <button class="compose-tool">📊</button>
+              <button class="compose-tool">🔗</button>
+            </div>
+            <button class="compose-post-btn">Post</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="feed-content">
+        <!-- Creator Post with Learning Content -->
+        <div class="post">
+          <div class="post-header">
+            <img src="https://i.pravatar.cc/44?img=32" class="post-avatar" />
+            <div class="post-meta">
+              <div class="post-author-line">
+                <span class="post-author">Jane Doe</span>
+                <span class="post-badge creator">Creator</span>
+                <span class="post-handle">· 2h</span>
+              </div>
+              <div class="post-context">
+                in <span class="post-context-link">AI for Product Managers</span>
+              </div>
+            </div>
+          </div>
+          <div class="post-content">
+            Quick tip: When presenting AI capabilities to stakeholders, always start with the business problem, not the technology. They care about outcomes, not algorithms.
+
+            Here's a free mini-lesson on stakeholder communication 👇
+          </div>
+          <div class="learning-embed">
+            <div class="learning-embed-header">
+              <span class="learning-embed-icon">🎓</span>
+              <span class="learning-embed-label">Free Lesson</span>
+            </div>
+            <div class="learning-embed-body">
+              <div class="learning-embed-title">Communicating AI to Non-Technical Stakeholders</div>
+              <div class="learning-embed-desc">5 min video · From Module 3 of AI for Product Managers</div>
+              <div class="learning-embed-cta">▶️ Watch Free</div>
+            </div>
+          </div>
+          <div class="post-actions">
+            <button class="post-action like">❤️ 234</button>
+            <button class="post-action comment">💬 45</button>
+            <button class="post-action share">↗️ Share</button>
+            <button class="post-action bookmark">🔖</button>
+          </div>
+        </div>
+
+        <!-- Student Success Story -->
+        <div class="post">
+          <div class="post-header">
+            <img src="https://i.pravatar.cc/44?img=49" class="post-avatar" />
+            <div class="post-meta">
+              <div class="post-author-line">
+                <span class="post-author">FullStackFiona</span>
+                <span class="post-badge student-teacher">Student-Teacher</span>
+                <span class="post-handle">· 4h</span>
+              </div>
+              <div class="post-context">
+                in <span class="post-context-link">Full-Stack Web Development</span>
+              </div>
+            </div>
+          </div>
+          <div class="post-content">
+            8 weeks ago I couldn't write a line of JavaScript. Today I deployed my first full-stack app AND taught my first paid session! 🚀
+
+            <span class="mention">@JamesWilson</span>'s course changed everything. The learn-then-teach model actually works.
+
+            <span class="hashtag">#LearnTeachEarn</span> <span class="hashtag">#PeerLoop</span>
+          </div>
+          <div class="post-actions">
+            <button class="post-action like">❤️ 892</button>
+            <button class="post-action comment">💬 127</button>
+            <button class="post-action share">↗️ Share</button>
+            <button class="post-action bookmark">🔖</button>
+          </div>
+        </div>
+
+        <!-- Creator Video Post -->
+        <div class="post">
+          <div class="post-header">
+            <img src="https://i.pravatar.cc/44?img=52" class="post-avatar" />
+            <div class="post-meta">
+              <div class="post-author-line">
+                <span class="post-author">James Wilson</span>
+                <span class="post-badge creator">Creator</span>
+                <span class="post-handle">· 6h</span>
+              </div>
+              <div class="post-context">
+                in <span class="post-context-link">Full-Stack Web Development</span>
+              </div>
+            </div>
+          </div>
+          <div class="post-content">
+            New module just dropped: Complete Authentication with OAuth, JWT, and Session Management.
+
+            Here's a 3-min preview showing how to implement Google OAuth in Next.js 👇
+          </div>
+          <div class="media-embed">
+            <img src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=600&h=340&fit=crop" />
+            <div class="media-play-btn">▶️</div>
+            <div class="media-duration">3:24</div>
+          </div>
+          <div class="post-actions">
+            <button class="post-action like">❤️ 567</button>
+            <button class="post-action comment">💬 89</button>
+            <button class="post-action share">↗️ Share</button>
+            <button class="post-action bookmark">🔖</button>
+          </div>
+        </div>
+
+        <!-- Community Question -->
+        <div class="post">
+          <div class="post-header">
+            <img src="https://i.pravatar.cc/44?img=17" class="post-avatar" />
+            <div class="post-meta">
+              <div class="post-author-line">
+                <span class="post-author">ReactRookie_Max</span>
+                <span class="post-handle">@reactmax · 1h</span>
+              </div>
+              <div class="post-context">
+                in <span class="post-context-link">Full-Stack Web Development</span>
+              </div>
+            </div>
+          </div>
+          <div class="post-content">
+            Quick poll for fellow learners: What's your biggest struggle with React right now?
+          </div>
+          <div class="poll-embed">
+            <div class="poll-question">What's your biggest React struggle?</div>
+            <div class="poll-option">
+              <div class="poll-option-radio"></div>
+              <span class="poll-option-text">State management</span>
+              <span class="poll-option-percent">42%</span>
+            </div>
+            <div class="poll-option">
+              <div class="poll-option-radio"></div>
+              <span class="poll-option-text">useEffect & side effects</span>
+              <span class="poll-option-percent">31%</span>
+            </div>
+            <div class="poll-option">
+              <div class="poll-option-radio"></div>
+              <span class="poll-option-text">Component architecture</span>
+              <span class="poll-option-percent">18%</span>
+            </div>
+            <div class="poll-option">
+              <div class="poll-option-radio"></div>
+              <span class="poll-option-text">Testing</span>
+              <span class="poll-option-percent">9%</span>
+            </div>
+          </div>
+          <div class="post-actions">
+            <button class="post-action like">❤️ 45</button>
+            <button class="post-action comment">💬 23</button>
+            <button class="post-action share">↗️ Share</button>
+            <button class="post-action bookmark">🔖</button>
+          </div>
+        </div>
+
+        <!-- Creator Course Promo -->
+        <div class="post">
+          <div class="post-header">
+            <img src="https://i.pravatar.cc/44?img=47" class="post-avatar" />
+            <div class="post-meta">
+              <div class="post-author-line">
+                <span class="post-author">Prof. Maria Rodriguez</span>
+                <span class="post-badge creator">Creator</span>
+                <span class="post-handle">· 8h</span>
+              </div>
+            </div>
+          </div>
+          <div class="post-content">
+            Data Science Fundamentals just hit 1,500 students! 🎉
+
+            To celebrate, I'm offering 20% off for the next 48 hours. If you've been on the fence, now's the time.
+
+            The best part? 47 of our students are now certified Student-Teachers earning while they learn.
+          </div>
+          <div class="learning-embed">
+            <div class="learning-embed-header">
+              <span class="learning-embed-icon">📊</span>
+              <span class="learning-embed-label">Course</span>
+            </div>
+            <div class="learning-embed-body">
+              <div class="learning-embed-title">Data Science Fundamentals</div>
+              <div class="learning-embed-desc">16 modules · 1,500+ students · 4.8 rating</div>
+              <div class="learning-embed-cta">View Course →</div>
+            </div>
+          </div>
+          <div class="post-actions">
+            <button class="post-action like">❤️ 1.2K</button>
+            <button class="post-action comment">💬 156</button>
+            <button class="post-action share">↗️ Share</button>
+            <button class="post-action bookmark">🔖</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="right-sidebar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" placeholder="Search PeerLoop" />
+      </div>
+
+      <!-- Your Journey -->
+      <div class="journey-mini">
+        <div class="journey-mini-title">Your Journey</div>
+        <div class="journey-mini-steps">
+          <div class="journey-mini-step completed">
+            <div class="journey-mini-icon">📚</div>
+            <div class="journey-mini-label">Learn</div>
+          </div>
+          <div class="journey-mini-step current">
+            <div class="journey-mini-icon">🎯</div>
+            <div class="journey-mini-label">Certify</div>
+          </div>
+          <div class="journey-mini-step">
+            <div class="journey-mini-icon">🎓</div>
+            <div class="journey-mini-label">Teach</div>
+          </div>
+          <div class="journey-mini-step">
+            <div class="journey-mini-icon">💰</div>
+            <div class="journey-mini-label">Earn</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Continue Learning -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Continue Learning</div>
+        <div class="course-mini">
+          <div class="course-mini-thumb"></div>
+          <div class="course-mini-info">
+            <div class="course-mini-title">AI for Product Managers</div>
+            <div class="course-mini-progress">
+              <div class="course-mini-bar">
+                <div class="course-mini-fill" style="width: 65%"></div>
+              </div>
+              <span class="course-mini-percent">65%</span>
+            </div>
+          </div>
+        </div>
+        <div class="course-mini">
+          <div class="course-mini-thumb" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
+          <div class="course-mini-info">
+            <div class="course-mini-title">Data Science Fundamentals</div>
+            <div class="course-mini-progress">
+              <div class="course-mini-bar">
+                <div class="course-mini-fill" style="width: 30%"></div>
+              </div>
+              <span class="course-mini-percent">30%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming Sessions -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Upcoming</div>
+        <div class="session-mini">
+          <div class="session-mini-time">Today · 3:00 PM</div>
+          <div class="session-mini-title">AI for Product Managers</div>
+          <div class="session-mini-with">1-on-1 with Sarah</div>
+        </div>
+        <div class="session-mini teaching">
+          <div class="session-mini-time">Tomorrow · 10:00 AM</div>
+          <div class="session-mini-title">Teaching: Web Dev</div>
+          <div class="session-mini-with">Group · 3 students</div>
+        </div>
+      </div>
+
+      <!-- Trending -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Trending</div>
+        <div class="trending-item">
+          <div class="trending-category">AI & Machine Learning</div>
+          <div class="trending-topic">#PromptEngineering</div>
+          <div class="trending-posts">2,456 posts</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-category">Career</div>
+          <div class="trending-topic">#LearnTeachEarn</div>
+          <div class="trending-posts">1,823 posts</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-category">Web Development</div>
+          <div class="trending-topic">#NextJS14</div>
+          <div class="trending-posts">987 posts</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PeerLoop Community - Desktop with Left Sidebar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #818cf8;
+      --secondary: #10b981;
+      --accent: #f59e0b;
+      --danger: #ef4444;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+    }
+
+    .dark {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: #334155;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    /* Main Layout - 3 Column */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Left Sidebar */
+    .sidebar {
+      width: 260px;
+      background: var(--bg-primary);
+      border-right: 1px solid var(--border);
+      padding: 20px 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 32px;
+      padding-left: 12px;
+    }
+
+    .nav-menu {
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 16px;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 4px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .nav-item:hover {
+      background: var(--bg-secondary);
+    }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .nav-item .icon {
+      font-size: 20px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .nav-item .badge {
+      margin-left: auto;
+      background: var(--danger);
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* User Profile in Sidebar */
+    .sidebar-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: auto;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
+
+    .sidebar-profile:hover {
+      background: var(--bg-secondary);
+    }
+
+    .sidebar-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .sidebar-user-info {
+      flex: 1;
+    }
+
+    .sidebar-user-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .sidebar-user-handle {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .sidebar-more {
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      max-width: 600px;
+      background: var(--bg-primary);
+      border-right: 1px solid var(--border);
+    }
+
+    /* Right Sidebar */
+    .right-sidebar {
+      width: 320px;
+      padding: 20px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    /* Header */
+    .content-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg-primary);
+      z-index: 10;
+    }
+
+    .content-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    /* Stories-style creator row */
+    .creators-section {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .creators-row {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .creators-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .creator-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      min-width: 68px;
+    }
+
+    .creator-avatar-ring {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      padding: 3px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      margin-bottom: 6px;
+      transition: all 0.2s;
+    }
+
+    .creator-item:hover .creator-avatar-ring {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .creator-item.active .creator-avatar-ring {
+      background: linear-gradient(135deg, var(--secondary) 0%, #34d399 100%);
+    }
+
+    .creator-avatar-ring.town-hall {
+      background: linear-gradient(135deg, var(--accent) 0%, #fbbf24 100%);
+    }
+
+    .creator-avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      background: var(--bg-primary);
+      padding: 2px;
+    }
+
+    .creator-avatar-placeholder {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .creator-name {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-align: center;
+      max-width: 68px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .creator-item.active .creator-name {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Tab bar */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-item {
+      flex: 1;
+      padding: 14px 16px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab-item.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .tab-item:hover:not(.active) {
+      background: var(--bg-secondary);
+    }
+
+    /* Compose Box */
+    .compose-box {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+    }
+
+    .compose-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .compose-input-area {
+      flex: 1;
+    }
+
+    .compose-input {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 18px;
+      color: var(--text-primary);
+      background: transparent;
+      resize: none;
+      min-height: 50px;
+      font-family: inherit;
+    }
+
+    .compose-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .compose-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .compose-tools {
+      display: flex;
+      gap: 4px;
+    }
+
+    .compose-tool {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: all 0.2s;
+    }
+
+    .compose-tool:hover {
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .compose-btn {
+      padding: 10px 24px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-xl);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .compose-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    /* Feed */
+    .feed {
+      /* No padding needed */
+    }
+
+    /* Post Card */
+    .post-card {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+
+    .post-card:hover {
+      background: var(--bg-secondary);
+    }
+
+    .post-header {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .post-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .post-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .post-author-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .post-author {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .post-handle {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .post-time {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .post-community-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: var(--radius-xl);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--primary);
+      margin-top: 4px;
+    }
+
+    .post-content {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .post-content .hashtag {
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .post-content .mention {
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .post-actions {
+      display: flex;
+      justify-content: space-between;
+      max-width: 400px;
+    }
+
+    .post-action {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: var(--radius-xl);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+    }
+
+    .post-action:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .post-action.like:hover {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .post-action.comment:hover {
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .post-action.share:hover {
+      color: var(--secondary);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .post-action.bookmark:hover {
+      color: var(--accent);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    /* Pinned Post */
+    .post-card.pinned {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(99, 102, 241, 0.01) 100%);
+      border-left: 3px solid var(--primary);
+    }
+
+    .pinned-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Right Sidebar Cards */
+    .sidebar-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .sidebar-card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    /* Search Box */
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-xl);
+      padding: 12px 16px;
+      margin-bottom: 16px;
+    }
+
+    .search-icon {
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    .search-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Trending */
+    .trending-item {
+      padding: 12px 0;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .trending-item:hover {
+      opacity: 0.8;
+    }
+
+    .trending-category {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .trending-topic {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .trending-posts {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Suggested Follows */
+    .suggested-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+    }
+
+    .suggested-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .suggested-info {
+      flex: 1;
+    }
+
+    .suggested-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .suggested-handle {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .follow-btn {
+      padding: 8px 16px;
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: var(--radius-xl);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .follow-btn:hover {
+      opacity: 0.9;
+    }
+
+    /* Show More Link */
+    .show-more {
+      color: var(--primary);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 12px 0;
+      display: block;
+    }
+
+    .show-more:hover {
+      text-decoration: underline;
+    }
+
+    /* Footer Links */
+    .footer-links {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-right: 8px;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    /* Dark mode toggle */
+    .dark-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    /* New Post Button in Sidebar */
+    .new-post-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-xl);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 24px;
+      transition: all 0.2s;
+    }
+
+    .new-post-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="dark-toggle" onclick="document.body.classList.toggle('dark');">
+    🌓
+  </div>
+
+  <div class="app-layout" id="appLayout">
+    <!-- Left Sidebar -->
+    <div class="sidebar">
+      <div class="logo">PeerLoop</div>
+
+      <button class="new-post-btn">+ New Post</button>
+
+      <nav class="nav-menu">
+        <div class="nav-item active">
+          <span class="icon">👥</span>
+          <span>Community</span>
+        </div>
+        <div class="nav-item">
+          <span class="icon">🔍</span>
+          <span>Browse</span>
+        </div>
+        <div class="nav-item">
+          <span class="icon">🔔</span>
+          <span>Notifications</span>
+          <span class="badge">3</span>
+        </div>
+        <div class="nav-item">
+          <span class="icon">📊</span>
+          <span>Dashboard</span>
+        </div>
+        <div class="nav-item">
+          <span class="icon">💬</span>
+          <span>Messages</span>
+          <span class="badge">2</span>
+        </div>
+        <div class="nav-item">
+          <span class="icon">🔖</span>
+          <span>Bookmarks</span>
+        </div>
+        <div class="nav-item">
+          <span class="icon">👤</span>
+          <span>Profile</span>
+        </div>
+        <div class="nav-item">
+          <span class="icon">⚙️</span>
+          <span>Settings</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-profile">
+        <div class="sidebar-avatar">AS</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Alex Sanders</div>
+          <div class="sidebar-user-handle">@alexsanders</div>
+        </div>
+        <span class="sidebar-more">•••</span>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-header">
+        <div class="content-title">Community</div>
+      </div>
+
+      <!-- Creators Row -->
+      <div class="creators-section">
+        <div class="creators-row">
+          <div class="creator-item active" onclick="showTownHall()">
+            <div class="creator-avatar-ring town-hall">
+              <div class="creator-avatar-placeholder">🏛️</div>
+            </div>
+            <span class="creator-name">Town Hall</span>
+          </div>
+          <div class="creator-item" onclick="showCreatorProfile('einstein')">
+            <div class="creator-avatar-ring">
+              <img src="https://i.pravatar.cc/120?img=68" class="creator-avatar" />
+            </div>
+            <span class="creator-name">Einstein</span>
+          </div>
+          <div class="creator-item" onclick="showCreatorProfile('jane')">
+            <div class="creator-avatar-ring">
+              <img src="https://i.pravatar.cc/120?img=32" class="creator-avatar" />
+            </div>
+            <span class="creator-name">Jane Doe</span>
+          </div>
+          <div class="creator-item" onclick="showCreatorProfile('maria')">
+            <div class="creator-avatar-ring">
+              <img src="https://i.pravatar.cc/120?img=47" class="creator-avatar" />
+            </div>
+            <span class="creator-name">Prof. Maria</span>
+          </div>
+          <div class="creator-item" onclick="showCreatorProfile('james')">
+            <div class="creator-avatar-ring">
+              <img src="https://i.pravatar.cc/120?img=52" class="creator-avatar" />
+            </div>
+            <span class="creator-name">James W.</span>
+          </div>
+          <div class="creator-item" onclick="showCreatorProfile('priya')">
+            <div class="creator-avatar-ring">
+              <img src="https://i.pravatar.cc/120?img=35" class="creator-avatar" />
+            </div>
+            <span class="creator-name">Dr. Priya</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <div class="tab-item active">For You</div>
+        <div class="tab-item">Following</div>
+        <div class="tab-item">Latest</div>
+      </div>
+
+      <!-- Compose Box -->
+      <div class="compose-box">
+        <div class="compose-avatar">AS</div>
+        <div class="compose-input-area">
+          <textarea class="compose-input" placeholder="What's happening in your learning journey?" rows="2"></textarea>
+          <div class="compose-actions">
+            <div class="compose-tools">
+              <button class="compose-tool">📷</button>
+              <button class="compose-tool">🎬</button>
+              <button class="compose-tool">🔗</button>
+              <button class="compose-tool">📊</button>
+            </div>
+            <button class="compose-btn">Post</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feed -->
+      <div class="feed">
+        <!-- Pinned Post -->
+        <div class="post-card pinned">
+          <div class="pinned-badge">📌 Pinned</div>
+          <div class="post-header">
+            <img src="https://images.unsplash.com/photo-1555921015-5532091f6026?w=100&h=100&fit=crop" class="post-avatar" />
+            <div class="post-meta">
+              <div class="post-author-row">
+                <span class="post-author">PeerLoop Team</span>
+                <span class="post-handle">@peerloop</span>
+                <span class="post-time">· 2d</span>
+              </div>
+              <div class="post-community-badge">🏛️ Town Hall</div>
+            </div>
+          </div>
+          <div class="post-content">
+            Welcome to PeerLoop Community! This is your space to connect with fellow learners, share wins, ask questions, and grow together.
+            <br><br>
+            🎓 <span class="hashtag">#LearnTeachEarn</span> - Our community motto
+            <br>
+            💬 Be supportive, be curious, be awesome!
+          </div>
+          <div class="post-actions">
+            <button class="post-action like">❤️ 1.2K</button>
+            <button class="post-action comment">💬 89</button>
+            <button class="post-action share">↗️ Share</button>
+            <button class="post-action bookmark">🔖</button>
+          </div>
+        </div>
+
+        <!-- Regular Post -->
+        <div class="post-card">
+          <div class="post-header">
+            <img src="https://i.pravatar.cc/48?img=49" class="post-avatar" />
+            <div class="post-meta">
+              <div class="post-author-row">
+                <span class="post-author">FullStackFiona</span>
+                <span class="post-handle">@fullstackfiona</span>
+                <span class="post-time">· 3h</span>
+              </div>
+              <div class="post-community-badge">💻 Full-Stack Web Dev</div>
+            </div>
+          </div>
+          <div class="post-content">
+            Just deployed my first React + Node app! 🚀 From knowing zero JavaScript 8 weeks ago to this. <span class="mention">@JamesWilson</span>'s course is incredible.
+            <br><br>
+            <span class="hashtag">#100DaysOfCode</span> <span class="hashtag">#PeerLoop</span>
+          </div>
+          <div class="post-actions">
+            <button class="post-action like">❤️ 234</button>
+            <button class="post-action comment">💬 45</button>
+            <button class="post-action share">↗️ Share</button>
+            <button class="post-action bookmark">🔖</button>
+          </div>
+        </div>
+
+        <!-- Another Post -->
+        <div class="post-card">
+          <div class="post-header">
+            <img src="https://i.pravatar.cc/48?img=33" class="post-avatar" />
+            <div class="post-meta">
+              <div class="post-author-row">
+                <span class="post-author">NLPMastermind</span>
+                <span class="post-handle">@nlpmastermind</span>
+                <span class="post-time">· 5h</span>
+              </div>
+              <div class="post-community-badge">🤖 NLP Course</div>
+            </div>
+          </div>
+          <div class="post-content">
+            Built a sentiment analysis tool after completing <span class="mention">@JaneDoe</span>'s NLP course! Already using it to analyze customer feedback at work.
+            <br><br>
+            Best investment I've made in my career. Now preparing to become a Student-Teacher myself! 🎓
+          </div>
+          <div class="post-actions">
+            <button class="post-action like">❤️ 567</button>
+            <button class="post-action comment">💬 78</button>
+            <button class="post-action share">↗️ Share</button>
+            <button class="post-action bookmark">🔖</button>
+          </div>
+        </div>
+
+        <!-- Question Post -->
+        <div class="post-card">
+          <div class="post-header">
+            <img src="https://i.pravatar.cc/48?img=17" class="post-avatar" />
+            <div class="post-meta">
+              <div class="post-author-row">
+                <span class="post-author">ReactRookie_Max</span>
+                <span class="post-handle">@reactmax</span>
+                <span class="post-time">· 1h</span>
+              </div>
+              <div class="post-community-badge">💻 Full-Stack Web Dev</div>
+            </div>
+          </div>
+          <div class="post-content">
+            Quick question for the community: useState vs useReducer for complex form state?
+            <br><br>
+            I'm building a multi-step checkout and not sure which approach scales better. Any advice? 🤔
+          </div>
+          <div class="post-actions">
+            <button class="post-action like">❤️ 45</button>
+            <button class="post-action comment">💬 23</button>
+            <button class="post-action share">↗️ Share</button>
+            <button class="post-action bookmark">🔖</button>
+          </div>
+        </div>
+
+        <!-- Success Story -->
+        <div class="post-card">
+          <div class="post-header">
+            <img src="https://i.pravatar.cc/48?img=42" class="post-avatar" />
+            <div class="post-meta">
+              <div class="post-author-row">
+                <span class="post-author">AnalyticsAce</span>
+                <span class="post-handle">@analyticsace</span>
+                <span class="post-time">· 2d</span>
+              </div>
+              <div class="post-community-badge">📊 Data Science</div>
+            </div>
+          </div>
+          <div class="post-content">
+            🎉 Became a certified Student-Teacher for Data Science Fundamentals!
+            <br><br>
+            Made $350 in my first week teaching. PeerLoop's model is revolutionary - learn, certify, teach, earn. The flywheel is real!
+            <br><br>
+            <span class="hashtag">#StudentTeacher</span> <span class="hashtag">#LearnTeachEarn</span>
+          </div>
+          <div class="post-actions">
+            <button class="post-action like">❤️ 1.1K</button>
+            <button class="post-action comment">💬 156</button>
+            <button class="post-action share">↗️ Share</button>
+            <button class="post-action bookmark">🔖</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="right-sidebar">
+      <!-- Search -->
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" placeholder="Search PeerLoop" />
+      </div>
+
+      <!-- Trending -->
+      <div class="sidebar-card">
+        <div class="sidebar-card-title">Trending in Learning</div>
+        <div class="trending-item">
+          <div class="trending-category">AI & Machine Learning</div>
+          <div class="trending-topic">#PromptEngineering</div>
+          <div class="trending-posts">2,456 posts</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-category">Web Development</div>
+          <div class="trending-topic">#ReactHooks</div>
+          <div class="trending-posts">1,823 posts</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-category">Data Science</div>
+          <div class="trending-topic">#PandasTips</div>
+          <div class="trending-posts">1,204 posts</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-category">Career</div>
+          <div class="trending-topic">#StudentTeacher</div>
+          <div class="trending-posts">987 posts</div>
+        </div>
+        <a class="show-more">Show more</a>
+      </div>
+
+      <!-- Who to Follow -->
+      <div class="sidebar-card">
+        <div class="sidebar-card-title">Who to follow</div>
+        <div class="suggested-item">
+          <img src="https://i.pravatar.cc/44?img=32" class="suggested-avatar" />
+          <div class="suggested-info">
+            <div class="suggested-name">Jane Doe</div>
+            <div class="suggested-handle">@janedoe · AI Instructor</div>
+          </div>
+          <button class="follow-btn">Follow</button>
+        </div>
+        <div class="suggested-item">
+          <img src="https://i.pravatar.cc/44?img=12" class="suggested-avatar" />
+          <div class="suggested-info">
+            <div class="suggested-name">Mike Chen</div>
+            <div class="suggested-handle">@mikechen · Python learner</div>
+          </div>
+          <button class="follow-btn">Follow</button>
+        </div>
+        <div class="suggested-item">
+          <img src="https://i.pravatar.cc/44?img=25" class="suggested-avatar" />
+          <div class="suggested-info">
+            <div class="suggested-name">Sarah Kim</div>
+            <div class="suggested-handle">@sarahkim · Data Analyst</div>
+          </div>
+          <button class="follow-btn">Follow</button>
+        </div>
+        <a class="show-more">Show more</a>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer-links">
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Cookie Policy</a>
+        <a href="#">Accessibility</a>
+        <a href="#">Ads info</a>
+        <a href="#">More</a>
+        <br>
+        © 2025 PeerLoop
+      </div>
+    </div>
+  </div>
+
+  <!-- Creator Profile View (Hidden by default) - Now inline -->
+  <div class="creator-profile-inline" id="creatorProfileInline" style="display: none;">
+      <div class="profile-header-banner" id="profileBanner"></div>
+      <div class="profile-header-content">
+        <div class="profile-avatar-container">
+          <img id="profileAvatar" class="profile-avatar-large" src="" alt="" />
+        </div>
+        <button class="profile-follow-btn" id="profileFollowBtn">Follow</button>
+      </div>
+      <div class="profile-info">
+        <h1 class="profile-name" id="profileName"></h1>
+        <p class="profile-handle" id="profileHandle"></p>
+        <p class="profile-bio" id="profileBio"></p>
+        <div class="profile-stats">
+          <span class="profile-stat"><strong id="profileStudents">0</strong> students</span>
+          <span class="profile-stat"><strong id="profileCourses">0</strong> courses</span>
+          <span class="profile-stat"><strong id="profileRating">0</strong> rating</span>
+        </div>
+      </div>
+
+      <!-- Courses Section -->
+      <div class="profile-section">
+        <h3 class="profile-section-title">Courses</h3>
+        <div class="profile-courses" id="profileCourses"></div>
+      </div>
+
+      <!-- Posts Section -->
+      <div class="profile-section">
+        <h3 class="profile-section-title">Recent Posts</h3>
+        <div class="profile-posts" id="profilePosts"></div>
+      </div>
+
+      <button class="profile-close-btn" onclick="closeCreatorProfile()">← Back to Town Hall</button>
+  </div>
+
+  <style>
+    /* Creator Profile Inline - replaces feed content */
+    .creator-profile-inline {
+      /* Will be inserted into main-content */
+    }
+
+    .profile-header-banner {
+      height: 180px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    }
+
+    .profile-header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 0 20px;
+      margin-top: -50px;
+    }
+
+    .profile-avatar-container {
+      position: relative;
+    }
+
+    .profile-avatar-large {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid var(--bg-primary);
+      object-fit: cover;
+    }
+
+    .profile-follow-btn {
+      margin-top: 60px;
+      padding: 10px 24px;
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: var(--radius-xl);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .profile-follow-btn:hover {
+      opacity: 0.9;
+    }
+
+    .profile-follow-btn.following {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+
+    .profile-info {
+      padding: 16px 20px;
+    }
+
+    .profile-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .profile-handle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .profile-bio {
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    .profile-stats {
+      display: flex;
+      gap: 20px;
+    }
+
+    .profile-stat {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .profile-stat strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .profile-section {
+      padding: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .profile-section-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    /* Course Cards in Profile */
+    .profile-course-card {
+      display: flex;
+      gap: 12px;
+      padding: 14px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .profile-course-card:hover {
+      background: var(--bg-tertiary);
+      transform: translateX(4px);
+    }
+
+    .profile-course-thumb {
+      width: 80px;
+      height: 60px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      background: var(--bg-tertiary);
+    }
+
+    .profile-course-info {
+      flex: 1;
+    }
+
+    .profile-course-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .profile-course-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .profile-course-price {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+
+    /* Posts in Profile */
+    .profile-post {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .profile-post:last-child {
+      border-bottom: none;
+    }
+
+    .profile-post-content {
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .profile-post-time {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .profile-close-btn {
+      display: block;
+      width: calc(100% - 40px);
+      margin: 20px;
+      padding: 12px 24px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .profile-close-btn:hover {
+      background: var(--bg-tertiary);
+    }
+
+    /* Active creator indicator */
+    .creator-item.active .creator-avatar-ring {
+      box-shadow: 0 0 0 3px var(--bg-primary), 0 0 0 5px var(--secondary);
+    }
+  </style>
+
+  <script>
+    // Move creator profile into main content on load
+    document.addEventListener('DOMContentLoaded', function() {
+      const mainContent = document.querySelector('.main-content');
+      const profileInline = document.getElementById('creatorProfileInline');
+      mainContent.appendChild(profileInline);
+    });
+
+    // Creator data
+    const creators = {
+      einstein: {
+        name: 'Albert Einstein',
+        handle: '@alberteinstein',
+        avatar: 'https://i.pravatar.cc/120?img=68',
+        banner: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        bio: 'Making backend development and cloud architecture as simple as possible, but not simpler. AWS Certified, 10+ years building scalable systems.',
+        students: '2,340',
+        courses: '4',
+        rating: '4.9',
+        coursesList: [
+          { title: 'Node.js Masterclass', meta: '12 modules · 847 students', price: '$299' },
+          { title: 'Cloud Architecture with AWS', meta: '15 modules · 623 students', price: '$399' },
+          { title: 'Serverless Applications', meta: '8 modules · 412 students', price: '$249' }
+        ],
+        posts: [
+          { content: 'Office Hours this Thursday! I\'ll be answering questions about serverless architecture and when to use Lambda vs containers. Drop your questions below! 🎥', time: '4 hours ago' },
+          { content: 'Proud of this community! 47 of my students became certified Student-Teachers last month. You\'re not just learning—you\'re building the next generation of developers.', time: '1 day ago' }
+        ]
+      },
+      jane: {
+        name: 'Jane Doe',
+        handle: '@janedoe',
+        avatar: 'https://i.pravatar.cc/120?img=32',
+        banner: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        bio: 'AI educator making machine learning accessible to everyone. Former Google AI researcher. Passionate about NLP, Computer Vision, and helping PMs speak AI.',
+        students: '5,120',
+        courses: '6',
+        rating: '4.95',
+        coursesList: [
+          { title: 'AI for Product Managers', meta: '10 modules · 1,234 students', price: '$349' },
+          { title: 'Deep Learning Fundamentals', meta: '14 modules · 892 students', price: '$449' },
+          { title: 'Natural Language Processing', meta: '12 modules · 567 students', price: '$399' },
+          { title: 'Computer Vision with Python', meta: '11 modules · 445 students', price: '$379' }
+        ],
+        posts: [
+          { content: 'Big announcement: I\'m launching a new course on "AI Agents & Automation" next month! Early followers get 20% off. Stay tuned! 🚀', time: '3 hours ago' },
+          { content: 'Weekly AI News Roundup: GPT-5 rumors, new computer vision breakthroughs, and what it means for your career. What AI news caught your attention this week?', time: '8 hours ago' }
+        ]
+      },
+      maria: {
+        name: 'Prof. Maria Rodriguez',
+        handle: '@profmaria',
+        avatar: 'https://i.pravatar.cc/120?img=47',
+        banner: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        bio: 'Data Science professor turning complex analytics into actionable insights. 15+ years in academia and industry. SQL enthusiast, Tableau wizard. 📊',
+        students: '3,890',
+        courses: '3',
+        rating: '4.8',
+        coursesList: [
+          { title: 'Data Science Fundamentals', meta: '16 modules · 1,456 students', price: '$349' },
+          { title: 'Business Intelligence & Analytics', meta: '12 modules · 789 students', price: '$299' },
+          { title: 'SQL for Data Analysis', meta: '8 modules · 567 students', price: '$199' }
+        ],
+        posts: [
+          { content: 'Dashboard Challenge Results are in! 🏆 Congrats to @tableautom for the winning COVID vaccination tracker. Beautiful use of color and storytelling!', time: '6 hours ago' },
+          { content: 'New module dropped: "Advanced DAX Formulas" in the BI course. This was the most requested topic. Let me know what you think!', time: '1 day ago' }
+        ]
+      },
+      james: {
+        name: 'James Wilson',
+        handle: '@jameswilson',
+        avatar: 'https://i.pravatar.cc/120?img=52',
+        banner: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+        bio: 'Full-stack developer & DevOps engineer. Building and shipping software for 12 years. Kubernetes certified. I help you go from tutorial hell to production.',
+        students: '4,210',
+        courses: '5',
+        rating: '4.85',
+        coursesList: [
+          { title: 'Full-Stack Web Development', meta: '20 modules · 1,892 students', price: '$499' },
+          { title: 'DevOps & CI/CD Mastery', meta: '14 modules · 723 students', price: '$399' },
+          { title: 'Microservices Architecture', meta: '10 modules · 456 students', price: '$349' },
+          { title: 'Docker & Kubernetes', meta: '12 modules · 634 students', price: '$379' }
+        ],
+        posts: [
+          { content: 'Hot take: You don\'t need Kubernetes for your side project. Start with a simple VPS, add complexity only when you need it. Fight me in the comments. 😤', time: '2 hours ago' },
+          { content: 'Just shipped a major update to the Full-Stack course: Added a complete authentication module with OAuth, JWT, and session management. Enjoy!', time: '1 day ago' }
+        ]
+      },
+      priya: {
+        name: 'Dr. Priya Nair',
+        handle: '@drpriya',
+        avatar: 'https://i.pravatar.cc/120?img=35',
+        banner: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+        bio: 'Robotics & Medical AI researcher. PhD from MIT. Making cutting-edge AI accessible for healthcare professionals and robotics enthusiasts. 🤖🏥',
+        students: '1,890',
+        courses: '3',
+        rating: '4.9',
+        coursesList: [
+          { title: 'AI for Robotics', meta: '18 modules · 678 students', price: '$549' },
+          { title: 'Medical AI & Diagnostics', meta: '14 modules · 445 students', price: '$499' },
+          { title: 'Computer Vision for Healthcare', meta: '10 modules · 312 students', price: '$399' }
+        ],
+        posts: [
+          { content: 'Paper reading group starting next week! We\'re discussing "Attention Is All You Need" for understanding transformer architectures in medical imaging. Join us! 📚', time: '1 day ago' },
+          { content: 'The ethics discussion last week was incredible. As AI enters healthcare, we MUST prioritize patient safety and transparency. Proud of this thoughtful community. ❤️', time: '3 days ago' }
+        ]
+      }
+    };
+
+    function showCreatorProfile(creatorId) {
+      const creator = creators[creatorId];
+      if (!creator) return;
+
+      // Update profile content
+      document.getElementById('profileBanner').style.background = creator.banner;
+      document.getElementById('profileAvatar').src = creator.avatar;
+      document.getElementById('profileName').textContent = creator.name;
+      document.getElementById('profileHandle').textContent = creator.handle;
+      document.getElementById('profileBio').textContent = creator.bio;
+      document.getElementById('profileStudents').textContent = creator.students;
+      document.querySelector('.profile-stat:nth-child(2) strong').textContent = creator.courses;
+      document.querySelector('.profile-stat:nth-child(3) strong').textContent = creator.rating;
+
+      // Populate courses
+      const coursesContainer = document.querySelector('.profile-courses');
+      coursesContainer.innerHTML = creator.coursesList.map(course => `
+        <div class="profile-course-card">
+          <div class="profile-course-thumb"></div>
+          <div class="profile-course-info">
+            <div class="profile-course-title">${course.title}</div>
+            <div class="profile-course-meta">${course.meta}</div>
+          </div>
+          <div class="profile-course-price">${course.price}</div>
+        </div>
+      `).join('');
+
+      // Populate posts
+      const postsContainer = document.querySelector('.profile-posts');
+      postsContainer.innerHTML = creator.posts.map(post => `
+        <div class="profile-post">
+          <div class="profile-post-content">${post.content}</div>
+          <div class="profile-post-time">${post.time}</div>
+        </div>
+      `).join('');
+
+      // Hide feed content, show profile
+      document.querySelector('.tab-bar').style.display = 'none';
+      document.querySelector('.compose-box').style.display = 'none';
+      document.querySelector('.feed').style.display = 'none';
+      document.getElementById('creatorProfileInline').style.display = 'block';
+
+      // Update header title
+      document.querySelector('.content-title').textContent = creator.name + "'s Community";
+
+      // Update active state in creators row
+      document.querySelectorAll('.creator-item').forEach(item => item.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+    }
+
+    function showTownHall() {
+      closeCreatorProfile();
+      document.querySelectorAll('.creator-item').forEach(item => item.classList.remove('active'));
+      document.querySelector('.creator-item').classList.add('active');
+    }
+
+    function closeCreatorProfile() {
+      // Show feed content, hide profile
+      document.querySelector('.tab-bar').style.display = 'flex';
+      document.querySelector('.compose-box').style.display = 'flex';
+      document.querySelector('.feed').style.display = 'block';
+      document.getElementById('creatorProfileInline').style.display = 'none';
+
+      // Reset header title
+      document.querySelector('.content-title').textContent = 'Community';
+
+      // Reset active state to Town Hall
+      document.querySelectorAll('.creator-item').forEach(item => item.classList.remove('active'));
+      document.querySelector('.creator-item').classList.add('active');
+    }
+  </script>
+</body>
+</html>

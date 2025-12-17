@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PeerLoop Community - Design Refresh</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #818cf8;
+      --secondary: #10b981;
+      --accent: #f59e0b;
+      --danger: #ef4444;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+    }
+
+    .dark {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: #334155;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--bg-primary);
+      min-height: 100vh;
+    }
+
+    /* Header - Simplified */
+    .header {
+      padding: 16px 20px 12px;
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    /* Stories-style creator row */
+    .creators-row {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+
+    .creators-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .creator-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      min-width: 68px;
+    }
+
+    .creator-avatar-ring {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      padding: 3px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      margin-bottom: 6px;
+      transition: all 0.2s;
+    }
+
+    .creator-item:hover .creator-avatar-ring {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .creator-item.active .creator-avatar-ring {
+      background: linear-gradient(135deg, var(--secondary) 0%, #34d399 100%);
+    }
+
+    .creator-avatar-ring.town-hall {
+      background: linear-gradient(135deg, var(--accent) 0%, #fbbf24 100%);
+    }
+
+    .creator-avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      background: var(--bg-primary);
+      padding: 2px;
+    }
+
+    .creator-avatar-placeholder {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .creator-name {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-align: center;
+      max-width: 68px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .creator-item.active .creator-name {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Tab bar under creators */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-primary);
+    }
+
+    .tab-item {
+      flex: 1;
+      padding: 14px 16px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab-item.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .tab-item:hover:not(.active) {
+      background: var(--bg-secondary);
+    }
+
+    /* Compose Box */
+    .compose-box {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+    }
+
+    .compose-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .compose-input-area {
+      flex: 1;
+    }
+
+    .compose-input {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      color: var(--text-primary);
+      background: transparent;
+      resize: none;
+      min-height: 44px;
+      font-family: inherit;
+    }
+
+    .compose-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .compose-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .compose-tools {
+      display: flex;
+      gap: 4px;
+    }
+
+    .compose-tool {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .compose-tool:hover {
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .compose-btn {
+      padding: 8px 20px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-xl);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .compose-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .compose-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Feed */
+    .feed {
+      padding-bottom: 100px;
+    }
+
+    /* Post Card - Cleaner Design */
+    .post-card {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+
+    .post-card:hover {
+      background: var(--bg-secondary);
+    }
+
+    .post-header {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .post-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .post-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .post-author-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .post-author {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .post-handle {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .post-time {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .post-community-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: var(--radius-xl);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--primary);
+      margin-top: 4px;
+    }
+
+    .post-content {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .post-content .hashtag {
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .post-content .mention {
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* Post Actions - Simpler */
+    .post-actions {
+      display: flex;
+      justify-content: space-between;
+      max-width: 400px;
+    }
+
+    .post-action {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: var(--radius-xl);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+    }
+
+    .post-action:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .post-action.like:hover {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .post-action.comment:hover {
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .post-action.share:hover {
+      color: var(--secondary);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .post-action.bookmark:hover {
+      color: var(--accent);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    /* Pinned Post */
+    .post-card.pinned {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(99, 102, 241, 0.01) 100%);
+      border-left: 3px solid var(--primary);
+    }
+
+    .pinned-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Creator Header (when viewing a creator) */
+    .creator-header {
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0.02) 100%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .creator-header-content {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .creator-header-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--primary);
+    }
+
+    .creator-header-info {
+      flex: 1;
+    }
+
+    .creator-header-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .creator-header-handle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .creator-header-stats {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+    }
+
+    .creator-stat {
+      color: var(--text-secondary);
+    }
+
+    .creator-stat strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* Course Filter Pills */
+    .course-filters {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border);
+      scrollbar-width: none;
+    }
+
+    .course-filters::-webkit-scrollbar {
+      display: none;
+    }
+
+    .course-pill {
+      padding: 8px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .course-pill:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .course-pill.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    /* Bottom Nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: var(--bg-primary);
+      border-top: 1px solid var(--border);
+      padding: 8px 16px 24px;
+      display: flex;
+      justify-content: space-around;
+      z-index: 1000;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .nav-item.active {
+      color: var(--primary);
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 0 0 3px 3px;
+    }
+
+    .nav-item:not(.active) {
+      color: var(--text-muted);
+    }
+
+    .nav-icon {
+      font-size: 20px;
+    }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    /* Dark mode toggle */
+    .dark-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    /* Floating Action Button for new post */
+    .fab {
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      transition: all 0.2s;
+      z-index: 999;
+    }
+
+    .fab:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+
+    /* Suggested connections card */
+    .suggested-card {
+      margin: 16px 20px;
+      padding: 16px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+    }
+
+    .suggested-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .suggested-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+    }
+
+    .suggested-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .suggested-info {
+      flex: 1;
+    }
+
+    .suggested-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .suggested-course {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .follow-btn {
+      padding: 6px 16px;
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: var(--radius-xl);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .follow-btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="dark-toggle" onclick="document.body.classList.toggle('dark'); document.querySelector('.container').classList.toggle('dark');">
+    🌓
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-title">Community</div>
+
+      <!-- Stories-style creator row -->
+      <div class="creators-row">
+        <div class="creator-item active">
+          <div class="creator-avatar-ring town-hall">
+            <div class="creator-avatar-placeholder">🏛️</div>
+          </div>
+          <span class="creator-name">Town Hall</span>
+        </div>
+        <div class="creator-item">
+          <div class="creator-avatar-ring">
+            <img src="https://i.pravatar.cc/120?img=68" class="creator-avatar" />
+          </div>
+          <span class="creator-name">Einstein</span>
+        </div>
+        <div class="creator-item">
+          <div class="creator-avatar-ring">
+            <img src="https://i.pravatar.cc/120?img=32" class="creator-avatar" />
+          </div>
+          <span class="creator-name">Jane Doe</span>
+        </div>
+        <div class="creator-item">
+          <div class="creator-avatar-ring">
+            <img src="https://i.pravatar.cc/120?img=47" class="creator-avatar" />
+          </div>
+          <span class="creator-name">Prof. Maria</span>
+        </div>
+        <div class="creator-item">
+          <div class="creator-avatar-ring">
+            <img src="https://i.pravatar.cc/120?img=52" class="creator-avatar" />
+          </div>
+          <span class="creator-name">James W.</span>
+        </div>
+        <div class="creator-item">
+          <div class="creator-avatar-ring">
+            <img src="https://i.pravatar.cc/120?img=35" class="creator-avatar" />
+          </div>
+          <span class="creator-name">Dr. Priya</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab-item active">For You</div>
+      <div class="tab-item">Following</div>
+      <div class="tab-item">Latest</div>
+    </div>
+
+    <!-- Compose Box -->
+    <div class="compose-box">
+      <div class="compose-avatar">AS</div>
+      <div class="compose-input-area">
+        <textarea class="compose-input" placeholder="Share something with the community..." rows="1"></textarea>
+        <div class="compose-actions">
+          <div class="compose-tools">
+            <button class="compose-tool">📷</button>
+            <button class="compose-tool">🔗</button>
+            <button class="compose-tool">📎</button>
+          </div>
+          <button class="compose-btn" disabled>Post</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feed -->
+    <div class="feed">
+      <!-- Suggested Connections -->
+      <div class="suggested-card">
+        <div class="suggested-title">People learning with you</div>
+        <div class="suggested-item">
+          <img src="https://i.pravatar.cc/40?img=12" class="suggested-avatar" />
+          <div class="suggested-info">
+            <div class="suggested-name">Mike Chen</div>
+            <div class="suggested-course">Also taking Python Basics</div>
+          </div>
+          <button class="follow-btn">Follow</button>
+        </div>
+        <div class="suggested-item">
+          <img src="https://i.pravatar.cc/40?img=25" class="suggested-avatar" />
+          <div class="suggested-info">
+            <div class="suggested-name">Sarah Kim</div>
+            <div class="suggested-course">Completed Data Analysis</div>
+          </div>
+          <button class="follow-btn">Follow</button>
+        </div>
+      </div>
+
+      <!-- Pinned Post -->
+      <div class="post-card pinned">
+        <div class="pinned-badge">📌 Pinned</div>
+        <div class="post-header">
+          <img src="https://images.unsplash.com/photo-1555921015-5532091f6026?w=100&h=100&fit=crop" class="post-avatar" />
+          <div class="post-meta">
+            <div class="post-author-row">
+              <span class="post-author">PeerLoop Team</span>
+              <span class="post-handle">@peerloop</span>
+              <span class="post-time">· 2d</span>
+            </div>
+            <div class="post-community-badge">🏛️ Town Hall</div>
+          </div>
+        </div>
+        <div class="post-content">
+          Welcome to PeerLoop Community! This is your space to connect with fellow learners, share wins, ask questions, and grow together.
+          <br><br>
+          🎓 <span class="hashtag">#LearnTeachEarn</span> - Our community motto
+          <br>
+          💬 Be supportive, be curious, be awesome!
+        </div>
+        <div class="post-actions">
+          <button class="post-action like">❤️ 1.2K</button>
+          <button class="post-action comment">💬 89</button>
+          <button class="post-action share">↗️</button>
+          <button class="post-action bookmark">🔖</button>
+        </div>
+      </div>
+
+      <!-- Regular Post -->
+      <div class="post-card">
+        <div class="post-header">
+          <img src="https://i.pravatar.cc/40?img=49" class="post-avatar" />
+          <div class="post-meta">
+            <div class="post-author-row">
+              <span class="post-author">FullStackFiona</span>
+              <span class="post-handle">@fullstackfiona</span>
+              <span class="post-time">· 3h</span>
+            </div>
+            <div class="post-community-badge">💻 Full-Stack Web Dev</div>
+          </div>
+        </div>
+        <div class="post-content">
+          Just deployed my first React + Node app! 🚀 From knowing zero JavaScript 8 weeks ago to this. <span class="mention">@JamesWilson</span>'s course is incredible.
+          <br><br>
+          <span class="hashtag">#100DaysOfCode</span> <span class="hashtag">#PeerLoop</span>
+        </div>
+        <div class="post-actions">
+          <button class="post-action like">❤️ 234</button>
+          <button class="post-action comment">💬 45</button>
+          <button class="post-action share">↗️</button>
+          <button class="post-action bookmark">🔖</button>
+        </div>
+      </div>
+
+      <!-- Another Post -->
+      <div class="post-card">
+        <div class="post-header">
+          <img src="https://i.pravatar.cc/40?img=33" class="post-avatar" />
+          <div class="post-meta">
+            <div class="post-author-row">
+              <span class="post-author">NLPMastermind</span>
+              <span class="post-handle">@nlpmastermind</span>
+              <span class="post-time">· 5h</span>
+            </div>
+            <div class="post-community-badge">🤖 NLP Course</div>
+          </div>
+        </div>
+        <div class="post-content">
+          Built a sentiment analysis tool after completing <span class="mention">@JaneDoe</span>'s NLP course! Already using it to analyze customer feedback at work.
+          <br><br>
+          Best investment I've made in my career. Now preparing to become a Student-Teacher myself! 🎓
+        </div>
+        <div class="post-actions">
+          <button class="post-action like">❤️ 567</button>
+          <button class="post-action comment">💬 78</button>
+          <button class="post-action share">↗️</button>
+          <button class="post-action bookmark">🔖</button>
+        </div>
+      </div>
+
+      <!-- Question Post -->
+      <div class="post-card">
+        <div class="post-header">
+          <img src="https://i.pravatar.cc/40?img=17" class="post-avatar" />
+          <div class="post-meta">
+            <div class="post-author-row">
+              <span class="post-author">ReactRookie_Max</span>
+              <span class="post-handle">@reactmax</span>
+              <span class="post-time">· 1h</span>
+            </div>
+            <div class="post-community-badge">💻 Full-Stack Web Dev</div>
+          </div>
+        </div>
+        <div class="post-content">
+          Quick question for the community: useState vs useReducer for complex form state?
+          <br><br>
+          I'm building a multi-step checkout and not sure which approach scales better. Any advice? 🤔
+        </div>
+        <div class="post-actions">
+          <button class="post-action like">❤️ 45</button>
+          <button class="post-action comment">💬 23</button>
+          <button class="post-action share">↗️</button>
+          <button class="post-action bookmark">🔖</button>
+        </div>
+      </div>
+
+      <!-- Success Story -->
+      <div class="post-card">
+        <div class="post-header">
+          <img src="https://i.pravatar.cc/40?img=42" class="post-avatar" />
+          <div class="post-meta">
+            <div class="post-author-row">
+              <span class="post-author">AnalyticsAce</span>
+              <span class="post-handle">@analyticsace</span>
+              <span class="post-time">· 2d</span>
+            </div>
+            <div class="post-community-badge">📊 Data Science</div>
+          </div>
+        </div>
+        <div class="post-content">
+          🎉 Became a certified Student-Teacher for Data Science Fundamentals!
+          <br><br>
+          Made $350 in my first week teaching. PeerLoop's model is revolutionary - learn, certify, teach, earn. The flywheel is real!
+          <br><br>
+          <span class="hashtag">#StudentTeacher</span> <span class="hashtag">#LearnTeachEarn</span>
+        </div>
+        <div class="post-actions">
+          <button class="post-action like">❤️ 1.1K</button>
+          <button class="post-action comment">💬 156</button>
+          <button class="post-action share">↗️</button>
+          <button class="post-action bookmark">🔖</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAB for new post -->
+    <button class="fab">✏️</button>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="nav-item active">
+        <span class="nav-icon">👥</span>
+        <span class="nav-label">Community</span>
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">🔍</span>
+        <span class="nav-label">Browse</span>
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Dashboard</span>
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">💬</span>
+        <span class="nav-label">Messages</span>
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">👤</span>
+        <span class="nav-label">Profile</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
