@@ -78,8 +78,8 @@ const Sidebar = ({ onMenuChange, activeMenu, currentUser, isDarkMode, toggleDark
    * Each item has an icon, label (for internal logic), and optional displayLabel (for UI)
    */
   const menuItems = [
+    { icon: <FaSearch />, label: 'Browse', displayLabel: 'Browse Courses' }, // Browse courses and instructors
     { icon: <FaUsers />, label: 'My Community', displayLabel: 'Community' }, // Community features
-    { icon: <FaSearch />, label: 'Browse', displayLabel: 'Browse' }, // Browse courses and instructors
     { icon: <FaBell />, label: 'Notifications', displayLabel: 'Notifications' }, // Notification center
     { icon: <FaChalkboardTeacher />, label: 'Teaching', displayLabel: 'Dashboard' }, // Student-Teacher dashboard
     { icon: <FaEnvelope />, label: 'Messages', displayLabel: 'Messages' }, // Messaging system
@@ -211,45 +211,9 @@ const Sidebar = ({ onMenuChange, activeMenu, currentUser, isDarkMode, toggleDark
             Your Creators
           </div>
           <div className="creators-list" style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {/* The Commons */}
-            <div
-              className={`creator-sidebar-item ${communityData.communityMode === 'hub' ? 'active' : ''}`}
-              onClick={() => {
-                onMenuChange('My Community');
-                communityData.onSelectCommons();
-              }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '10px 14px',
-                borderRadius: 12,
-                cursor: 'pointer',
-                background: communityData.communityMode === 'hub' ? 'rgba(29, 155, 240, 0.1)' : 'transparent'
-              }}
-            >
-              <div style={{
-                width: 36,
-                height: 36,
-                borderRadius: 12,
-                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 18,
-                border: communityData.communityMode === 'hub' ? '2px solid #1d9bf0' : '2px solid transparent'
-              }}>
-                🌐
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 500, color: isDarkMode ? '#e7e9ea' : '#0f1419' }}>The Commons</div>
-                <div style={{ fontSize: 12, color: '#71767b' }}>All communities</div>
-              </div>
-            </div>
-
             {/* Individual Creators */}
             {communityData.creators?.map(creator => {
-              const isActive = communityData.communityMode === 'creators' && communityData.selectedCreatorId === creator.id;
+              const isActive = communityData.selectedCreatorId === creator.id;
               return (
                 <div
                   key={creator.id}

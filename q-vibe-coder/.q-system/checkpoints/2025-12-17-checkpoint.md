@@ -1,74 +1,82 @@
 # Session Checkpoint - December 17, 2025
 
 ## Session Focus
-Community layout redesign - moving creator profiles from horizontal top bar to left sidebar, with feed switching between Town Hall and purchased courses.
+Community layout redesign - sticky header, scrollable course tabs, persistent sidebar creators.
 
-## Key Decisions Made
+## Key Accomplishments This Session
 
-1. **Creators moved to sidebar** - Profile avatars now in left sidebar under nav menu (like Learning Commons mockup)
+### 1. Sticky Header for Creator Profiles
+- **Profile card + feed tabs** now stay fixed at top while posts scroll
+- Created `.sticky-header` wrapper in Community.js
+- CSS: `position: sticky; top: 0; z-index: 100`
 
-2. **Town Hall always first** - In the "Your Creators" list, Town Hall is always at the top, followed by individual creators
+### 2. Scrollable Course Tabs
+- Added left/right scroll arrows for course tabs (feed switcher)
+- Implemented drag-to-scroll with mouse (grab cursor)
+- New state: `showFeedLeftArrow`, `showFeedRightArrow`, `isFeedDragging`
+- New ref: `feedSwitcherRef`
+- New CSS: `.feed-switcher-container`, `.feed-switcher-scroll-btn`
 
-3. **Feed switcher tabs** - When clicking a creator profile:
-   - Profile card shows at top
-   - Tab bar appears below: Town Hall | Course 1 | Course 2 (locked) | etc.
-   - Town Hall = free for followers
-   - Courses = only if purchased (locked ones show 🔒)
+### 3. Persistent "Your Creators" Sidebar
+- Removed `activeMenu === 'My Community'` condition from Sidebar.js
+- "Your Creators" section now visible on ALL pages (Browse, Dashboard, Notifications, Messages, Profile)
 
-4. **The Commons** - Global aggregated AI-curated feed from all communities
+### 4. Sidebar Creator Click Navigation
+- Fixed: Clicking creator from sidebar on non-Community pages now navigates to Community
+- Added `localStorage.setItem('pendingSidebarCreator', ...)` in Sidebar.js
+- Community.js useEffect checks for `pendingSidebarCreator` and selects that creator
 
-5. **PeerLoop is 1-on-1 focused**:
-   - NOT one-to-many broadcast
-   - Sessions are scheduled with curriculum structure
-   - Last-minute scheduling only for paid courses
-   - Goodwill points earned in feeds (helping peers), not sessions
-   - AI-powered algorithmic feeds surface most relevant content
+## Files Changed
 
-## Mockups Created
+| File | Changes |
+|------|---------|
+| `Community.js` | Sticky header wrapper, feed switcher scroll functions, localStorage check for pendingSidebarCreator |
+| `Community.css` | `.sticky-header`, `.feed-switcher-container`, `.feed-switcher-scroll-btn`, grab cursor styles |
+| `Sidebar.js` | Removed activeMenu condition, added creator click navigation with localStorage |
 
-| File | Description |
-|------|-------------|
-| `mockup-community-sidebar-creators.html` | V1: Creators in sidebar, no feed switcher |
-| `mockup-community-sidebar-v2.html` | V2: Added Town Hall at top, profile card changes on click |
-| `mockup-community-v3.html` | V3: Full implementation with feed switcher tabs, locked courses, goodwill points |
+## Technical Details
 
-## mockup-community-v3.html Structure
+### Sticky Header Structure
+```jsx
+<div className="sticky-header">
+  {/* Profile Card */}
+  {/* Feed Switcher Tabs */}
+</div>
+{/* Post Composer - scrolls */}
+{/* Posts Feed - scrolls */}
+```
 
-**Left Sidebar:**
-- Nav menu (Community, Browse, Dashboard, Messages, Profile)
-- "Your Creators" section:
-  - The Commons (aggregated feed)
-  - Creator profiles (Einstein, Jane, Maria, etc.)
+### Feed Switcher Scroll
+- `scrollFeedSwitcher(direction)` - scrolls 150px left/right
+- `checkFeedSwitcherArrows()` - shows/hides arrows based on scroll position
+- Mouse drag handlers: `handleFeedMouseDown`, `handleFeedMouseMove`, `handleFeedMouseUp`, `handleFeedMouseLeave`
 
-**Center - Main Content:**
-- Profile card (changes based on selected creator)
-- Feed switcher tabs (Town Hall + purchased courses, locked courses grayed with 🔒)
-- Post composer
-- Feed posts (questions, helpful answers, wins, scheduling)
+### Creator Selection from Sidebar
+```javascript
+onClick={() => {
+  localStorage.setItem('pendingSidebarCreator', JSON.stringify({ id: creator.id, name: creator.name }));
+  communityData.onSelectCreator(creator);
+  onMenuChange('My Community');
+}}
+```
 
-**Right Sidebar:**
-- Your Goodwill (1,240 points, +35 today)
-- Your Sessions (upcoming scheduled sessions)
-- Your Progress (course progress bars)
+## Current State
+- Sticky header working on creator profiles
+- Feed tabs have scroll arrows and drag-to-scroll
+- "Your Creators" visible on all pages
+- Clicking creator from any page navigates to Community with that creator selected
 
-## Feed Content Types
-- ❓ Question - Peer asking for help (+goodwill to answer)
-- ✅ Helpful - Peer helping peer (earns goodwill)
-- 🎉 Win - Celebrating progress
-- 📅 Available - Student-Teacher offering session slots
-- 🏛️ Town Hall - General discussions
+## Branch
+`community-redesign-december-17`
 
-## Open Question
-Should creators sidebar stay visible on ALL pages (Browse, Dashboard, etc.) or only on Community page?
-
-User asked about "collapsing" sidebar - was about to show expanded/collapsed state when interrupted.
-
-## Files Changed This Session
-- Created: `public/mockup-community-sidebar-creators.html`
-- Created: `public/mockup-community-sidebar-v2.html`
-- Created: `public/mockup-community-v3.html`
+## Uncommitted Changes
+- Community.js
+- Community.css
+- Sidebar.js
+- App.js
+- MainContent.js
 
 ## Next Steps
-1. Clarify sidebar behavior on non-Community pages (collapse vs hide)
-2. Potentially update mockup to show collapsed state
-3. When ready, implement changes in actual React code
+1. Test all interactions thoroughly
+2. Commit changes
+3. Continue with any remaining UI polish

@@ -32,7 +32,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
   const [realPosts, setRealPosts] = useState([]); // Posts from Supabase
   const [isPosting, setIsPosting] = useState(false); // Loading state for posting
   const [postError, setPostError] = useState(null); // Error state for posting
-  const [communityMode, setCommunityMode] = useState('hub'); // 'hub' or 'creators'
+  const [communityMode, setCommunityMode] = useState('creators'); // Now defaults to 'creators' (The Commons removed)
   const [selectedCreatorId, setSelectedCreatorId] = useState(null); // Selected creator in My Creators mode
   const [pendingCreatorName, setPendingCreatorName] = useState(null); // Name of creator from Go to Community button (not yet followed)
   const [isDragging, setIsDragging] = useState(false); // Track if user is dragging the tabs
@@ -1583,54 +1583,35 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
     }));
 
     let filteredFakePosts;
-    
-    // Get all followed course IDs from grouped creators
-    const allFollowedCourseIds = groupedByCreator.flatMap(c => c.followedCourseIds);
-    
-    if (communityMode === 'hub') {
-      // Community Hub: Show Town Hall exclusive posts + posts from followed courses
-      // For new users with no follows, also show all creator Town Hall posts to help them discover
-      const hasNoFollows = groupedByCreator.length === 0;
-      filteredFakePosts = fakePosts.filter(post =>
-        post.isTownHallExclusive ||
-        (hasNoFollows && post.isCreatorTownHall) ||
-        allFollowedCourseIds.includes(post.courseId)
-      );
-    } else {
-      // My Creators mode: Filter based on selected creator's followed courses
-      const activeCreator = groupedByCreator.find(c => c.id === selectedCreatorId);
-      if (activeCreator) {
-        // Get the instructor ID from the creator entry (format: "creator-{id}")
-        const creatorInstructorId = activeCreator.instructorId || parseInt(selectedCreatorId.replace('creator-', ''));
 
-        // If specific courses are selected in filter, only show posts from those courses
-        if (selectedCourseFilters.length > 0) {
-          const selectedCourseIds = selectedCourseFilters.map(c => c.id);
-          filteredFakePosts = fakePosts.filter(post =>
-            selectedCourseIds.includes(post.courseId)
-          );
-        } else {
-          // Show creator's Town Hall posts + posts from this creator's followed courses
-          filteredFakePosts = fakePosts.filter(post =>
-            // Creator-specific Town Hall posts
-            (post.isCreatorTownHall && post.instructorId === creatorInstructorId) ||
-            // Course-specific posts from followed courses
-            activeCreator.followedCourseIds.includes(post.courseId)
-          );
-        }
+    // Filter based on selected creator's followed courses
+    const activeCreator = groupedByCreator.find(c => c.id === selectedCreatorId);
+    if (activeCreator) {
+      // Get the instructor ID from the creator entry (format: "creator-{id}")
+      const creatorInstructorId = activeCreator.instructorId || parseInt(selectedCreatorId.replace('creator-', ''));
+
+      // If specific courses are selected in filter, only show posts from those courses
+      if (selectedCourseFilters.length > 0) {
+        const selectedCourseIds = selectedCourseFilters.map(c => c.id);
+        filteredFakePosts = fakePosts.filter(post =>
+          selectedCourseIds.includes(post.courseId)
+        );
       } else {
-        filteredFakePosts = [];
+        // Show creator's Town Hall posts + posts from this creator's followed courses
+        filteredFakePosts = fakePosts.filter(post =>
+          // Creator-specific Town Hall posts
+          (post.isCreatorTownHall && post.instructorId === creatorInstructorId) ||
+          // Course-specific posts from followed courses
+          activeCreator.followedCourseIds.includes(post.courseId)
+        );
       }
+    } else {
+      filteredFakePosts = [];
     }
-    
+
     // ALWAYS show real posts first, then filtered fake posts
     // Real posts appear regardless of followed communities
     const combinedPosts = [...formattedRealPosts, ...filteredFakePosts];
-    
-    // If in Hub mode and no communities followed, still show real posts
-    if (communityMode === 'hub' && combinedPosts.length === 0) {
-      return formattedRealPosts;
-    }
     
     // Sort: Pinned first, then real posts (by time), then fake posts by engagement
     return combinedPosts.sort((a, b) => {
@@ -1876,21 +1857,44 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
       <div className="community-main-content">
         {/* Sticky Header - Profile Card + Feed Tabs stay fixed */}
         <div className="sticky-header">
-        {/* Profile Card - Changes based on Commons vs Creator */}
-        {communityMode === 'hub' ? (
-          /* The Commons Profile Card */
-          <div className="community-profile-card commons">
-            <div className="profile-card-header">
-              <div className="profile-card-icon commons">🌐</div>
-              <div className="profile-card-content">
-                <div className="profile-card-title">The Commons</div>
-                <div className="profile-card-subtitle">Your personalized learning feed</div>
-                <div className="profile-card-desc">
-                  AI-curated content from all your communities. Questions you can answer,
-                  discussions relevant to your progress, and wins from fellow learners.
-                </div>
-              </div>
-            </div>
+        {/* Profile Card - Shows selected creator or empty state */}
+        {!selectedCreatorId || !getSelectedCreatorInfo() ? (
+          /* Empty State - No creator selected */
+          <div className="community-profile-card commons" style={{ textAlign: 'center', padding: '32px 24px' }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>👥</div>
+            <h2 style={{
+              margin: '0 0 8px 0',
+              fontSize: 20,
+              fontWeight: 700,
+              color: isDarkMode ? '#e7e9ea' : '#0f1419'
+            }}>
+              {groupedByCreator.length > 0 ? 'Select a Creator' : 'No Creators Yet'}
+            </h2>
+            <p style={{
+              margin: '0 0 20px 0',
+              fontSize: 15,
+              color: isDarkMode ? '#71767b' : '#536471',
+              lineHeight: 1.5
+            }}>
+              {groupedByCreator.length > 0
+                ? 'Choose a creator from the sidebar to see their community posts and discussions.'
+                : 'Follow creators to join their communities and see their posts, discussions, and course updates.'}
+            </p>
+            <button
+              onClick={() => onMenuChange && onMenuChange('Browse')}
+              style={{
+                background: '#1d9bf0',
+                color: '#fff',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: 9999,
+                fontSize: 15,
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              Browse Creators
+            </button>
           </div>
         ) : (
           /* Creator Profile Card */
@@ -1942,8 +1946,8 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
           })()
         )}
 
-        {/* Feed Switcher Tabs - Only for Creators */}
-        {communityMode === 'creators' && selectedCreatorId && (() => {
+        {/* Feed Switcher Tabs - Only when a creator is selected */}
+        {selectedCreatorId && getSelectedCreatorInfo() && (() => {
           const info = getSelectedCreatorInfo();
           if (!info) return null;
           const { creator, instructor } = info;
@@ -2050,7 +2054,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
             {/* Text Input */}
             <div style={{ flex: 1 }}>
               <textarea
-                placeholder={communityMode === 'hub' ? "What's happening in the community?" : "Share with this community..."}
+                placeholder="Share with this community..."
                 value={newPostText}
                 onChange={(e) => setNewPostText(e.target.value)}
                 onFocus={() => setIsComposerFocused(true)}
@@ -2227,12 +2231,8 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
               <div className="empty-state-icon">
                 <FaUsers />
               </div>
-              <h2>{communityMode === 'hub' ? 'Welcome to The Commons' : 'No Posts Yet'}</h2>
-              <p>
-                {communityMode === 'hub'
-                  ? 'This is where the community connects. Follow creators to see their posts here!'
-                  : 'Be the first to share something in this community.'}
-              </p>
+              <h2>No Posts Yet</h2>
+              <p>Be the first to share something in this community.</p>
             </div>
           )}
         </div>

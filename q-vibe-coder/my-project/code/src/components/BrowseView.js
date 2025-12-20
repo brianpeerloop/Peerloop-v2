@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FaBook, FaUser, FaSearch } from 'react-icons/fa';
+import { FaBook, FaUser, FaSearch, FaVideo, FaCertificate, FaMoneyBillWave, FaGraduationCap, FaQuestionCircle, FaHandshake, FaRocket, FaLightbulb, FaStar, FaComments } from 'react-icons/fa';
 import { AiOutlineStar, AiOutlineTeam, AiOutlineClockCircle, AiOutlineBarChart } from 'react-icons/ai';
 import CourseDetailView from './CourseDetailView';
 import EnrollmentFlow from './EnrollmentFlow';
@@ -778,6 +778,100 @@ const BrowseView = ({
     );
   };
 
+  // Mock social proof posts (in production, these would come from the community feed)
+  const socialProofPosts = [
+    { id: 1, author: 'Sarah M.', avatar: 'https://i.pravatar.cc/40?img=1', text: 'Just passed my Python certification! Ready to start teaching! 🎉', type: 'achievement' },
+    { id: 2, author: 'Mike T.', avatar: 'https://i.pravatar.cc/40?img=3', text: 'Module 3 was challenging but the 1-on-1 session made it click!', type: 'feedback' },
+    { id: 3, author: 'Dr. Chen', avatar: 'https://i.pravatar.cc/40?img=5', text: 'Earned $1,200 teaching this month. Love this platform! 💰', type: 'earning' },
+  ];
+
+  // Social Proof Section Component
+  const SocialProofSection = () => (
+    <div style={{
+      margin: '24px 16px',
+      padding: '16px',
+      background: isDarkMode ? '#16181c' : '#f8fafc',
+      borderRadius: 12,
+      border: isDarkMode ? '1px solid #2f3336' : '1px solid #e2e8f0'
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 12
+      }}>
+        <h3 style={{
+          margin: 0,
+          fontSize: 14,
+          fontWeight: 600,
+          color: isDarkMode ? '#71767b' : '#64748b',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8
+        }}>
+          📣 From the Community
+        </h3>
+        <button
+          onClick={() => onMenuChange('My Community')}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: '#1d9bf0',
+            fontSize: 13,
+            fontWeight: 500,
+            cursor: 'pointer'
+          }}
+        >
+          See all →
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {socialProofPosts.map(post => (
+          <div key={post.id} style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 10,
+            padding: '10px 12px',
+            background: isDarkMode ? '#000' : '#fff',
+            borderRadius: 8,
+            border: isDarkMode ? '1px solid #2f3336' : '1px solid #e5e7eb'
+          }}>
+            <img
+              src={post.avatar}
+              alt={post.author}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                objectFit: 'cover'
+              }}
+            />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span style={{
+                fontWeight: 600,
+                fontSize: 13,
+                color: isDarkMode ? '#e7e9ea' : '#0f1419'
+              }}>
+                {post.author}
+              </span>
+              <p style={{
+                margin: '2px 0 0 0',
+                fontSize: 14,
+                color: isDarkMode ? '#d1d5db' : '#374151',
+                lineHeight: 1.4
+              }}>
+                {post.text}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className="main-content">
       <div className="three-column-layout browse-layout">
@@ -800,25 +894,30 @@ const BrowseView = ({
             {/* Left spacer */}
             <div style={{ flex: '1 1 0', minWidth: 0, maxWidth: 150 }} />
 
-            {/* Centered tabs */}
+            {/* Centered tabs - pill style */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 16,
-              flex: '0 0 auto'
+              gap: 8,
+              flex: '0 0 auto',
+              background: isDarkMode ? 'rgba(255,255,255,0.05)' : '#f1f5f9',
+              padding: '6px',
+              borderRadius: 30
             }}>
               <button
-                onClick={() => setActiveTopMenu('courses')}
+                onClick={() => setActiveTopMenu('howitworks')}
                 style={{
                   flex: '0 0 auto',
-                  padding: '16px 12px',
+                  padding: '10px 20px',
                   border: 'none',
-                  background: 'transparent',
-                  color: activeTopMenu === 'courses'
-                    ? (isDarkMode ? '#e7e9ea' : '#0f1419')
-                    : (isDarkMode ? '#71767b' : '#536471'),
-                  fontWeight: activeTopMenu === 'courses' ? 700 : 500,
+                  background: activeTopMenu === 'howitworks'
+                    ? '#1d9bf0'
+                    : 'transparent',
+                  color: activeTopMenu === 'howitworks'
+                    ? '#fff'
+                    : (isDarkMode ? '#9ca3af' : '#64748b'),
+                  fontWeight: 600,
                   fontSize: 14,
                   cursor: 'pointer',
                   transition: 'all 0.2s',
@@ -826,13 +925,43 @@ const BrowseView = ({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: 6,
-                  position: 'relative',
-                  borderBottom: activeTopMenu === 'courses'
-                    ? '4px solid #1d9bf0'
-                    : '4px solid transparent',
-                  marginBottom: -1,
-                  whiteSpace: 'nowrap'
+                  gap: 8,
+                  borderRadius: 24,
+                  whiteSpace: 'nowrap',
+                  boxShadow: activeTopMenu === 'howitworks'
+                    ? '0 2px 8px rgba(29, 155, 240, 0.4)'
+                    : 'none'
+                }}
+              >
+                <FaQuestionCircle style={{ fontSize: 16, flexShrink: 0 }} />
+                <span>How It Works</span>
+              </button>
+              <button
+                onClick={() => setActiveTopMenu('courses')}
+                style={{
+                  flex: '0 0 auto',
+                  padding: '10px 20px',
+                  border: 'none',
+                  background: activeTopMenu === 'courses'
+                    ? '#1d9bf0'
+                    : 'transparent',
+                  color: activeTopMenu === 'courses'
+                    ? '#fff'
+                    : (isDarkMode ? '#9ca3af' : '#64748b'),
+                  fontWeight: 600,
+                  fontSize: 14,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxSizing: 'border-box',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  borderRadius: 24,
+                  whiteSpace: 'nowrap',
+                  boxShadow: activeTopMenu === 'courses'
+                    ? '0 2px 8px rgba(29, 155, 240, 0.4)'
+                    : 'none'
                 }}
               >
                 <FaBook style={{ fontSize: 16, flexShrink: 0 }} />
@@ -842,13 +971,15 @@ const BrowseView = ({
                 onClick={() => setActiveTopMenu('instructors')}
                 style={{
                   flex: '0 0 auto',
-                  padding: '16px 12px',
+                  padding: '10px 20px',
                   border: 'none',
-                  background: 'transparent',
+                  background: activeTopMenu === 'instructors'
+                    ? '#1d9bf0'
+                    : 'transparent',
                   color: activeTopMenu === 'instructors'
-                    ? (isDarkMode ? '#e7e9ea' : '#0f1419')
-                    : (isDarkMode ? '#71767b' : '#536471'),
-                  fontWeight: activeTopMenu === 'instructors' ? 700 : 500,
+                    ? '#fff'
+                    : (isDarkMode ? '#9ca3af' : '#64748b'),
+                  fontWeight: 600,
                   fontSize: 14,
                   cursor: 'pointer',
                   transition: 'all 0.2s',
@@ -856,13 +987,12 @@ const BrowseView = ({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: 6,
-                  position: 'relative',
-                  borderBottom: activeTopMenu === 'instructors'
-                    ? '4px solid #1d9bf0'
-                    : '4px solid transparent',
-                  marginBottom: -1,
-                  whiteSpace: 'nowrap'
+                  gap: 8,
+                  borderRadius: 24,
+                  whiteSpace: 'nowrap',
+                  boxShadow: activeTopMenu === 'instructors'
+                    ? '0 2px 8px rgba(29, 155, 240, 0.4)'
+                    : 'none'
                 }}
               >
                 <FaUser style={{ fontSize: 16, flexShrink: 0 }} />
@@ -911,6 +1041,293 @@ const BrowseView = ({
                   onMenuChange('Dashboard');
                 }}
               />
+            ) : activeTopMenu === 'howitworks' ? (
+              <div className="how-it-works-section" style={{ padding: '24px 16px' }}>
+                {/* Hero Section */}
+                <div style={{
+                  background: isDarkMode
+                    ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
+                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  borderRadius: 20,
+                  padding: '40px 32px',
+                  marginBottom: 32,
+                  textAlign: 'center'
+                }}>
+                  <h1 style={{
+                    color: '#fff',
+                    fontSize: 32,
+                    fontWeight: 800,
+                    margin: '0 0 12px 0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 12
+                  }}>
+                    <FaGraduationCap /> Welcome to PeerLoop
+                  </h1>
+                  <p style={{
+                    color: 'rgba(255,255,255,0.9)',
+                    fontSize: 18,
+                    margin: 0,
+                    maxWidth: 600,
+                    marginLeft: 'auto',
+                    marginRight: 'auto'
+                  }}>
+                    The peer-to-peer learning platform where you learn from experts, get certified, and then teach others to earn.
+                  </p>
+                </div>
+
+                {/* What Makes Us Different */}
+                <div style={{
+                  background: isDarkMode ? '#16181c' : '#fff',
+                  borderRadius: 16,
+                  padding: '24px',
+                  marginBottom: 24,
+                  border: isDarkMode ? '1px solid #2f3336' : '1px solid #e5e7eb'
+                }}>
+                  <h2 style={{
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: isDarkMode ? '#e7e9ea' : '#111827',
+                    margin: '0 0 16px 0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10
+                  }}>
+                    <FaLightbulb style={{ color: '#fbbf24' }} /> What Makes PeerLoop Different?
+                  </h2>
+                  <p style={{
+                    fontSize: 16,
+                    lineHeight: 1.7,
+                    color: isDarkMode ? '#d1d5db' : '#4b5563',
+                    margin: 0
+                  }}>
+                    Unlike traditional online courses where you watch pre-recorded videos alone, PeerLoop connects you with real instructors for <strong>live 1-on-1 sessions</strong>. Research shows that personalized instruction leads to <strong>90% knowledge retention</strong> compared to just 10% with passive video watching. Plus, once you master a skill, you can become a certified instructor yourself and earn money teaching others.
+                  </p>
+                </div>
+
+                {/* The 4-Step Journey */}
+                <h2 style={{
+                  fontSize: 22,
+                  fontWeight: 700,
+                  color: isDarkMode ? '#e7e9ea' : '#111827',
+                  margin: '0 0 20px 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10
+                }}>
+                  <FaRocket style={{ color: '#1d9bf0' }} /> Your Learning Journey
+                </h2>
+
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                  gap: 16,
+                  marginBottom: 32
+                }}>
+                  {[
+                    {
+                      icon: <FaBook style={{ fontSize: 28, color: '#1d9bf0' }} />,
+                      title: '1. Browse & Choose',
+                      description: 'Explore our catalog of expert-created courses. Each course is taught by verified professionals who have real-world experience in their field.'
+                    },
+                    {
+                      icon: <FaVideo style={{ fontSize: 28, color: '#22c55e' }} />,
+                      title: '2. Learn 1-on-1',
+                      description: 'Schedule live video sessions with your instructor at times that work for you. Get personalized feedback, ask questions in real-time, and learn at your own pace.'
+                    },
+                    {
+                      icon: <FaCertificate style={{ fontSize: 28, color: '#a855f7' }} />,
+                      title: '3. Get Certified',
+                      description: 'Complete all modules and pass your assessment to earn a verified certificate. This proves your expertise and qualifies you to teach the course.'
+                    },
+                    {
+                      icon: <FaMoneyBillWave style={{ fontSize: 28, color: '#f97316' }} />,
+                      title: '4. Teach & Earn',
+                      description: 'Become a certified instructor and start teaching others. Keep 70% of every session fee. The more students you help, the more you earn.'
+                    }
+                  ].map((step, idx) => (
+                    <div key={idx} style={{
+                      background: isDarkMode ? '#16181c' : '#fff',
+                      borderRadius: 16,
+                      padding: '24px',
+                      border: isDarkMode ? '1px solid #2f3336' : '1px solid #e5e7eb',
+                      position: 'relative'
+                    }}>
+                      <div style={{ marginBottom: 12 }}>{step.icon}</div>
+                      <h3 style={{
+                        fontSize: 18,
+                        fontWeight: 700,
+                        color: isDarkMode ? '#e7e9ea' : '#111827',
+                        margin: '0 0 8px 0'
+                      }}>
+                        {step.title}
+                      </h3>
+                      <p style={{
+                        fontSize: 14,
+                        lineHeight: 1.6,
+                        color: isDarkMode ? '#9ca3af' : '#6b7280',
+                        margin: 0
+                      }}>
+                        {step.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Why 1-on-1 Learning */}
+                <div style={{
+                  background: isDarkMode ? '#16181c' : '#f0fdf4',
+                  borderRadius: 16,
+                  padding: '24px',
+                  marginBottom: 24,
+                  border: isDarkMode ? '1px solid #2f3336' : '1px solid #bbf7d0'
+                }}>
+                  <h2 style={{
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: isDarkMode ? '#e7e9ea' : '#111827',
+                    margin: '0 0 16px 0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10
+                  }}>
+                    <FaHandshake style={{ color: '#22c55e' }} /> Why 1-on-1 Learning Works
+                  </h2>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                    gap: 16
+                  }}>
+                    {[
+                      { stat: '90%', label: 'Knowledge retention with live instruction' },
+                      { stat: '3x', label: 'Faster learning than self-paced courses' },
+                      { stat: '100%', label: 'Personalized to your learning style' },
+                      { stat: '24/7', label: 'Schedule sessions when it suits you' }
+                    ].map((item, idx) => (
+                      <div key={idx} style={{ textAlign: 'center' }}>
+                        <div style={{
+                          fontSize: 32,
+                          fontWeight: 800,
+                          color: '#22c55e',
+                          marginBottom: 4
+                        }}>
+                          {item.stat}
+                        </div>
+                        <div style={{
+                          fontSize: 14,
+                          color: isDarkMode ? '#9ca3af' : '#6b7280'
+                        }}>
+                          {item.label}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* For Creators Section */}
+                <div style={{
+                  background: isDarkMode ? '#16181c' : '#fef3c7',
+                  borderRadius: 16,
+                  padding: '24px',
+                  marginBottom: 24,
+                  border: isDarkMode ? '1px solid #2f3336' : '1px solid #fcd34d'
+                }}>
+                  <h2 style={{
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: isDarkMode ? '#e7e9ea' : '#111827',
+                    margin: '0 0 16px 0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10
+                  }}>
+                    <FaStar style={{ color: '#f59e0b' }} /> Become a Creator
+                  </h2>
+                  <p style={{
+                    fontSize: 16,
+                    lineHeight: 1.7,
+                    color: isDarkMode ? '#d1d5db' : '#4b5563',
+                    margin: '0 0 16px 0'
+                  }}>
+                    Have expertise to share? Create your own course on PeerLoop and build a community of learners. As a creator, you:
+                  </p>
+                  <ul style={{
+                    margin: 0,
+                    paddingLeft: 24,
+                    color: isDarkMode ? '#d1d5db' : '#4b5563',
+                    fontSize: 15,
+                    lineHeight: 1.8
+                  }}>
+                    <li><strong>Design your curriculum</strong> - Structure your course into modules that build on each other</li>
+                    <li><strong>Set your rates</strong> - You decide how much to charge for your expertise</li>
+                    <li><strong>Build your brand</strong> - Create a following and community around your courses</li>
+                    <li><strong>Scale with certified instructors</strong> - Your top students become certified to teach your course, expanding your reach</li>
+                    <li><strong>Earn passively</strong> - Get a percentage when your certified instructors teach your course</li>
+                  </ul>
+                </div>
+
+                {/* Community Section */}
+                <div style={{
+                  background: isDarkMode ? '#16181c' : '#eff6ff',
+                  borderRadius: 16,
+                  padding: '24px',
+                  marginBottom: 24,
+                  border: isDarkMode ? '1px solid #2f3336' : '1px solid #bfdbfe'
+                }}>
+                  <h2 style={{
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: isDarkMode ? '#e7e9ea' : '#111827',
+                    margin: '0 0 16px 0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10
+                  }}>
+                    <FaComments style={{ color: '#3b82f6' }} /> Join the Community
+                  </h2>
+                  <p style={{
+                    fontSize: 16,
+                    lineHeight: 1.7,
+                    color: isDarkMode ? '#d1d5db' : '#4b5563',
+                    margin: 0
+                  }}>
+                    Every course has its own community where students and instructors connect. Share your progress, ask questions, celebrate wins, and help fellow learners. Learning is better together, and our community features make it easy to stay connected with your peers and mentors throughout your journey.
+                  </p>
+                </div>
+
+                {/* CTA */}
+                <div style={{
+                  textAlign: 'center',
+                  padding: '32px 0'
+                }}>
+                  <button
+                    onClick={() => setActiveTopMenu('courses')}
+                    style={{
+                      background: '#1d9bf0',
+                      color: '#fff',
+                      border: 'none',
+                      padding: '16px 40px',
+                      borderRadius: 30,
+                      fontSize: 18,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 10
+                    }}
+                  >
+                    <FaBook /> Browse Courses
+                  </button>
+                  <p style={{
+                    marginTop: 16,
+                    fontSize: 14,
+                    color: isDarkMode ? '#71767b' : '#6b7280'
+                  }}>
+                    Start your learning journey today
+                  </p>
+                </div>
+              </div>
             ) : activeTopMenu === 'courses' ? (
               <div className="courses-section">
                 {selectedCourse ? (
@@ -1250,6 +1667,9 @@ const BrowseView = ({
                         );
                       })}
                     </div>
+
+                    {/* Social Proof Section - after course listings */}
+                    {!selectedCourse && <SocialProofSection />}
                   </>
                 )}
               </div>
