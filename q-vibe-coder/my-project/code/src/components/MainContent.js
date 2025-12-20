@@ -11,6 +11,7 @@ import { BsBookmark } from 'react-icons/bs';
 import Dashboard from './Dashboard';
 import CreatorDashboard from './CreatorDashboard';
 import BrowseView from './BrowseView';
+import MyCoursesView from './MyCoursesView';
 import Community from './Community';
 import Profile from './Profile';
 import CreatorProfile from './CreatorProfile';
@@ -2060,7 +2061,8 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
     );
   }
 
-  // Show Course when viewing a course (from community or dashboard)
+  // Show Course when viewing a course (from community, dashboard, or My Courses)
+  // This check must come BEFORE My Courses check so clicking a course shows detail
   if (viewingCourseFromCommunity) {
     return (
       <div className="main-content">
@@ -2078,6 +2080,20 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
           }}
         />
       </div>
+    );
+  }
+
+  // Show My Courses when My Courses is active
+  if (activeMenu === 'My Courses') {
+    return (
+      <MyCoursesView
+        isDarkMode={isDarkMode}
+        currentUser={currentUser}
+        onMenuChange={onMenuChange}
+        purchasedCourses={purchasedCourses}
+        indexedCourses={indexedCourses}
+        onViewCourse={handleViewCourseFromCommunity}
+      />
     );
   }
 

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import './Sidebar.css';
-import { 
-  FaHome, 
-  FaSearch, 
-  FaBell, 
-  FaEnvelope, 
-  FaUser, 
+import {
+  FaHome,
+  FaSearch,
+  FaBell,
+  FaEnvelope,
+  FaUser,
   FaEllipsisH,
   FaFeatherAlt,
   FaCog,
@@ -20,7 +20,8 @@ import {
   FaMoon,
   FaSun,
   FaUsers,
-  FaChalkboardTeacher
+  FaChalkboardTeacher,
+  FaBook
 } from 'react-icons/fa';
 import { UserPropType } from './PropTypes';
 import useDeviceDetect from '../hooks/useDeviceDetect';
@@ -78,7 +79,8 @@ const Sidebar = ({ onMenuChange, activeMenu, currentUser, isDarkMode, toggleDark
    * Each item has an icon, label (for internal logic), and optional displayLabel (for UI)
    */
   const menuItems = [
-    { icon: <FaUsers />, label: 'My Community', displayLabel: 'Community' }, // Community features
+    { icon: <FaBook />, label: 'My Courses', displayLabel: 'My Courses' }, // User's enrolled courses
+    { icon: <FaUsers />, label: 'My Community', displayLabel: 'My Communities' }, // Community features
     { icon: <FaSearch />, label: 'Browse', displayLabel: 'Browse' }, // Browse courses and instructors
     { icon: <FaBell />, label: 'Notifications', displayLabel: 'Notifications' }, // Notification center
     { icon: <FaChalkboardTeacher />, label: 'Teaching', displayLabel: 'Dashboard' }, // Student-Teacher dashboard

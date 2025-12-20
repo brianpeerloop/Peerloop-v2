@@ -1,5 +1,5 @@
 .sidebar {
-  width: 200px;
+  width: 240px;
   height: 100vh;
   border-right: 1px solid #e1e8ed;
   padding: 0 4px;
@@ -148,6 +148,9 @@
 
 .nav-label {
   font-size: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Tooltip styles - hidden by default */
