@@ -41,134 +41,15 @@
   border-right: 1px solid var(--border-color, #e2e8f0);
 }
 
-.right-pane {
-  flex: 1 0 160px;
-  min-width: 160px;
-  max-width: 250px;
-  padding: 12px;
-  background: var(--bg-secondary, #f8fafc);
-  overflow-y: auto;
-  height: 100vh;
-  position: sticky;
-  top: 0;
-  box-sizing: border-box;
-  transition: background-color 0.3s ease;
-}
-
-.right-pane-section {
-  background: var(--card-bg, #fff);
-  border-radius: 12px;
-  padding: 10px;
-  margin-bottom: 12px;
-  border: 1px solid var(--border-color, #e2e8f0);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.right-pane-section h3 {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-primary, #1e293b);
-  margin: 0 0 10px 0;
-}
-
-/* Trending Items */
-.trending-item {
-  display: flex;
-  flex-direction: column;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border-color, #f1f5f9);
-}
-
-.trending-item:last-child {
-  border-bottom: none;
-}
-
-.trending-category {
-  font-size: 12px;
-  color: var(--text-muted, #64748b);
-}
-
-.trending-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-primary, #1e293b);
-  margin: 2px 0;
-}
-
-.trending-posts {
-  font-size: 12px;
-  color: var(--text-muted, #94a3b8);
-}
-
-/* Follow Suggestions */
-.follow-suggestion {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.follow-suggestion:last-child {
-  border-bottom: none;
-}
-
-.follow-suggestion img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-}
-
-.follow-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.follow-name {
-  display: block;
-  font-weight: 600;
-  color: #1e293b;
-  font-size: 14px;
-}
-
-.follow-title {
-  display: block;
-  font-size: 12px;
-  color: #64748b;
-}
-
-.follow-btn-small {
-  background: #1e293b;
-  color: #fff;
-  border: none;
-  border-radius: 20px;
-  padding: 6px 16px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.follow-btn-small:hover {
-  background: #334155;
-}
-
 /* Responsive: When sidebar shrinks to 88px */
 @media (max-width: 1400px) {
   .main-content {
     margin-left: 88px;
     width: calc(100vw - 88px);
   }
-  
-  .right-pane {
-    width: 140px;
-    flex: 0 0 140px;
-  }
 }
 
 @media (max-width: 1000px) {
-  .right-pane {
-    display: none;
-  }
   
   .center-column {
     border-right: none;

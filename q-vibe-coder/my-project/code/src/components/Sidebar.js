@@ -1,29 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import './Sidebar.css';
-import {
-  FaHome,
-  FaSearch,
-  FaBell,
-  FaEnvelope,
-  FaUser,
-  FaEllipsisH,
-  FaFeatherAlt,
-  FaCog,
-  FaSignOutAlt,
-  FaUserEdit,
-  FaShieldAlt,
-  FaBookmark,
-  FaHeart,
-  FaHistory,
-  FaQuestionCircle,
-  FaMoon,
-  FaSun,
-  FaUsers,
-  FaChalkboardTeacher,
-  FaBook
-} from 'react-icons/fa';
-import { UserPropType } from './PropTypes';
+import {  FaSearch,  FaBell,  FaEnvelope,  FaUser,  FaMoon,  FaSun,  FaUsers,  FaChalkboardTeacher,  FaBook} from 'react-icons/fa';
 import useDeviceDetect from '../hooks/useDeviceDetect';
 
 /**
@@ -36,7 +14,7 @@ import useDeviceDetect from '../hooks/useDeviceDetect';
  * @param {Function} onMenuChange - Callback function to handle menu item clicks
  * @param {string} activeMenu - The currently active menu item
  */
-const Sidebar = ({ onMenuChange, activeMenu, currentUser, isDarkMode, toggleDarkMode, onLogout }) => {
+const Sidebar = ({ onMenuChange, activeMenu, isDarkMode, toggleDarkMode }) => {
   // Track which tooltip is visible (by index)
   const [visibleTooltip, setVisibleTooltip] = useState(null);
   const timerRef = useRef(null);
@@ -89,50 +67,6 @@ const Sidebar = ({ onMenuChange, activeMenu, currentUser, isDarkMode, toggleDark
     { icon: isDarkMode ? <FaSun /> : <FaMoon />, label: 'ToggleTheme', displayLabel: isDarkMode ? 'Light Mode' : 'Dark Mode' }, // Theme toggle
   ];
 
-  /**
-   * Profile dropdown menu items
-   * These appear when the user profile is clicked
-   */
-  const profileMenuItems = [
-    { icon: <FaUserEdit />, label: 'Edit Profile', action: 'edit-profile' },
-    { icon: <FaBookmark />, label: 'Bookmarks', action: 'bookmarks' },
-    { icon: <FaHistory />, label: 'History', action: 'history' },
-    { icon: <FaCog />, label: 'Settings', action: 'settings' },
-    { icon: isDarkMode ? <FaSun /> : <FaMoon />, label: isDarkMode ? 'Light Mode' : 'Dark Mode', action: 'toggle-theme' },
-    { icon: <FaShieldAlt />, label: 'Privacy & Security', action: 'privacy' },
-    { icon: <FaQuestionCircle />, label: 'Help & Support', action: 'help' },
-    { icon: <FaSignOutAlt />, label: 'Sign Out', action: 'signout' },
-  ];
-
-  /**
-   * Handles clicks on the user profile section
-   * Navigates to the Profile page
-   */
-  const handleProfileClick = () => {
-    onMenuChange('Profile');
-  };
-
-  /**
-   * Handles actions from the profile dropdown menu
-   * @param {string} action - The action to perform
-   */
-  const handleProfileMenuAction = (action) => {
-    if (action === 'signout') {
-      // Handle logout/switch user
-      if (onLogout) {
-        onLogout();
-      }
-    } else if (action === 'settings') {
-      onMenuChange('Settings');
-    } else if (action === 'toggle-theme') {
-      // Toggle dark/light mode
-      if (toggleDarkMode) {
-        toggleDarkMode();
-      }
-    } else {
-      onMenuChange('Profile');
-    }
-  };
 
   /**
    * Handles clicks on main navigation menu items
@@ -211,13 +145,11 @@ const Sidebar = ({ onMenuChange, activeMenu, currentUser, isDarkMode, toggleDark
 Sidebar.propTypes = {
   onMenuChange: PropTypes.func.isRequired,
   activeMenu: PropTypes.string.isRequired,
-  currentUser: UserPropType,
   isDarkMode: PropTypes.bool,
   toggleDarkMode: PropTypes.func
 };
 
 Sidebar.defaultProps = {
-  currentUser: null,
   isDarkMode: false,
   toggleDarkMode: () => {}
 };
