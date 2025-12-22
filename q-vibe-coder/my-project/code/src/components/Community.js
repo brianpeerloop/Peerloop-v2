@@ -64,6 +64,11 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
           setActiveTab(creator.id);
           // Store the name in case the creator isn't in groupedByCreator (not followed yet)
           setPendingCreatorName(creator.name);
+
+          // If a specific course was passed, select it in the course filter
+          if (creator.courseId && creator.courseTitle) {
+            setSelectedCourseFilters([{ id: creator.courseId, name: creator.courseTitle }]);
+          }
         }
         // Clear the pending creator so it doesn't trigger again
         localStorage.removeItem('pendingCommunityCreator');
@@ -1012,9 +1017,22 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
           {/* Mini Creator Profile - Shows when a creator is selected */}
           {communityMode === 'creators' && selectedCreatorId && (() => {
             const selectedCreator = groupedByCreator.find(c => c.id === selectedCreatorId);
-            if (!selectedCreator) return null;
-            const instructor = getInstructorById(selectedCreator.instructorId);
+            // Extract instructor ID from selectedCreatorId (format: "creator-{id}")
+            const instructorIdFromSelected = parseInt(selectedCreatorId.replace('creator-', ''));
+            const instructor = selectedCreator
+              ? getInstructorById(selectedCreator.instructorId)
+              : getInstructorById(instructorIdFromSelected);
             if (!instructor) return null;
+
+            // For pending creators (not in groupedByCreator), create a minimal creator object
+            const effectiveCreator = selectedCreator || {
+              id: selectedCreatorId,
+              name: pendingCreatorName || instructor.name,
+              instructorId: instructorIdFromSelected,
+              allCourses: getAllCourses().filter(c => c.instructorId === instructorIdFromSelected),
+              followedCourseIds: selectedCourseFilters.map(f => f.id),
+              isFullCreatorFollow: false
+            };
             
             return (
               <div style={{
@@ -1136,7 +1154,14 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
 
                 {/* Filter by Courses Dropdown - Single-select */}
                 {(() => {
-                  const availableCourses = selectedCreator.allCourses.filter(course => selectedCreator.followedCourseIds.includes(course.id));
+                  // For pending creators, show the course they came from in the dropdown
+                  const availableCourses = effectiveCreator.allCourses.filter(course =>
+                    effectiveCreator.followedCourseIds.includes(course.id)
+                  );
+                  // If no followed courses but we have selectedCourseFilters (from pending navigation), add those
+                  const displayCourses = availableCourses.length > 0
+                    ? availableCourses
+                    : selectedCourseFilters.map(f => ({ id: f.id, title: f.name }));
                   const isHubSelected = selectedCourseFilters.length === 0;
 
                   return (
@@ -1224,7 +1249,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                             </div>
 
                             {/* Individual Courses - Single-select */}
-                            {availableCourses.map(course => {
+                            {displayCourses.map(course => {
                               const isSelected = selectedCourseFilters.length === 1 && selectedCourseFilters[0].id === course.id;
                               return (
                                 <div

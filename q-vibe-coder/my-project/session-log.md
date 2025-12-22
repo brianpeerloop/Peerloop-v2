@@ -303,6 +303,66 @@
 
 ---
 
+### Session 8
+**Date:** December 20, 2025
+**Phase:** Building - My Courses Feature
+
+**What we did:**
+- Added My Courses menu above My Communities
+- Created MyCoursesView.js with progress bars and status badges
+- Connected course detail navigation from My Courses
+- Fixed routing and parameter bugs
+- Committed (991db37) and published to GitHub Pages
+
+**Files:** MyCoursesView.js (new), Sidebar.js, MainContent.js
+
+---
+
+### Session 9
+**Date:** December 21, 2025
+**Phase:** Building - Purchased Course Detail & Community Navigation
+
+**What we did:**
+- **Created PurchasedCourseDetail component:**
+  - Based on mockup-purchased-course.html design
+  - Shows creator profile card with follow/view profile/go to community buttons
+  - Displays course progress, upcoming sessions, homework due
+  - Session timeline with completion status and homework scores
+  - Resources section with recordings, slides, code files
+  - Certificate progress bar
+  - Class discussion preview
+
+- **Integrated into My Courses flow:**
+  - Clicking course card opens PurchasedCourseDetail view
+  - "Back to My Courses" button for navigation
+  - Course detail shows progress, sessions, homework status
+
+- **Fixed "Go to Community" button:**
+  - Initial issue: Button navigated to Town Hall instead of specific course community
+  - Root cause: Creator profile card in Community.js only rendered when creator was in `groupedByCreator` list
+  - Fix: Created `effectiveCreator` object that works for both followed creators AND pending creators
+  - Now correctly navigates to creator's community with the specific course pre-selected in filter
+  - Textbox placeholder shows "Discuss [Course Name]..."
+  - Posts filtered to show only that course's discussions
+
+**Files modified:**
+- PurchasedCourseDetail.js (new)
+- PurchasedCourseDetail.css (new)
+- MainContent.js (added onGoToCommunity handler)
+- Community.js (fixed pending creator handling)
+
+**Technical notes:**
+- `pendingCommunityCreator` localStorage stores: id, name, courseId, courseTitle
+- `effectiveCreator` object created from instructor ID when creator not in groupedByCreator
+- `selectedCourseFilters` populated from pending navigation data
+
+**Next session:**
+- Test all purchased course flows
+- Consider additional polish to course detail view
+- Continue with other features
+
+---
+
 <!-- Add more sessions as needed -->
 
 ---

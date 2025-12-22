@@ -1,0 +1,675 @@
+/* PurchasedCourseDetail.css - Styling for purchased course detail view */
+
+.purchased-course-detail {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.purchased-course-detail.dark {
+  background: #0a0a0a;
+  color: #e7e9ea;
+}
+
+.purchased-course-detail.light {
+  background: #f5f5f5;
+  color: #0f1419;
+}
+
+.pcd-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Back Link */
+.pcd-back-link {
+  background: none;
+  border: none;
+  color: #1d9bf0;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.pcd-back-link:hover {
+  text-decoration: underline;
+}
+
+/* Creator Card */
+.pcd-creator-card {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  border: 1px solid #2f3336;
+}
+
+.light .pcd-creator-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-color: #e5e7eb;
+}
+
+.pcd-creator-header {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.pcd-creator-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.pcd-creator-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pcd-creator-info {
+  flex: 1;
+}
+
+.pcd-creator-name {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.light .pcd-creator-name {
+  color: #111827;
+}
+
+.pcd-creator-title {
+  color: #71767b;
+  font-size: 15px;
+  margin: 0 0 12px 0;
+}
+
+.pcd-creator-stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.pcd-stat {
+  font-size: 14px;
+  color: #a0a0a0;
+}
+
+.pcd-stat strong {
+  color: #e7e9ea;
+}
+
+.light .pcd-stat strong {
+  color: #111827;
+}
+
+.pcd-creator-bio {
+  color: #a0a0a0;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+  padding-top: 16px;
+  border-top: 1px solid #2f3336;
+}
+
+.light .pcd-creator-bio {
+  border-top-color: #e5e7eb;
+  color: #6b7280;
+}
+
+.pcd-creator-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pcd-follow-btn {
+  background: transparent;
+  color: #1d9bf0;
+  border: 1px solid #1d9bf0;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pcd-follow-btn:hover {
+  background: rgba(29, 155, 240, 0.1);
+}
+
+.pcd-follow-btn.following {
+  background: #1d9bf0;
+  color: #fff;
+}
+
+/* Course Header */
+.pcd-course-header {
+  background: #16181c;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  border: 1px solid #2f3336;
+}
+
+.light .pcd-course-header {
+  background: #fff;
+  border-color: #e5e7eb;
+}
+
+.pcd-course-label {
+  font-size: 12px;
+  color: #71767b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 8px 0;
+}
+
+.pcd-course-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+}
+
+.light .pcd-course-title {
+  color: #111827;
+}
+
+.pcd-enrolled-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 186, 124, 0.15);
+  color: #00ba7c;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Cards */
+.pcd-card {
+  background: #16181c;
+  border: 1px solid #2f3336;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.light .pcd-card {
+  background: #fff;
+  border-color: #e5e7eb;
+}
+
+.pcd-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #71767b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Upcoming Session */
+.pcd-upcoming-session {
+  border-left: 4px solid #1d9bf0;
+}
+
+.pcd-session-name {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+}
+
+.light .pcd-session-name {
+  color: #111827;
+}
+
+.pcd-session-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.pcd-session-detail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e7e9ea;
+  font-size: 15px;
+}
+
+.light .pcd-session-detail {
+  color: #374151;
+}
+
+.pcd-session-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+.pcd-btn-primary,
+.pcd-btn-secondary {
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pcd-btn-primary {
+  background: #1d9bf0;
+  color: #fff;
+}
+
+.pcd-btn-primary:hover {
+  background: #1a8cd8;
+}
+
+.pcd-btn-secondary {
+  background: transparent;
+  color: #e7e9ea;
+  border: 1px solid #536471;
+}
+
+.light .pcd-btn-secondary {
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.pcd-btn-secondary:hover {
+  background: rgba(239, 243, 244, 0.1);
+}
+
+.light .pcd-btn-secondary:hover {
+  background: #f3f4f6;
+}
+
+/* Homework Card */
+.pcd-homework-card {
+  border-left: 4px solid #f7931a;
+}
+
+.pcd-homework-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.pcd-homework-info h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.light .pcd-homework-info h3 {
+  color: #111827;
+}
+
+.pcd-warning {
+  color: #f7931a;
+}
+
+.pcd-homework-info p {
+  color: #71767b;
+  font-size: 14px;
+  margin: 0;
+}
+
+.pcd-homework-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Progress Stats */
+.pcd-progress-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.pcd-stat-box {
+  background: #1e2028;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.light .pcd-stat-box {
+  background: #f3f4f6;
+}
+
+.pcd-stat-number {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1d9bf0;
+}
+
+.pcd-stat-label {
+  color: #71767b;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* Timeline */
+.pcd-timeline {
+  position: relative;
+}
+
+.pcd-timeline-item {
+  display: flex;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #2f3336;
+}
+
+.light .pcd-timeline-item {
+  border-bottom-color: #e5e7eb;
+}
+
+.pcd-timeline-item:last-child {
+  border-bottom: none;
+}
+
+.pcd-timeline-status {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.pcd-status-completed {
+  background: rgba(0, 186, 124, 0.2);
+  color: #00ba7c;
+}
+
+.pcd-status-upcoming {
+  background: rgba(29, 155, 240, 0.2);
+  color: #1d9bf0;
+}
+
+.pcd-status-locked {
+  background: #2f3336;
+  color: #71767b;
+}
+
+.light .pcd-status-locked {
+  background: #e5e7eb;
+}
+
+.pcd-timeline-content {
+  flex: 1;
+}
+
+.pcd-timeline-content h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.light .pcd-timeline-content h4 {
+  color: #111827;
+}
+
+.pcd-timeline-content p {
+  font-size: 13px;
+  color: #71767b;
+  margin: 0;
+}
+
+.pcd-timeline-hw {
+  text-align: right;
+}
+
+.pcd-hw-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pcd-hw-submitted {
+  background: rgba(0, 186, 124, 0.15);
+  color: #00ba7c;
+}
+
+.pcd-hw-due {
+  background: rgba(247, 147, 26, 0.15);
+  color: #f7931a;
+}
+
+.pcd-hw-locked {
+  background: #2f3336;
+  color: #71767b;
+}
+
+.light .pcd-hw-locked {
+  background: #e5e7eb;
+}
+
+/* Resources */
+.pcd-resource-session {
+  padding: 16px 0;
+  border-bottom: 1px solid #2f3336;
+}
+
+.light .pcd-resource-session {
+  border-bottom-color: #e5e7eb;
+}
+
+.pcd-resource-session:last-child {
+  border-bottom: none;
+}
+
+.pcd-resource-session h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+}
+
+.light .pcd-resource-session h4 {
+  color: #111827;
+}
+
+.pcd-resource-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pcd-resource-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #1d9bf0;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 6px 12px;
+  background: rgba(29, 155, 240, 0.1);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.pcd-resource-link:hover {
+  background: rgba(29, 155, 240, 0.2);
+}
+
+.pcd-download-all {
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* Help Card */
+.pcd-help-card {
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+}
+
+.light .pcd-help-card {
+  background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+}
+
+.pcd-help-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.pcd-help-text p {
+  color: #a0a0a0;
+  font-size: 14px;
+  margin: 4px 0 0 0;
+}
+
+.light .pcd-help-text p {
+  color: #6b7280;
+}
+
+/* Discussion */
+.pcd-discussion-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pcd-new-posts {
+  color: #1d9bf0;
+  font-weight: 600;
+}
+
+/* Certificate */
+.pcd-certificate-card {
+  background: linear-gradient(135deg, #2d1f3d 0%, #1a1a2e 100%);
+  text-align: center;
+}
+
+.light .pcd-certificate-card {
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+}
+
+.pcd-certificate-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.pcd-certificate-text {
+  color: #a0a0a0;
+  font-size: 14px;
+  margin: 0 0 16px 0;
+}
+
+.light .pcd-certificate-text {
+  color: #6b7280;
+}
+
+.pcd-progress-bar {
+  background: #2f3336;
+  border-radius: 10px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.light .pcd-progress-bar {
+  background: #d1d5db;
+}
+
+.pcd-progress-fill {
+  background: linear-gradient(90deg, #1d9bf0, #8b5cf6);
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.3s;
+}
+
+.pcd-progress-text {
+  color: #71767b;
+  font-size: 13px;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .pcd-creator-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .pcd-creator-stats {
+    justify-content: center;
+  }
+
+  .pcd-creator-actions {
+    justify-content: center;
+  }
+
+  .pcd-session-details {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pcd-homework-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pcd-timeline-item {
+    flex-direction: column;
+  }
+
+  .pcd-timeline-hw {
+    text-align: left;
+    margin-top: 8px;
+  }
+
+  .pcd-help-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .pcd-discussion-preview {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+}

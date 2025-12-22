@@ -21,6 +21,7 @@ import JobExchange from './JobExchange';
 import Settings from './Settings';
 import UserProfile from './UserProfile';
 import CourseDetailView from './CourseDetailView';
+import PurchasedCourseDetail from './PurchasedCourseDetail';
 import StudentTeacherDashboard from './StudentTeacherDashboard';
 import EnrollmentFlow from './EnrollmentFlow';
 import Notifications from './Notifications';
@@ -638,6 +639,42 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
   // Show Course when viewing a course (from community, dashboard, or My Courses)
   // This check must come BEFORE My Courses check so clicking a course shows detail
   if (viewingCourseFromCommunity) {
+    // Check if the course is purchased - show PurchasedCourseDetail instead
+    const isPurchased = isCoursePurchased(viewingCourseFromCommunity?.id);
+
+    if (isPurchased) {
+      return (
+        <div className="main-content">
+          <PurchasedCourseDetail
+            course={viewingCourseFromCommunity}
+            onBack={handleBackFromCourse}
+            isDarkMode={isDarkMode}
+            currentUser={currentUser}
+            isCreatorFollowed={isCreatorFollowed}
+            onFollowCreator={handleFollowInstructor}
+            onViewCreatorProfile={(instructor) => {
+              // Navigate to creator profile in Browse
+              setSelectedInstructor(instructor);
+              setActiveTopMenu('creators');
+              setViewingCourseFromCommunity(null);
+              onMenuChange('Browse');
+            }}
+            onGoToCommunity={(instructor) => {
+              // Navigate to creator's community with specific course selected
+              localStorage.setItem('pendingCommunityCreator', JSON.stringify({
+                id: `creator-${instructor.id}`,
+                name: instructor.name,
+                courseId: viewingCourseFromCommunity.id,
+                courseTitle: viewingCourseFromCommunity.title
+              }));
+              setViewingCourseFromCommunity(null);
+              onMenuChange('My Community');
+            }}
+          />
+        </div>
+      );
+    }
+
     return (
       <div className="main-content">
         <CourseDetailView
@@ -646,7 +683,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
           isDarkMode={isDarkMode}
           followedCommunities={followedCommunities}
           setFollowedCommunities={setFollowedCommunities}
-          isCoursePurchased={isCoursePurchased(viewingCourseFromCommunity?.id)}
+          isCoursePurchased={false}
           currentUser={currentUser}
           onEnroll={(course) => {
             setEnrollingCourse(course);
