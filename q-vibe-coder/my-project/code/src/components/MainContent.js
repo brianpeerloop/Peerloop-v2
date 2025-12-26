@@ -23,12 +23,15 @@ import UserProfile from './UserProfile';
 import CourseDetailView from './CourseDetailView';
 import PurchasedCourseDetail from './PurchasedCourseDetail';
 import StudentTeacherDashboard from './StudentTeacherDashboard';
+import NewUserDashboard from './NewUserDashboard';
+import StudentDashboard from './StudentDashboard';
 import EnrollmentFlow from './EnrollmentFlow';
 import Notifications from './Notifications';
+import AboutView from './AboutView';
 import { getAllInstructors, getInstructorWithCourses, getCourseById, getAllCourses, getInstructorById, getIndexedCourses, getIndexedInstructors } from '../data/database';
 import { UserPropType } from './PropTypes';
 
-const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDarkMode }) => {
+const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDarkMode, toggleDarkMode }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const lastTopMenuRef = useRef('courses');
   
@@ -235,9 +238,37 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
     }
   });
 
+  // Reload purchased courses when user changes
+  React.useEffect(() => {
+    if (!currentUser?.id) return;
+
+    try {
+      const storageKey = `purchasedCourses_${currentUser.id}`;
+
+      // New users always start fresh - clear any stored data
+      if (currentUser.isNewUser || currentUser.userType === 'new_user') {
+        localStorage.removeItem(storageKey);
+        setPurchasedCourses([]);
+        return;
+      }
+
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        setPurchasedCourses(JSON.parse(stored));
+      } else if (currentUser.id.startsWith('demo_') && !currentUser.isNewUser) {
+        // Demo users start with some purchased courses for testing
+        setPurchasedCourses([1, 2, 3, 15]); // Courses for demo users
+      } else {
+        setPurchasedCourses([]);
+      }
+    } catch (e) {
+      setPurchasedCourses([]);
+    }
+  }, [currentUser?.id, currentUser?.isNewUser]);
+
   // Save purchased courses to localStorage
   React.useEffect(() => {
-    if (currentUser?.id) {
+    if (currentUser?.id && purchasedCourses.length > 0) {
       localStorage.setItem(`purchasedCourses_${currentUser.id}`, JSON.stringify(purchasedCourses));
     }
   }, [purchasedCourses, currentUser?.id]);
@@ -413,6 +444,21 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
       }
     }, [activeMenu]);
 
+    // Handle Browse_Courses and Browse_Communities from sidebar navigation
+    React.useEffect(() => {
+      if (activeMenu === 'Browse_Courses') {
+        setSelectedInstructor(null);
+        setSelectedCourse(null);
+        setActiveTopMenu('courses');
+        setSearchQuery('');
+      } else if (activeMenu === 'Browse_Communities') {
+        setSelectedInstructor(null);
+        setSelectedCourse(null);
+        setActiveTopMenu('creators');
+        setSearchQuery('');
+      }
+    }, [activeMenu]);
+
     // Reset when Browse is clicked again while already on Browse page (double-click)
     React.useEffect(() => {
       if (activeMenu === 'Browse' && lastBrowseClick > 0) {
@@ -494,6 +540,14 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
   // When user changes, reload their follows from user-specific storage
   useEffect(() => {
     if (currentUser?.id) {
+      // New users always start fresh - clear any stored data
+      if (currentUser.isNewUser || currentUser.userType === 'new_user') {
+        const storageKey = `followedCommunities_${currentUser.id}`;
+        localStorage.removeItem(storageKey);
+        setFollowedCommunities([]);
+        return;
+      }
+
       const newFollows = loadFollowsForUser(currentUser.id, currentUser.isNewUser);
       setFollowedCommunities(newFollows);
     }
@@ -592,8 +646,20 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
   };
 
 
+  // Show About page
+  if (activeMenu === 'About') {
+    return (
+      <div className="main-content">
+        <AboutView
+          isDarkMode={isDarkMode}
+          onMenuChange={onMenuChange}
+        />
+      </div>
+    );
+  }
+
   // Show Browse when Browse is active - now using BrowseView component
-  if (activeMenu === 'Browse' || activeMenu === 'Browse_Reset') {
+  if (activeMenu === 'Browse' || activeMenu === 'Browse_Reset' || activeMenu === 'Browse_Courses' || activeMenu === 'Browse_Communities') {
     return (
       <BrowseView
         isDarkMode={isDarkMode}
@@ -723,6 +789,32 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
 
   // Show appropriate Dashboard based on user type
   if (activeMenu === 'Dashboard') {
+    // New Users and Students see Student Dashboard
+    if (currentUser?.isNewUser || currentUser?.userType === 'new_user' || currentUser?.userType === 'student') {
+      return (
+        <div className="main-content">
+          <StudentDashboard
+            isDarkMode={isDarkMode}
+            currentUser={currentUser}
+            onMenuChange={onMenuChange}
+            purchasedCourses={purchasedCourses}
+            onViewCourse={handleViewCourseFromCommunity}
+          />
+        </div>
+      );
+    }
+    // Student-Teachers see Student-Teacher Dashboard
+    if (currentUser?.userType === 'student_teacher') {
+      return (
+        <div className="main-content">
+          <StudentTeacherDashboard
+            isDarkMode={isDarkMode}
+            currentUser={currentUser}
+            onMenuChange={onMenuChange}
+          />
+        </div>
+      );
+    }
     // Creators and Admins see Creator Dashboard
     if (currentUser?.userType === 'creator' || currentUser?.userType === 'admin' ||
         currentUser?.roles?.includes('creator') || currentUser?.roles?.includes('instructor')) {
@@ -732,7 +824,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
         </div>
       );
     }
-    // Students see Learning Dashboard
+    // Default: Dashboard (Learning/Teaching toggle)
     return (
       <div className="main-content">
         <Dashboard
@@ -746,20 +838,6 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
     );
   }
 
-  // Show Student-Teacher Dashboard when Teaching is active
-  if (activeMenu === 'Teaching') {
-    return (
-      <div className="main-content" style={{ padding: 0 }}>
-        <Dashboard
-          isDarkMode={isDarkMode}
-          currentUser={currentUser}
-          onMenuChange={onMenuChange}
-          purchasedCourses={purchasedCourses}
-          onViewCourse={handleViewCourseFromCommunity}
-        />
-      </div>
-    );
-  }
 
   // Show Community when My Community is active
   if (activeMenu === 'My Community') {
@@ -787,10 +865,12 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
   if (activeMenu === 'Profile') {
     return (
       <div className="main-content">
-        <Profile 
-          currentUser={currentUser} 
+        <Profile
+          currentUser={currentUser}
           onSwitchUser={typeof onSwitchUser === 'function' ? onSwitchUser : undefined}
           onMenuChange={onMenuChange}
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
         />
       </div>
     );

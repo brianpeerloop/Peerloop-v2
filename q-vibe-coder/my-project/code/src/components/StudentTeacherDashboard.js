@@ -1,47 +1,130 @@
 import React, { useState } from 'react';
-import { 
-  FaChartLine,
-  FaCalendarAlt,
-  FaUsers,
-  FaDollarSign,
-  FaComments,
-  FaUser,
+import {
   FaChevronDown,
-  FaChevronLeft,
-  FaChevronRight
+  FaVideo,
+  FaCalendarAlt,
+  FaTimes,
+  FaPlus,
+  FaSave
 } from 'react-icons/fa';
 
-const StudentTeacherDashboard = ({ isDarkMode = true }) => {
-  const [activeTab, setActiveTab] = useState('calendar');
-  const [currentMonth, setCurrentMonth] = useState(new Date(2025, 11, 1)); // December 2025
-  const [selectedDate, setSelectedDate] = useState(new Date(2025, 11, 8)); // Dec 8, 2025 selected by default
-  
-  // Student-Teacher info
+const StudentTeacherDashboard = ({ isDarkMode = true, currentUser }) => {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [timezone, setTimezone] = useState('America/Chicago');
+
+  // Availability state - each day has an array of time slots
+  const [availability, setAvailability] = useState({
+    monday: [],
+    tuesday: [
+      { start: '10:00 AM', end: '12:00 PM' },
+      { start: '2:00 PM', end: '5:00 PM' }
+    ],
+    wednesday: [
+      { start: '7:00 PM', end: '9:00 PM' }
+    ],
+    thursday: [],
+    friday: [
+      { start: '10:00 AM', end: '12:00 PM' }
+    ],
+    saturday: [],
+    sunday: []
+  });
+
+  // Student-Teacher info - use currentUser if available
   const stInfo = {
-    name: "Alex Sanders",
+    name: currentUser?.name || "Marcus Chen",
     courseName: "AI Prompting Mastery",
-    initials: "AS",
-    avatar: "https://i.pravatar.cc/150?img=68"
+    initials: currentUser?.name ? currentUser.name.split(' ').map(n => n[0]).join('') : "MC"
   };
-  
-  // Navigation tabs
+
+  // Navigation tabs for this dashboard
   const navTabs = [
-    { id: 'overview', label: 'Overview', icon: FaChartLine },
-    { id: 'calendar', label: 'Calendar', icon: FaCalendarAlt },
-    { id: 'students', label: 'Students', icon: FaUsers, badge: 4 },
-    { id: 'earnings', label: 'Earnings', icon: FaDollarSign },
-    { id: 'messages', label: 'Messages', icon: FaComments, badge: 2 },
-    { id: 'profile', label: 'Profile', icon: FaUser }
+    { id: 'dashboard', label: 'Dashboard' },
+    { id: 'availability', label: 'Availability' },
+    { id: 'profile', label: 'Profile' }
   ];
-  
+
   // Quick stats
   const quickStats = [
-    { value: '8 sessions', sublabel: 'this week' },
-    { value: '4 students', sublabel: 'active' },
-    { value: '$2,520 earned', sublabel: 'total' },
-    { value: '1 cert ready', sublabel: 'to review' }
+    { value: 4, label: 'Students', sublabel: 'Assigned' },
+    { value: 6, label: 'Sessions', sublabel: 'This Week' },
+    { value: 24, label: 'Sessions', sublabel: 'Total' }
   ];
-  
+
+  // My Students data
+  const myStudents = [
+    { name: 'Sarah Johnson', progress: 40, nextSession: 'Dec 10, 7:00 PM' },
+    { name: 'Mike Chen', progress: 60, nextSession: 'Dec 11, 2:00 PM' },
+    { name: 'Alex Rivera', progress: 40, nextSession: 'Dec 12, 10:00 AM' },
+    { name: 'Jordan Lee', progress: 60, nextSession: null }
+  ];
+
+  // Upcoming sessions
+  const upcomingSessions = [
+    {
+      date: 'Dec 10, 7:00 PM',
+      student: 'Sarah Johnson',
+      module: 'Module 3: Advanced Patterns',
+      canJoin: true
+    },
+    {
+      date: 'Dec 11, 2:00 PM',
+      student: 'Mike Chen',
+      module: 'Module 4: Specialization',
+      canJoin: false
+    }
+  ];
+
+  // Days of the week
+  const daysOfWeek = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+  // Timezone options
+  const timezones = [
+    'America/New_York',
+    'America/Chicago',
+    'America/Denver',
+    'America/Los_Angeles',
+    'America/Phoenix',
+    'Europe/London',
+    'Europe/Paris',
+    'Asia/Tokyo',
+    'Asia/Shanghai',
+    'Australia/Sydney'
+  ];
+
+  // Get timezone abbreviation
+  const getTimezoneAbbr = (tz) => {
+    const abbrs = {
+      'America/New_York': 'EST',
+      'America/Chicago': 'CST',
+      'America/Denver': 'MST',
+      'America/Los_Angeles': 'PST',
+      'America/Phoenix': 'MST',
+      'Europe/London': 'GMT',
+      'Europe/Paris': 'CET',
+      'Asia/Tokyo': 'JST',
+      'Asia/Shanghai': 'CST',
+      'Australia/Sydney': 'AEDT'
+    };
+    return abbrs[tz] || 'UTC';
+  };
+
+  // Add time slot to a day
+  const addTimeSlot = (day) => {
+    setAvailability(prev => ({
+      ...prev,
+      [day]: [...prev[day], { start: '9:00 AM', end: '10:00 AM' }]
+    }));
+  };
+
+  // Remove time slot from a day
+  const removeTimeSlot = (day, index) => {
+    setAvailability(prev => ({
+      ...prev,
+      [day]: prev[day].filter((_, i) => i !== index)
+    }));
+  };
+
   // Colors
   const bgPrimary = isDarkMode ? '#000' : '#fff';
   const bgSecondary = isDarkMode ? '#16181c' : '#f8fafc';
@@ -52,67 +135,425 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
   const accentBlue = '#1d9bf0';
   const accentGreen = '#00ba7c';
 
-  // Helper functions
-  const getMonthName = (date) => {
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                    'July', 'August', 'September', 'October', 'November', 'December'];
-    return months[date.getMonth()];
-  };
+  // Progress bar component
+  const ProgressBar = ({ percent }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{
+        width: 80,
+        height: 8,
+        background: isDarkMode ? '#2f3336' : '#e2e8f0',
+        borderRadius: 4,
+        overflow: 'hidden'
+      }}>
+        <div style={{
+          width: `${percent}%`,
+          height: '100%',
+          background: accentBlue,
+          borderRadius: 4
+        }} />
+      </div>
+      <span style={{ fontSize: 13, color: textSecondary }}>{percent}%</span>
+    </div>
+  );
 
-  const getDaysInMonth = (date) => {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-  };
+  // Render Availability Tab
+  const renderAvailabilityTab = () => (
+    <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
+      {/* Header */}
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{
+          fontSize: 24,
+          fontWeight: 700,
+          color: textPrimary,
+          margin: 0,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8
+        }}>
+          <span style={{ fontSize: 24 }}>⚙️</span> My Availability
+        </h1>
+        <p style={{
+          fontSize: 15,
+          color: textSecondary,
+          margin: '8px 0 0 0'
+        }}>
+          Set your weekly teaching schedule
+        </p>
+      </div>
 
-  const getFirstDayOfMonth = (date) => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-  };
+      {/* Timezone Selector */}
+      <div style={{ marginBottom: 24 }}>
+        <span style={{ fontSize: 14, color: textSecondary }}>Timezone: </span>
+        <select
+          value={timezone}
+          onChange={(e) => setTimezone(e.target.value)}
+          style={{
+            padding: '8px 12px',
+            borderRadius: 8,
+            border: `1px solid ${borderColor}`,
+            background: bgSecondary,
+            color: textPrimary,
+            fontSize: 14,
+            cursor: 'pointer'
+          }}
+        >
+          {timezones.map(tz => (
+            <option key={tz} value={tz}>
+              {tz} ({getTimezoneAbbr(tz)})
+            </option>
+          ))}
+        </select>
+      </div>
 
-  const navigateMonth = (direction) => {
-    const newDate = new Date(currentMonth);
-    newDate.setMonth(newDate.getMonth() + direction);
-    setCurrentMonth(newDate);
-    setSelectedDate(null);
-  };
+      {/* Weekly Schedule */}
+      <div style={{
+        background: bgCard,
+        borderRadius: 12,
+        border: `1px solid ${borderColor}`,
+        overflow: 'hidden',
+        marginBottom: 24
+      }}>
+        {daysOfWeek.map((day, dayIndex) => (
+          <div
+            key={day}
+            style={{
+              padding: 16,
+              borderBottom: dayIndex < daysOfWeek.length - 1 ? `1px solid ${borderColor}` : 'none'
+            }}
+          >
+            {/* Day Header */}
+            <div style={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: textPrimary,
+              textTransform: 'uppercase',
+              marginBottom: 12
+            }}>
+              {day}
+            </div>
 
-  const goToToday = () => {
-    const today = new Date(2025, 11, 8); // Simulated "today"
-    setCurrentMonth(new Date(today.getFullYear(), today.getMonth(), 1));
-    setSelectedDate(today);
-  };
+            {/* Time Slots */}
+            {availability[day].map((slot, slotIndex) => (
+              <div
+                key={slotIndex}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '10px 14px',
+                  background: bgSecondary,
+                  borderRadius: 8,
+                  marginBottom: 8,
+                  border: `1px solid ${borderColor}`
+                }}
+              >
+                <span style={{ fontSize: 14, color: textPrimary }}>
+                  {slot.start} - {slot.end}
+                </span>
+                <button
+                  onClick={() => removeTimeSlot(day, slotIndex)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    padding: '6px 12px',
+                    background: 'transparent',
+                    border: `1px solid ${isDarkMode ? '#ef4444' : '#fca5a5'}`,
+                    borderRadius: 6,
+                    color: '#ef4444',
+                    fontSize: 13,
+                    cursor: 'pointer'
+                  }}
+                >
+                  <FaTimes style={{ fontSize: 10 }} />
+                  Remove
+                </button>
+              </div>
+            ))}
 
-  const handleDateClick = (day) => {
-    const clickedDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-    setSelectedDate(clickedDate);
-  };
+            {/* Add Time Slot Button */}
+            <button
+              onClick={() => addTimeSlot(day)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '8px 12px',
+                background: 'transparent',
+                border: 'none',
+                color: accentBlue,
+                fontSize: 14,
+                cursor: 'pointer',
+                fontWeight: 500
+              }}
+            >
+              <FaPlus style={{ fontSize: 12 }} />
+              Add time slot
+            </button>
+          </div>
+        ))}
+      </div>
 
-  const isToday = (day) => {
-    const today = new Date(2025, 11, 8); // Simulated "today"
-    return day === today.getDate() && 
-           currentMonth.getMonth() === today.getMonth() && 
-           currentMonth.getFullYear() === today.getFullYear();
-  };
+      {/* Save Button */}
+      <button
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          width: '100%',
+          padding: '14px 24px',
+          background: accentBlue,
+          border: 'none',
+          borderRadius: 12,
+          color: '#fff',
+          fontSize: 16,
+          fontWeight: 600,
+          cursor: 'pointer'
+        }}
+      >
+        <FaSave style={{ fontSize: 16 }} />
+        Save Availability
+      </button>
+    </div>
+  );
 
-  const isSelected = (day) => {
-    if (!selectedDate) return false;
-    return day === selectedDate.getDate() && 
-           currentMonth.getMonth() === selectedDate.getMonth() && 
-           currentMonth.getFullYear() === selectedDate.getFullYear();
-  };
+  // Render Dashboard Tab
+  const renderDashboardTab = () => (
+    <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
+      {/* Welcome Section */}
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{
+          fontSize: 24,
+          fontWeight: 700,
+          color: textPrimary,
+          margin: 0,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8
+        }}>
+          <span style={{ fontSize: 28 }}>👋</span> Welcome, {stInfo.name.split(' ')[0]}
+        </h1>
+        <p style={{
+          fontSize: 15,
+          color: textSecondary,
+          margin: '8px 0 0 0'
+        }}>
+          Student-Teacher: {stInfo.courseName}
+        </p>
+      </div>
 
-  // Build calendar grid
-  const daysInMonth = getDaysInMonth(currentMonth);
-  const firstDay = getFirstDayOfMonth(currentMonth);
-  const calendarDays = [];
-  
-  // Add empty cells for days before the first day of the month
-  for (let i = 0; i < firstDay; i++) {
-    calendarDays.push(null);
-  }
-  
-  // Add the days of the month
-  for (let day = 1; day <= daysInMonth; day++) {
-    calendarDays.push(day);
-  }
+      {/* Quick Stats */}
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{
+          fontSize: 14,
+          fontWeight: 600,
+          color: textSecondary,
+          margin: '0 0 12px 0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6
+        }}>
+          📊 QUICK STATS
+        </h2>
+        <div style={{
+          display: 'flex',
+          gap: 12
+        }}>
+          {quickStats.map((stat, index) => (
+            <div
+              key={index}
+              style={{
+                flex: 1,
+                background: bgCard,
+                borderRadius: 12,
+                padding: 16,
+                border: `1px solid ${borderColor}`,
+                textAlign: 'center'
+              }}
+            >
+              <div style={{
+                fontSize: 28,
+                fontWeight: 700,
+                color: textPrimary,
+                marginBottom: 4
+              }}>
+                {stat.value}
+              </div>
+              <div style={{ fontSize: 13, color: textSecondary }}>
+                {stat.label}
+              </div>
+              <div style={{ fontSize: 12, color: textSecondary, opacity: 0.8 }}>
+                {stat.sublabel}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* My Students */}
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{
+          fontSize: 14,
+          fontWeight: 600,
+          color: textSecondary,
+          margin: '0 0 12px 0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6
+        }}>
+          👥 MY STUDENTS
+        </h2>
+        <div style={{
+          background: bgCard,
+          borderRadius: 12,
+          border: `1px solid ${borderColor}`,
+          overflow: 'hidden'
+        }}>
+          {/* Table Header */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 120px 160px',
+            padding: '12px 16px',
+            borderBottom: `1px solid ${borderColor}`,
+            background: bgSecondary
+          }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: textSecondary }}>Student</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: textSecondary }}>Progress</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: textSecondary }}>Next Session</div>
+          </div>
+
+          {/* Table Rows */}
+          {myStudents.map((student, index) => (
+            <div
+              key={index}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 120px 160px',
+                padding: '12px 16px',
+                borderBottom: index < myStudents.length - 1 ? `1px solid ${borderColor}` : 'none',
+                alignItems: 'center'
+              }}
+            >
+              <div style={{ fontSize: 14, fontWeight: 500, color: textPrimary }}>
+                {student.name}
+              </div>
+              <ProgressBar percent={student.progress} />
+              <div style={{ fontSize: 13, color: student.nextSession ? textPrimary : textSecondary }}>
+                {student.nextSession || 'Not scheduled'}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Upcoming Sessions */}
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{
+          fontSize: 14,
+          fontWeight: 600,
+          color: textSecondary,
+          margin: '0 0 12px 0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6
+        }}>
+          📅 UPCOMING SESSIONS
+        </h2>
+        <div style={{
+          background: bgCard,
+          borderRadius: 12,
+          border: `1px solid ${borderColor}`,
+          overflow: 'hidden'
+        }}>
+          {upcomingSessions.map((session, index) => (
+            <div
+              key={index}
+              style={{
+                padding: 16,
+                borderBottom: index < upcomingSessions.length - 1 ? `1px solid ${borderColor}` : 'none'
+              }}
+            >
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginBottom: 4
+              }}>
+                <FaCalendarAlt style={{ color: accentBlue, fontSize: 14 }} />
+                <span style={{ fontSize: 14, fontWeight: 600, color: textPrimary }}>
+                  {session.date}
+                </span>
+                <span style={{ color: textSecondary }}>-</span>
+                <span style={{ fontSize: 14, color: textPrimary }}>
+                  {session.student}
+                </span>
+              </div>
+              <div style={{
+                fontSize: 13,
+                color: textSecondary,
+                marginBottom: 12,
+                marginLeft: 22
+              }}>
+                {session.module}
+              </div>
+              <button style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '10px 16px',
+                background: session.canJoin ? accentBlue : bgSecondary,
+                border: session.canJoin ? 'none' : `1px solid ${borderColor}`,
+                borderRadius: 8,
+                color: session.canJoin ? '#fff' : textSecondary,
+                fontSize: 14,
+                fontWeight: 500,
+                cursor: session.canJoin ? 'pointer' : 'default',
+                width: '100%',
+                justifyContent: 'center'
+              }}>
+                <FaVideo style={{ fontSize: 14 }} />
+                {session.canJoin ? 'Join Session' : 'Join Session (available 5 min before)'}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* My Availability */}
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{
+          fontSize: 14,
+          fontWeight: 600,
+          color: textSecondary,
+          margin: '0 0 12px 0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6
+        }}>
+          ⚙️ MY AVAILABILITY
+        </h2>
+        <button
+          onClick={() => setActiveTab('availability')}
+          style={{
+            display: 'block',
+            width: '100%',
+            padding: '16px',
+            background: bgCard,
+            border: `1px solid ${borderColor}`,
+            borderRadius: 12,
+            color: accentBlue,
+            fontSize: 14,
+            fontWeight: 500,
+            cursor: 'pointer',
+            textAlign: 'left'
+          }}
+        >
+          Edit Availability →
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div style={{
@@ -134,34 +575,27 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
         zIndex: 100
       }}>
         {/* Logo */}
-        <div style={{ 
-          fontSize: 20, 
-          fontWeight: 700, 
-          color: accentBlue,
+        <div style={{
+          fontSize: 24,
+          fontWeight: 700,
+          color: accentBlue
+        }}>
+          ∞
+        </div>
+
+        {/* Navigation Tabs */}
+        <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 8
-        }}>
-          ∞ <span style={{ color: textPrimary }}>Teaching</span>
-        </div>
-        
-        {/* Navigation Tabs */}
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 4,
+          gap: 8,
           flex: 1,
-          marginLeft: 32,
-          overflowX: 'auto'
+          marginLeft: 32
         }}>
           {navTabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
                 padding: '8px 16px',
                 background: activeTab === tab.id ? (isDarkMode ? '#2f3336' : '#e2e8f0') : 'transparent',
                 border: 'none',
@@ -170,30 +604,14 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
                 fontSize: 14,
                 fontWeight: activeTab === tab.id ? 600 : 500,
                 cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.2s',
-                position: 'relative'
+                transition: 'all 0.2s'
               }}
             >
-              <tab.icon style={{ fontSize: 14 }} />
               {tab.label}
-              {tab.badge && (
-                <span style={{
-                  background: '#ef4444',
-                  color: '#fff',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  padding: '2px 6px',
-                  borderRadius: 10,
-                  marginLeft: 4
-                }}>
-                  {tab.badge}
-                </span>
-              )}
             </button>
           ))}
         </div>
-        
+
         {/* User Dropdown */}
         <button style={{
           display: 'flex',
@@ -222,279 +640,22 @@ const StudentTeacherDashboard = ({ isDarkMode = true }) => {
           }}>
             {stInfo.initials}
           </div>
-          {stInfo.name}
+          {stInfo.name.split(' ')[0]}
           <FaChevronDown style={{ fontSize: 10, color: textSecondary }} />
         </button>
       </div>
 
-      {/* Main Content */}
-      <div style={{ padding: 24 }}>
-        {/* Page Header */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 20
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <FaCalendarAlt style={{ color: accentBlue, fontSize: 24 }} />
-            <div>
-              <h1 style={{ 
-                fontSize: 22, 
-                fontWeight: 700, 
-                color: textPrimary, 
-                margin: 0 
-              }}>
-                My Schedule
-              </h1>
-              <p style={{ 
-                fontSize: 14, 
-                color: textSecondary, 
-                margin: '4px 0 0 0' 
-              }}>
-                {stInfo.courseName}
-              </p>
-            </div>
-          </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <select style={{
-              padding: '8px 12px',
-              borderRadius: 8,
-              border: `1px solid ${borderColor}`,
-              background: bgSecondary,
-              color: textPrimary,
-              fontSize: 13,
-              cursor: 'pointer'
-            }}>
-              <option>Month</option>
-              <option>Week</option>
-            </select>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <button 
-                onClick={() => navigateMonth(-1)}
-                style={{
-                  padding: 8,
-                  border: `1px solid ${borderColor}`,
-                  borderRadius: 8,
-                  background: bgSecondary,
-                  color: textSecondary,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}
-              >
-                <FaChevronLeft style={{ fontSize: 12 }} />
-              </button>
-              <span style={{ 
-                padding: '8px 16px',
-                fontSize: 15,
-                fontWeight: 600,
-                color: textPrimary,
-                minWidth: 160,
-                textAlign: 'center'
-              }}>
-                {getMonthName(currentMonth)} {currentMonth.getFullYear()}
-              </span>
-              <button 
-                onClick={() => navigateMonth(1)}
-                style={{
-                  padding: 8,
-                  border: `1px solid ${borderColor}`,
-                  borderRadius: 8,
-                  background: bgSecondary,
-                  color: textSecondary,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}
-              >
-                <FaChevronRight style={{ fontSize: 12 }} />
-              </button>
-            </div>
-            
-            <button 
-              onClick={goToToday}
-              style={{
-                padding: '8px 16px',
-                border: `1px solid ${borderColor}`,
-                borderRadius: 8,
-                background: bgSecondary,
-                color: textPrimary,
-                fontSize: 13,
-                fontWeight: 500,
-                cursor: 'pointer'
-              }}
-            >
-              Today
-            </button>
-          </div>
+      {/* Main Content - Switch based on active tab */}
+      {activeTab === 'dashboard' && renderDashboardTab()}
+      {activeTab === 'availability' && renderAvailabilityTab()}
+      {activeTab === 'profile' && (
+        <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: textPrimary }}>
+            Profile
+          </h1>
+          <p style={{ color: textSecondary }}>Profile settings coming soon...</p>
         </div>
-
-        {/* Stats Row */}
-        <div style={{ 
-          display: 'flex', 
-          gap: 12, 
-          marginBottom: 20,
-          flexWrap: 'wrap'
-        }}>
-          {quickStats.map((stat, index) => (
-            <div 
-              key={index}
-              style={{
-                flex: '1 1 200px',
-                background: bgCard,
-                borderRadius: 12,
-                padding: '16px 20px',
-                border: `1px solid ${borderColor}`,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                cursor: stat.action ? 'pointer' : 'default'
-              }}
-            >
-              <span style={{ fontSize: 24 }}>{stat.icon}</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ 
-                  fontSize: 24, 
-                  fontWeight: 700, 
-                  color: stat.color || textPrimary 
-                }}>
-                  {stat.value}
-                </div>
-                <div style={{ fontSize: 13, color: textSecondary }}>
-                  {stat.label} <span style={{ opacity: 0.7 }}>{stat.sublabel}</span>
-                </div>
-              </div>
-              {stat.action && (
-                <span style={{ 
-                  fontSize: 13, 
-                  color: accentBlue, 
-                  fontWeight: 500 
-                }}>
-                  {stat.action}
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Calendar Grid */}
-        <div style={{
-          background: bgCard,
-          borderRadius: 12,
-          border: `1px solid ${borderColor}`,
-          overflow: 'hidden',
-          marginBottom: 20,
-          maxWidth: '50%'
-        }}>
-          {/* Day Headers */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(7, 1fr)',
-            borderBottom: `1px solid ${borderColor}`,
-            background: bgSecondary
-          }}>
-            {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => (
-              <div 
-                key={day}
-                style={{
-                  padding: '12px 8px',
-                  textAlign: 'center',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: textSecondary,
-                  letterSpacing: '0.5px'
-                }}
-              >
-                {day}
-              </div>
-            ))}
-          </div>
-          
-          {/* Calendar Days */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(7, 1fr)'
-          }}>
-            {calendarDays.map((day, index) => {
-              if (day === null) {
-                return (
-                  <div 
-                    key={`empty-${index}`}
-                    style={{
-                      minHeight: 80,
-                      borderBottom: `1px solid ${borderColor}`,
-                      borderRight: index % 7 !== 6 ? `1px solid ${borderColor}` : 'none',
-                      background: isDarkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)'
-                    }}
-                  />
-                );
-              }
-
-              const dayIsToday = isToday(day);
-              const dayIsSelected = isSelected(day);
-
-              return (
-                <div 
-                  key={day}
-                  onClick={() => handleDateClick(day)}
-                  style={{
-                    minHeight: 80,
-                    padding: 8,
-                    borderBottom: `1px solid ${borderColor}`,
-                    borderRight: index % 7 !== 6 ? `1px solid ${borderColor}` : 'none',
-                    cursor: 'pointer',
-                    background: dayIsSelected 
-                      ? (isDarkMode ? 'rgba(29, 155, 240, 0.15)' : 'rgba(29, 155, 240, 0.1)')
-                      : dayIsToday 
-                        ? (isDarkMode ? 'rgba(29, 155, 240, 0.08)' : 'rgba(29, 155, 240, 0.05)')
-                        : 'transparent',
-                    transition: 'background 0.2s',
-                    position: 'relative'
-                  }}
-                >
-                  {/* Day Number */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: 22,
-                    height: 22,
-                    borderRadius: '50%',
-                    fontSize: 12,
-                    fontWeight: dayIsToday || dayIsSelected ? 700 : 500,
-                    color: dayIsToday ? '#fff' : dayIsSelected ? accentBlue : textPrimary,
-                    background: dayIsToday ? accentBlue : 'transparent',
-                    marginBottom: 4
-                  }}>
-                    {day}
-                  </div>
-                  
-                  {/* Today Label */}
-                  {dayIsToday && (
-                    <div style={{
-                      position: 'absolute',
-                      bottom: 4,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      fontSize: 9,
-                      fontWeight: 600,
-                      color: accentBlue,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px'
-                    }}>
-                      Today
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-      </div>
+      )}
     </div>
   );
 };

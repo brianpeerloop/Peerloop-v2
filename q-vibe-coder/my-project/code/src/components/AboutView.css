@@ -1,0 +1,243 @@
+.about-view {
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+/* Hero Section */
+.about-hero {
+  text-align: center;
+  padding: 16px 0 20px;
+  border-bottom: 1px solid #e1e8ed;
+  margin-bottom: 24px;
+}
+
+.about-logo {
+  font-size: 40px;
+  color: #1d9bf0;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.about-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f1419;
+  letter-spacing: 2px;
+  margin: 0 0 8px;
+}
+
+.about-tagline {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1d9bf0;
+  margin: 0 0 4px;
+}
+
+.about-subtitle {
+  font-size: 14px;
+  color: #536471;
+  margin: 0;
+}
+
+/* Three Column Flow */
+.about-flow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 0 32px;
+  border-bottom: 1px solid #e1e8ed;
+  margin-bottom: 32px;
+}
+
+.flow-card {
+  flex: 1;
+  max-width: 160px;
+  text-align: center;
+  padding: 16px 12px;
+  background: #f7f9fa;
+  border-radius: 12px;
+}
+
+.flow-icon {
+  font-size: 32px;
+  color: #1d9bf0;
+  margin-bottom: 12px;
+}
+
+.flow-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f1419;
+  margin: 0 0 8px;
+}
+
+.flow-description {
+  font-size: 13px;
+  color: #536471;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.flow-arrow {
+  font-size: 24px;
+  color: #1d9bf0;
+  font-weight: 700;
+  padding-top: 40px;
+}
+
+/* How to Use Section */
+.about-howto {
+  padding: 0 0 32px;
+}
+
+.howto-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f1419;
+  text-align: center;
+  margin: 0 0 24px;
+  letter-spacing: 1px;
+}
+
+.howto-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.howto-step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.step-number {
+  width: 32px;
+  height: 32px;
+  background: #1d9bf0;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-content h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f1419;
+  margin: 0 0 6px;
+}
+
+.step-content p {
+  font-size: 14px;
+  color: #536471;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.step-content ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.step-content li {
+  font-size: 14px;
+  color: #536471;
+  line-height: 1.6;
+}
+
+/* Call to Action */
+.about-cta {
+  text-align: center;
+  padding-top: 16px;
+}
+
+.cta-button {
+  background: #1d9bf0;
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cta-button:hover {
+  background: #1a8cd8;
+}
+
+/* Dark Mode */
+.about-view.dark-mode {
+  background: #000;
+}
+
+.about-view.dark-mode .about-hero {
+  border-bottom-color: #2f3336;
+}
+
+.about-view.dark-mode .about-title {
+  color: #e7e9ea;
+}
+
+.about-view.dark-mode .about-subtitle {
+  color: #71767b;
+}
+
+.about-view.dark-mode .about-flow {
+  border-bottom-color: #2f3336;
+}
+
+.about-view.dark-mode .flow-card {
+  background: #16181c;
+}
+
+.about-view.dark-mode .flow-title {
+  color: #e7e9ea;
+}
+
+.about-view.dark-mode .flow-description {
+  color: #71767b;
+}
+
+.about-view.dark-mode .howto-title {
+  color: #e7e9ea;
+}
+
+.about-view.dark-mode .step-content h3 {
+  color: #e7e9ea;
+}
+
+.about-view.dark-mode .step-content p,
+.about-view.dark-mode .step-content li {
+  color: #71767b;
+}
+
+/* Responsive - stack flow cards on narrow screens */
+@media (max-width: 500px) {
+  .about-flow {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .flow-card {
+    max-width: 280px;
+    width: 100%;
+  }
+
+  .flow-arrow {
+    transform: rotate(90deg);
+    padding: 8px 0;
+  }
+}
