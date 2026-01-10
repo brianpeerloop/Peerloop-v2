@@ -683,6 +683,9 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
         onViewCourse={(course) => {
           // Push Discover to navigation history so back button returns here
           setNavigationHistory(prev => [...prev, 'Discover']);
+          // Reset enrollment flow state when viewing a new course
+          setShowEnrollmentFlow(false);
+          setEnrollingCourse(null);
           setViewingCourseFromCommunity(course);
         }}
         onViewCommunity={(instructor) => {
