@@ -67,7 +67,7 @@ const Notifications = ({ isDarkMode }) => {
       users: [
         { name: 'Marcus Chen', avatar: 'https://via.placeholder.com/32x32/FF9900/ffffff?text=MC' }
       ],
-      content: 'followed you',
+      content: 'joined your community',
       postPreview: null,
       timestamp: '3h',
       unread: true

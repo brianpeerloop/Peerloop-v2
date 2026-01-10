@@ -139,30 +139,6 @@ const CourseDetailView = ({ course, onBack, isDarkMode, followedCommunities = []
         padding: '24px 24px 0 24px',
         borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4'
       }}>
-        {/* Back button */}
-        <button
-          onClick={onBack}
-          style={{
-            background: isDarkMode ? '#000' : '#fff',
-            border: 'none',
-            color: isDarkMode ? '#e7e9ea' : '#0f1419',
-            fontSize: 18,
-            cursor: 'pointer',
-            padding: '12px 16px',
-            margin: '-24px -24px 16px -24px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            position: 'sticky',
-            top: 0,
-            zIndex: 100,
-            borderBottom: isDarkMode ? '1px solid #2f3336' : '1px solid #eff3f4',
-            width: 'calc(100% + 48px)'
-          }}
-        >
-          ← Back
-        </button>
-
         {/* Title and Actions Row */}
         <div style={{
           display: 'flex',
@@ -265,7 +241,7 @@ const CourseDetailView = ({ course, onBack, isDarkMode, followedCommunities = []
                   gap: 6
                 }}
               >
-                {isFollowing ? <><FaCheck /> Following</> : <><FaPlus /> Follow</>}
+                {isFollowing ? <><FaCheck /> Joined</> : <><FaPlus /> Join</>}
               </button>
             )}
           </div>

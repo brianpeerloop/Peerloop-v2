@@ -363,6 +363,90 @@
 
 ---
 
+### Session 10
+**Date:** December 26, 2025
+**Phase:** Building - Creator Dashboard & Role-Based Dashboards
+
+**What we did:**
+
+- **Creator Dashboard - Full Implementation:**
+  - **8 functional tabs:** Overview, Analytics, Students, Certifications, Payouts, Sessions, Content, Moderator
+  - **Draggable nav with scroll arrows:** Click and drag to scroll, arrow buttons appear when tabs overflow
+  - **Overview tab:** Welcome message, action items, key metrics (5 cards), today's sessions table, student progress snapshot, revenue breakdown
+  - **Analytics tab:** Enrollment trends bar chart, completion funnel with progress bars, drop-off alert, revenue analytics, flywheel metrics with H4/H6 badges
+  - **Students tab (Student-Teacher Management):** Pending S-T applications with full details, active S-T list (expanded/collapsed views), performance table
+  - **Certifications tab:** Pending approvals with expandable cards, completion details, S-T notes, approve/decline/request info buttons, recently approved list
+  - **Sessions, Content, Moderator:** Placeholder pages ready for wireframes
+
+- **Student-Teacher Dashboard:**
+  - Rebuilt with Dashboard and Availability tabs
+  - Dashboard: Welcome, quick stats, my students table, upcoming sessions
+  - Availability: Weekly schedule editor, timezone selector, add/remove time slots
+
+- **New User Reset:**
+  - New users reset courses and communities on each login
+  - localStorage cleared for `purchasedCourses` and `followedCommunities` when `isNewUser` flag set
+
+- **Navigation Improvements:**
+  - Removed Settings from nav (moved to profile dropdown)
+  - Smaller tab buttons (13px font) to fit more tabs
+  - Horizontal scroll with hidden scrollbar
+  - Left/right arrow buttons appear when tabs are cut off
+  - Mouse drag scrolling with grab cursor
+
+**Commits:**
+- d64a7fd: Add Creator Dashboard with full tab navigation and Analytics
+
+**Technical notes:**
+- CreatorDashboard.js: ~2100 lines with all tab render functions
+- Uses useRef + useState for drag scroll state
+- `canScrollLeft`/`canScrollRight` state for arrow visibility
+- `scrollNav()` function for smooth arrow-click scrolling
+
+**Next session:**
+- Build out Sessions Calendar tab with actual calendar
+- Build Course Content Editor
+- Build Moderator tools (reports, content review)
+- Add Payouts tab functionality
+
+---
+
+### Session 11
+**Date:** January 9, 2026
+**Phase:** Building - UI Refinements & Navigation
+
+**What we did:**
+
+- **Removed Courses menu from sidebar:**
+  - Commented out the "Courses" item from primaryItems array in Sidebar.js
+  - Functionality preserved in code (can still access via Discover or programmatically)
+  - Menu now shows: Feeds, Discover (primary) | My Courses, Notifications, Dashboard, Messages, Profile (personal)
+
+- **Added Pill Filters to Discover:**
+  - Horizontally scrollable row of filter pills under search bar
+  - Filters: All, Live, Self-Paced, Free, Beginner, Advanced, Popular, New, Top Rated
+  - "All" selected by default (purple highlight)
+  - Pills scroll horizontally on smaller screens (hidden scrollbar)
+  - Filter logic wired to course data properties
+  - Search results text shows active filter when not "All"
+
+**Files modified:**
+- Sidebar.js (removed Courses menu item)
+- DiscoverView.js (added pill filters with state, filtering logic, UI)
+
+**Technical notes:**
+- `activeFilter` state tracks selected pill
+- `filterCourse()` function applies filter based on course properties
+- `searchResults` useMemo updated to apply both search query AND active filter
+- Pill row uses `overflowX: auto` with `scrollbarWidth: none` for clean scroll
+
+**Next session:**
+- Wire up real filter data (currently some filters use mock logic)
+- Consider adding filter counts/badges
+- Continue feature development
+
+---
+
 <!-- Add more sessions as needed -->
 
 ---

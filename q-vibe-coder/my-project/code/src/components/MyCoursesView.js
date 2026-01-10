@@ -16,7 +16,7 @@ const MyCoursesView = ({
   indexedCourses,
   onViewCourse
 }) => {
-  const [activeTab, setActiveTab] = useState('all'); // 'all' or 'completed'
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'inprogress', or 'completed'
   const [searchQuery, setSearchQuery] = useState('');
 
   // Get full course data for purchased courses
@@ -38,18 +38,25 @@ const MyCoursesView = ({
     };
   }).filter(Boolean);
 
+  // Separate in-progress and completed (before search filter for counts)
+  const allInProgressCourses = myCoursesData.filter(c => c.progress < 100);
+  const allCompletedCourses = myCoursesData.filter(c => c.progress === 100);
+
   // Filter courses based on tab and search
   const filteredCourses = myCoursesData.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          course.description?.toLowerCase().includes(searchQuery.toLowerCase());
 
+    if (activeTab === 'inprogress') {
+      return matchesSearch && course.progress < 100;
+    }
     if (activeTab === 'completed') {
       return matchesSearch && course.progress === 100;
     }
     return matchesSearch;
   });
 
-  // Separate in-progress and completed
+  // Separate in-progress and completed for display
   const inProgressCourses = filteredCourses.filter(c => c.progress < 100);
   const completedCourses = filteredCourses.filter(c => c.progress === 100);
 
@@ -319,7 +326,7 @@ const MyCoursesView = ({
           </div>
         </div>
 
-        {/* Right Column - About the Creator */}
+        {/* Right Column - About the Community */}
         <div
           className="course-card-creator-sidebar"
           style={{
@@ -340,7 +347,7 @@ const MyCoursesView = ({
             textTransform: 'uppercase',
             letterSpacing: '0.5px'
           }}>
-            About the Creator
+            About the Community
           </h4>
 
           {/* Bio Quote */}
@@ -503,7 +510,7 @@ const MyCoursesView = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 16,
+              gap: 8,
               flex: '0 0 auto'
             }}>
               <button
@@ -532,8 +539,35 @@ const MyCoursesView = ({
                   whiteSpace: 'nowrap'
                 }}
               >
-                <FaBook style={{ fontSize: 16, flexShrink: 0 }} />
-                <span>My Courses</span>
+                <span>All Courses ({myCoursesData.length})</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('inprogress')}
+                style={{
+                  flex: '0 0 auto',
+                  padding: '16px 12px',
+                  border: 'none',
+                  background: 'transparent',
+                  color: activeTab === 'inprogress'
+                    ? (isDarkMode ? '#e7e9ea' : '#0f1419')
+                    : (isDarkMode ? '#71767b' : '#536471'),
+                  fontWeight: activeTab === 'inprogress' ? 700 : 500,
+                  fontSize: 14,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  position: 'relative',
+                  borderBottom: activeTab === 'inprogress'
+                    ? '4px solid #1d9bf0'
+                    : '4px solid transparent',
+                  marginBottom: -1,
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <span>In Progress ({allInProgressCourses.length})</span>
               </button>
               <button
                 onClick={() => setActiveTab('completed')}
@@ -561,8 +595,7 @@ const MyCoursesView = ({
                   whiteSpace: 'nowrap'
                 }}
               >
-                <FaCheckCircle style={{ fontSize: 16, flexShrink: 0 }} />
-                <span>Completed</span>
+                <span>Completed ({allCompletedCourses.length})</span>
               </button>
             </div>
 
@@ -606,6 +639,21 @@ const MyCoursesView = ({
                     <>
                       {completedCourses.map(course => renderCourseCard(course))}
                     </>
+                  )}
+                </>
+              ) : activeTab === 'inprogress' ? (
+                <>
+                  {inProgressCourses.length > 0 ? (
+                    inProgressCourses.map(course => renderCourseCard(course))
+                  ) : (
+                    <div style={{
+                      padding: '40px 20px',
+                      textAlign: 'center',
+                      color: isDarkMode ? '#9ca3af' : '#6b7280'
+                    }}>
+                      <FaPlay style={{ fontSize: 48, marginBottom: 16, opacity: 0.5 }} />
+                      <p>No courses in progress. Start a new course!</p>
+                    </div>
                   )}
                 </>
               ) : (

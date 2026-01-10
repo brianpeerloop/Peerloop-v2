@@ -63,7 +63,7 @@ const TownHallCard = ({ isDarkMode = false }) => {
             marginTop: 4,
             lineHeight: 1.3
           }}>
-            Welcome to the Town Hall — the open forum where all community members come together. Share ideas, ask questions, and connect with fellow learners across all courses and creators.
+            Welcome to the Town Hall — the open forum where all community members come together. Share ideas, ask questions, and connect with fellow learners across all courses and communities.
           </div>
         </div>
       </div>

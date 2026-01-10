@@ -59,11 +59,6 @@ const PurchasedCourseDetail = ({
   return (
     <div className={`purchased-course-detail ${isDarkMode ? 'dark' : 'light'}`}>
       <div className="pcd-container">
-        {/* Back Link */}
-        <button className="pcd-back-link" onClick={onBack}>
-          <FaArrowLeft /> Back to My Courses
-        </button>
-
         {/* Creator Profile Card */}
         {instructor && (
           <div className="pcd-creator-card">
@@ -97,7 +92,7 @@ const PurchasedCourseDetail = ({
                 className={`pcd-follow-btn ${isFollowing ? 'following' : ''}`}
                 onClick={() => onFollowCreator && onFollowCreator(instructor.id)}
               >
-                {isFollowing ? '✓ Following' : 'Follow'}
+                {isFollowing ? '✓ Joined' : 'Join'}
               </button>
               <button
                 className="pcd-btn-secondary"
@@ -138,7 +133,7 @@ const PurchasedCourseDetail = ({
               </div>
               <div className="pcd-session-detail">
                 <FaUser />
-                With: {instructor?.name} (Creator)
+                With: {instructor?.name} (Community Lead)
               </div>
             </div>
             <div className="pcd-session-actions">

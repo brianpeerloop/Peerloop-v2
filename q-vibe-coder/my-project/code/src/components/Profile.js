@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import './Profile.css';
-import { 
-  FaUserEdit, 
-  FaBookmark, 
-  FaHistory, 
-  FaCog, 
-  FaShieldAlt, 
-  FaQuestionCircle, 
+import {
+  FaUserEdit,
+  FaBookmark,
+  FaHistory,
+  FaCog,
+  FaShieldAlt,
+  FaQuestionCircle,
   FaSignOutAlt,
   FaCamera,
   FaEdit,
@@ -16,10 +16,12 @@ import {
   FaTrophy,
   FaCalendar,
   FaClock,
-  FaStar
+  FaStar,
+  FaMoon,
+  FaSun
 } from 'react-icons/fa';
 
-const Profile = ({ currentUser, onSwitchUser, onMenuChange }) => {
+const Profile = ({ currentUser, onSwitchUser, onMenuChange, isDarkMode, toggleDarkMode }) => {
   const [activeSection, setActiveSection] = useState('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -303,12 +305,33 @@ const Profile = ({ currentUser, onSwitchUser, onMenuChange }) => {
             <input type="checkbox" />
           </div>
         </div>
-        
+
         <div className="setting-group">
           <h3>Display</h3>
-          <div className="setting-item">
-            <span>Dark mode</span>
-            <input type="checkbox" defaultChecked />
+          <div className="setting-item theme-toggle-item">
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {isDarkMode ? <FaMoon style={{ color: '#1d9bf0' }} /> : <FaSun style={{ color: '#f59e0b' }} />}
+              {isDarkMode ? 'Dark Mode' : 'Light Mode'}
+            </span>
+            <button
+              onClick={toggleDarkMode}
+              style={{
+                background: isDarkMode ? '#1d9bf0' : '#e2e8f0',
+                color: isDarkMode ? '#fff' : '#0f1419',
+                border: 'none',
+                borderRadius: '20px',
+                padding: '8px 16px',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              {isDarkMode ? <FaSun /> : <FaMoon />}
+              Switch to {isDarkMode ? 'Light' : 'Dark'}
+            </button>
           </div>
           <div className="setting-item">
             <span>Show progress bars</span>

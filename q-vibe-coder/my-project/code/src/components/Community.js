@@ -1007,7 +1007,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                     marginTop: 4,
                     lineHeight: 1.3
                   }}>
-                    Welcome to the Town Hall — the open forum where all community members come together. Share ideas, ask questions, and connect with fellow learners across all courses and creators.
+                    Welcome to the Town Hall — the open forum where all community members come together. Share ideas, ask questions, and connect with fellow learners across all courses and communities.
                   </div>
                 </div>
               </div>
@@ -1320,7 +1320,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                         }
                         setOpenCreatorDropdown(null);
                       }}
-                      title={`${creator.name} - ${creator.followedCourseIds.length} course(s) followed`}
+                      title={`${creator.name} - ${creator.followedCourseIds.length} course(s) joined`}
                     >
                       <span>{creator.name.length > 15 ? creator.name.substring(0, 13) + '...' : creator.name}</span>
                       <span 
@@ -1392,7 +1392,7 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                           onMouseEnter={(e) => e.currentTarget.style.background = isDarkMode ? '#2f3336' : '#f8fafc'}
                           onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                         >
-                          Unfollow Creator
+                          Leave Community
                         </div>
                       </div>,
                       document.body
@@ -1755,12 +1755,12 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                     </div>
                     {communityMode === 'creators' && selectedCreatorId && !groupedByCreator.find(c => c.id === selectedCreatorId) ? (
                       <>
-                        <h2>Not Following {pendingCreatorName || 'This Creator'}</h2>
+                        <h2>Not Joined {pendingCreatorName || 'This Community'}</h2>
                         <p>
-                          You haven't followed any courses from {pendingCreatorName || 'this creator'} yet.
+                          You haven't joined any courses from {pendingCreatorName || 'this community'} yet.
                         </p>
                         <p style={{ marginTop: 8, color: '#1d9bf0' }}>
-                          Go to <strong>Browse → Creators</strong> to follow their courses!
+                          Go to <strong>Browse → Communities</strong> to join their courses!
                         </p>
                       </>
                     ) : (
@@ -1782,8 +1782,8 @@ const Community = ({ followedCommunities = [], setFollowedCommunities = null, is
                   <FaUsers />
                 </div>
                 <h2>Welcome to My Community</h2>
-                <p>Follow courses from <strong>Browse → Courses</strong> or <strong>Creators</strong> to see their community posts here.</p>
-                <p className="empty-state-hint">Communities you follow will appear as tabs above ↑</p>
+                <p>Join courses from <strong>Browse → Courses</strong> or <strong>Communities</strong> to see their community posts here.</p>
+                <p className="empty-state-hint">Communities you join will appear as tabs above ↑</p>
               </div>
             )}
           </div>

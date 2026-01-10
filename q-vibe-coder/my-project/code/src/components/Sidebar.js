@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import './Sidebar.css';
-import {  FaSearch,  FaBell,  FaEnvelope,  FaUser,  FaMoon,  FaSun,  FaUsers,  FaChalkboardTeacher,  FaBook} from 'react-icons/fa';
+import {  FaSearch,  FaBell,  FaEnvelope,  FaUser,  FaUsers,  FaChalkboardTeacher,  FaBook,  FaInfoCircle} from 'react-icons/fa';
 import useDeviceDetect from '../hooks/useDeviceDetect';
 
 /**
@@ -14,7 +14,7 @@ import useDeviceDetect from '../hooks/useDeviceDetect';
  * @param {Function} onMenuChange - Callback function to handle menu item clicks
  * @param {string} activeMenu - The currently active menu item
  */
-const Sidebar = ({ onMenuChange, activeMenu, isDarkMode, toggleDarkMode }) => {
+const Sidebar = ({ onMenuChange, activeMenu }) => {
   // Track which tooltip is visible (by index)
   const [visibleTooltip, setVisibleTooltip] = useState(null);
   const timerRef = useRef(null);
@@ -53,18 +53,31 @@ const Sidebar = ({ onMenuChange, activeMenu, isDarkMode, toggleDarkMode }) => {
   };
 
   /**
-   * Main navigation menu items
-   * Each item has an icon, label (for internal logic), and optional displayLabel (for UI)
+   * Primary menu items (top section)
    */
-  const menuItems = [
-    { icon: <FaSearch />, label: 'Browse', displayLabel: 'Browse' }, // Browse courses and instructors
+  const primaryItems = [
+    { icon: <FaUsers />, label: 'Feeds', displayLabel: 'Feeds' }, // Feeds (was My Communities)
+    { icon: <FaSearch />, label: 'Discover', displayLabel: 'Discover' }, // Discover (unified search for communities & courses)
+    // Courses menu item removed - functionality still available via Discover
+    // { icon: <FaBook />, label: 'Courses', displayLabel: 'Courses' }, // Browse courses
+  ];
+
+  /**
+   * Personal menu items (middle section)
+   */
+  const personalItems = [
     { icon: <FaBook />, label: 'My Courses', displayLabel: 'My Courses' }, // User's enrolled courses
-    { icon: <FaUsers />, label: 'My Community', displayLabel: 'My Communities' }, // Community features
     { icon: <FaBell />, label: 'Notifications', displayLabel: 'Notifications' }, // Notification center
-    { icon: <FaChalkboardTeacher />, label: 'Teaching', displayLabel: 'Dashboard' }, // Student-Teacher dashboard
+    { icon: <FaChalkboardTeacher />, label: 'Dashboard', displayLabel: 'Dashboard' }, // User dashboard (varies by role)
     { icon: <FaEnvelope />, label: 'Messages', displayLabel: 'Messages' }, // Messaging system
     { icon: <FaUser />, label: 'Profile', displayLabel: 'Profile' }, // User profile
-    { icon: isDarkMode ? <FaSun /> : <FaMoon />, label: 'ToggleTheme', displayLabel: isDarkMode ? 'Light Mode' : 'Dark Mode' }, // Theme toggle
+  ];
+
+  /**
+   * Footer menu items (bottom section)
+   */
+  const footerItems = [
+    { icon: <FaInfoCircle />, label: 'About', displayLabel: 'How It Works' }, // How PeerLoop works
   ];
 
 
@@ -73,14 +86,14 @@ const Sidebar = ({ onMenuChange, activeMenu, isDarkMode, toggleDarkMode }) => {
    * @param {string} label - The label of the clicked menu item
    */
   const handleMenuClick = (label) => {
-    if (label === 'ToggleTheme') {
-      // Handle theme toggle
-      if (toggleDarkMode) {
-        toggleDarkMode();
-      }
-    } else if (label === 'Browse' && activeMenu === 'Browse') {
-      // If already on Browse page, pass a special signal to reset the view
-      onMenuChange('Browse_Reset');
+    if (label === 'About') {
+      onMenuChange('About');
+    } else if (label === 'Courses') {
+      onMenuChange('Browse_Courses');
+    } else if (label === 'Discover') {
+      onMenuChange('Discover');
+    } else if (label === 'Feeds') {
+      onMenuChange('My Community'); // Feeds maps to existing My Community view
     } else {
       onMenuChange(label);
     }
@@ -119,20 +132,66 @@ const Sidebar = ({ onMenuChange, activeMenu, isDarkMode, toggleDarkMode }) => {
       
       {/* Main navigation menu */}
       <nav className="sidebar-nav">
-        {menuItems.map((item, index) => (
-          <div 
-            key={index} 
+        {/* Primary items - Feeds, Discover */}
+        {primaryItems.map((item, index) => {
+          const isActive =
+            (item.label === 'Feeds' && activeMenu === 'My Community') ||
+            (item.label === 'Discover' && activeMenu === 'Discover');
+          return (
+            <div
+              key={index}
+              className={`nav-item ${isActive ? 'active' : ''}`}
+              onClick={() => {
+                showTooltipTemporarily(index);
+                handleMenuClick(item.label);
+              }}
+            >
+              <div className="nav-icon">{item.icon}</div>
+              <span className="nav-label">{item.displayLabel || item.label}</span>
+              <span className={`nav-tooltip ${visibleTooltip === index ? 'tooltip-visible' : ''}`}>
+                {item.displayLabel || item.label}
+              </span>
+            </div>
+          );
+        })}
+
+        {/* Divider */}
+        <div className="nav-section-divider"></div>
+
+        {/* Personal items - My Courses, Notifications, Dashboard, Messages, Profile */}
+        {personalItems.map((item, index) => (
+          <div
+            key={index + primaryItems.length}
             className={`nav-item ${activeMenu === item.label ? 'active' : ''}`}
             onClick={() => {
-              showTooltipTemporarily(index);
+              showTooltipTemporarily(index + primaryItems.length);
               handleMenuClick(item.label);
             }}
           >
             <div className="nav-icon">{item.icon}</div>
-            {/* Use displayLabel if available, otherwise use label */}
             <span className="nav-label">{item.displayLabel || item.label}</span>
-            {/* Tooltip for collapsed sidebar - shown on click for 5 seconds */}
-            <span className={`nav-tooltip ${visibleTooltip === index ? 'tooltip-visible' : ''}`}>
+            <span className={`nav-tooltip ${visibleTooltip === index + primaryItems.length ? 'tooltip-visible' : ''}`}>
+              {item.displayLabel || item.label}
+            </span>
+          </div>
+        ))}
+
+        {/* Divider */}
+        <div className="nav-section-divider"></div>
+
+        {/* Footer items - How It Works */}
+        {footerItems.map((item, index) => (
+          <div
+            key={index + primaryItems.length + personalItems.length}
+            className={`nav-item ${activeMenu === 'About' ? 'active' : ''}`}
+            onClick={() => {
+              showTooltipTemporarily(index + primaryItems.length + personalItems.length);
+              handleMenuClick(item.label);
+            }}
+          >
+            <div className="nav-icon">{item.icon}</div>
+            <span className="nav-label">{item.displayLabel || item.label}</span>
+            <span className={`nav-tooltip ${visibleTooltip === index + primaryItems.length + personalItems.length ? 'tooltip-visible' : ''}`}>
               {item.displayLabel || item.label}
             </span>
           </div>
@@ -144,14 +203,7 @@ const Sidebar = ({ onMenuChange, activeMenu, isDarkMode, toggleDarkMode }) => {
 
 Sidebar.propTypes = {
   onMenuChange: PropTypes.func.isRequired,
-  activeMenu: PropTypes.string.isRequired,
-  isDarkMode: PropTypes.bool,
-  toggleDarkMode: PropTypes.func
-};
-
-Sidebar.defaultProps = {
-  isDarkMode: false,
-  toggleDarkMode: () => {}
+  activeMenu: PropTypes.string.isRequired
 };
 
 export default Sidebar; 

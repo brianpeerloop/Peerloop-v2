@@ -288,24 +288,20 @@ function App() {
             device={device}
           />
         ) : (
-          <Sidebar 
-            onMenuChange={handleMenuChange} 
-            activeMenu={activeMenu} 
-            currentUser={currentUser}
-            isDarkMode={isDarkMode}
-            toggleDarkMode={toggleDarkMode}
-            device={device}
-            onLogout={handleLogout}
+          <Sidebar
+            onMenuChange={handleMenuChange}
+            activeMenu={activeMenu}
           />
         )}
         
         {/* Main Content Area - Displays different content based on active menu */}
-        <MainContent 
-          activeMenu={activeMenu} 
-          currentUser={currentUser} 
+        <MainContent
+          activeMenu={activeMenu}
+          currentUser={currentUser}
           onSwitchUser={toggleUser}
           onMenuChange={handleMenuChange}
           isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
           device={device}
         />
 

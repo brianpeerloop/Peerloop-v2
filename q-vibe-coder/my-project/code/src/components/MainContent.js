@@ -28,6 +28,7 @@ import StudentDashboard from './StudentDashboard';
 import EnrollmentFlow from './EnrollmentFlow';
 import Notifications from './Notifications';
 import AboutView from './AboutView';
+import DiscoverView from './DiscoverView';
 import { getAllInstructors, getInstructorWithCourses, getCourseById, getAllCourses, getInstructorById, getIndexedCourses, getIndexedInstructors } from '../data/database';
 import { UserPropType } from './PropTypes';
 
@@ -445,6 +446,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
     }, [activeMenu]);
 
     // Handle Browse_Courses and Browse_Communities from sidebar navigation
+    // Don't reset selectedInstructor if coming from Discover with a specific instructor
     React.useEffect(() => {
       if (activeMenu === 'Browse_Courses') {
         setSelectedInstructor(null);
@@ -452,12 +454,15 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
         setActiveTopMenu('courses');
         setSearchQuery('');
       } else if (activeMenu === 'Browse_Communities') {
-        setSelectedInstructor(null);
-        setSelectedCourse(null);
+        // Only reset if NOT coming from Discover with a specific instructor
+        if (previousBrowseContext?.type !== 'discover') {
+          setSelectedInstructor(null);
+          setSelectedCourse(null);
+        }
         setActiveTopMenu('creators');
         setSearchQuery('');
       }
-    }, [activeMenu]);
+    }, [activeMenu, previousBrowseContext]);
 
     // Reset when Browse is clicked again while already on Browse page (double-click)
     React.useEffect(() => {
@@ -658,6 +663,37 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
     );
   }
 
+  // Show Discover when Discover is active - unified search for communities & courses
+  // Skip if viewing a course (viewingCourseFromCommunity takes precedence)
+  if (activeMenu === 'Discover' && !viewingCourseFromCommunity) {
+    return (
+      <DiscoverView
+        isDarkMode={isDarkMode}
+        currentUser={currentUser}
+        onMenuChange={onMenuChange}
+        indexedCourses={indexedCourses}
+        indexedInstructors={indexedInstructors}
+        followedCommunities={followedCommunities}
+        setFollowedCommunities={setFollowedCommunities}
+        isCoursePurchased={isCoursePurchased}
+        isCreatorFollowed={isCreatorFollowed}
+        handleFollowInstructor={handleFollowInstructor}
+        onViewCourse={(course) => {
+          // Push Discover to navigation history so back button returns here
+          setNavigationHistory(prev => [...prev, 'Discover']);
+          setViewingCourseFromCommunity(course);
+        }}
+        onViewCommunity={(instructor) => {
+          const fullData = getInstructorWithCourses(instructor.id);
+          setSelectedInstructor(fullData || instructor);
+          setActiveTopMenu('creators');
+          setPreviousBrowseContext({ type: 'discover' }); // Track that we came from Discover
+          onMenuChange('Browse_Communities');
+        }}
+      />
+    );
+  }
+
   // Show Browse when Browse is active - now using BrowseView component
   if (activeMenu === 'Browse' || activeMenu === 'Browse_Reset' || activeMenu === 'Browse_Courses' || activeMenu === 'Browse_Communities') {
     return (
@@ -707,10 +743,54 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
   if (viewingCourseFromCommunity) {
     // Check if the course is purchased - show PurchasedCourseDetail instead
     const isPurchased = isCoursePurchased(viewingCourseFromCommunity?.id);
+    const previousPage = navigationHistory[navigationHistory.length - 1] || 'Discover';
+    const backLabel = previousPage === 'Discover' ? 'Back to Discover' : previousPage === 'My Courses' ? 'Back to My Courses' : 'Back';
+
+    // Consistent header wrapper for course detail views
+    const CourseDetailWrapper = ({ children }) => (
+      <div className="main-content" style={{ background: isDarkMode ? '#000' : '#f8fafc', minHeight: '100vh' }}>
+        {/* Header with Back Button */}
+        <div style={{
+          padding: '16px 20px',
+          borderBottom: isDarkMode ? '1px solid #27272a' : '1px solid #e5e7eb',
+          background: isDarkMode ? '#0a0a0a' : '#fff'
+        }}>
+          <button
+            onClick={handleBackFromCourse}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              background: isDarkMode ? '#1a1a24' : '#f3f4f6',
+              border: isDarkMode ? '1px solid #3f3f46' : '1px solid #d1d5db',
+              borderRadius: 8,
+              padding: '10px 16px',
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontSize: 15,
+              color: isDarkMode ? '#f5f5f7' : '#374151',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = isDarkMode ? '#27272a' : '#e5e7eb';
+              e.currentTarget.style.borderColor = '#6366f1';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = isDarkMode ? '#1a1a24' : '#f3f4f6';
+              e.currentTarget.style.borderColor = isDarkMode ? '#3f3f46' : '#d1d5db';
+            }}
+          >
+            <span style={{ fontSize: 18 }}>←</span>
+            {backLabel}
+          </button>
+        </div>
+        {children}
+      </div>
+    );
 
     if (isPurchased) {
       return (
-        <div className="main-content">
+        <CourseDetailWrapper>
           <PurchasedCourseDetail
             course={viewingCourseFromCommunity}
             onBack={handleBackFromCourse}
@@ -737,12 +817,12 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
               onMenuChange('My Community');
             }}
           />
-        </div>
+        </CourseDetailWrapper>
       );
     }
 
     return (
-      <div className="main-content">
+      <CourseDetailWrapper>
         <CourseDetailView
           course={viewingCourseFromCommunity}
           onBack={handleBackFromCourse}
@@ -756,7 +836,7 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
             setShowEnrollmentFlow(true);
           }}
         />
-      </div>
+      </CourseDetailWrapper>
     );
   }
 
