@@ -823,6 +823,30 @@ const MainContent = ({ activeMenu, currentUser, onSwitchUser, onMenuChange, isDa
       );
     }
 
+    // Show EnrollmentFlow modal when active
+    if (showEnrollmentFlow && enrollingCourse) {
+      return (
+        <CourseDetailWrapper>
+          <EnrollmentFlow
+            course={enrollingCourse}
+            instructor={getInstructorById(enrollingCourse.instructorId)}
+            isDarkMode={isDarkMode}
+            onClose={() => {
+              setShowEnrollmentFlow(false);
+              setEnrollingCourse(null);
+            }}
+            onComplete={(booking) => {
+              console.log('Booking complete:', booking);
+              handleCoursePurchase(enrollingCourse.id);
+              setShowEnrollmentFlow(false);
+              setEnrollingCourse(null);
+              onMenuChange('Dashboard');
+            }}
+          />
+        </CourseDetailWrapper>
+      );
+    }
+
     return (
       <CourseDetailWrapper>
         <CourseDetailView
